@@ -57,6 +57,7 @@ $route['translate_uri_dashes'] = FALSE;
 $route['login'] = 'auth';
 $route['register'] = 'auth/register';
 $route['logout'] = 'auth/logout';
+$route['portal'] = 'portal/index';
 
 $route['operan'] = 'operan/index';
 $route['operan/create'] = 'operan/create';

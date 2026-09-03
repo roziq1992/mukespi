@@ -39,7 +39,7 @@ class Auth extends CI_Controller
                 redirect($this->redirect_map[$tujuan_existing]);
                 return;
             }
-            redirect('dashboard');
+            redirect('portal');
         }
 
         $this->form_validation->set_rules('email', 'Email', 'trim|required');
@@ -91,12 +91,8 @@ class Auth extends CI_Controller
                     return;
                 }
 
-                // --- Kalau tidak ada tujuan khusus, pakai logika lama ---
-                if ($email == 'admin@mail.com') {
-                    redirect('dashboard');
-                } else {
-                    redirect('list_indikator');
-                }
+                // Semua login normal masuk ke portal layanan.
+                redirect('portal');
             } else {
                 $this->session->set_flashdata('message', '<div class="alert alert-danger" 
                     role="alert"> Wrong password </div>');
