@@ -79,6 +79,8 @@ class Surat extends CI_Controller
     {
         $surat = $this->Surat_model->get($id); if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id'); $allowed = $role !== 'user' || (int) $surat->id_pemohon === $uid || $this->db->where('id_surat', $id)->where('ke_user', $uid)->count_all_results('surat_disposisi') > 0; if (!$allowed) show_error('Anda tidak memiliki akses ke surat ini.', 403);
+        $pemohon = $this->db->select('name')->where('id', $surat->id_pemohon)->get('users')->row();
+        $surat->pemohon = $pemohon ? $pemohon->name : '-';
         $data = array('title' => 'Tracking Surat', 'surat' => $surat, 'lampiran' => $this->Surat_lampiran_model->by_surat($id), 'logs' => $this->Surat_log_model->by_surat($id), 'disposisi' => $this->Surat_disposisi_model->by_surat($id), 'role' => $role);
         $this->load->view('template/header', $data); $this->load->view('surat/detail', $data); $this->load->view('template/footer');
     }
