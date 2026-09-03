@@ -1,0 +1,1 @@
+<div class="container-fluid"><h1 class="h3 mb-3 text-gray-800">Antrian Direktur <span class="badge badge-warning"><?php echo $pending; ?> pending</span></h1><div class="card shadow mb-4"><div class="card-body"><?php $this->load->view('surat/_list', array('surat' => $surat, 'filters' => $filters, 'action' => 'surat_direktur/proses')); ?></div></div></div>

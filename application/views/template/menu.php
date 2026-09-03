@@ -109,6 +109,31 @@
     }
 </style>
 
+<!-- ================= MANAJEMEN SURAT ================= -->
+<?php $surat_role = (int) $this->session->userdata('role_id'); ?>
+<?php $ci = get_instance(); $ci->load->model('Surat_model'); $surat_pending = $ci->Surat_model->pending_count($surat_role === 1 ? 'admin' : ($surat_role === 5 ? 'sekretaris' : ($surat_role === 4 ? 'direktur' : 'user')), $ci->session->userdata('id')); ?>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSurat" aria-expanded="false" title="Manajemen Surat Internal & Eksternal">
+        <i class="nav-icon-badge icon-dokumen fas fa-envelope"></i><span>Surat</span><?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?>
+    </a>
+    <div id="collapseSurat" class="collapse" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <?php if ($surat_role === 1): ?>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat"><i class="fas fa-tasks"></i>Kelola Semua Surat</a>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Buat Pengajuan Surat</a>
+            <?php elseif ($surat_role === 5): ?>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat_masuk"><i class="fas fa-inbox"></i>Surat Masuk Sekretaris <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Buat Pengajuan Surat</a>
+            <?php elseif ($surat_role === 4): ?>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat_direktur"><i class="fas fa-signature"></i>TTD & Disposisi <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
+            <?php else: ?>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat"><i class="fas fa-envelope-open-text"></i>Surat Saya <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Pengajuan Baru</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</li>
+
 <!-- Heading -->
 <!--<div class="sidebar-heading">-->
 <!--	FORM ENTRY-->

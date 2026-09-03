@@ -65,3 +65,21 @@ $route['operan/edit/(:num)'] = 'operan/update/$1';
 $route['operan/delete/(:num)'] = 'operan/delete/$1';
 $route['operan/detail/(:num)'] = 'operan/read/$1';
 $route['operan/dashboard'] = 'operan/dashboard';
+
+// Manajemen Surat Internal & Eksternal
+$route['surat'] = 'surat/index';
+$route['surat/create'] = 'surat/create';
+$route['surat/store'] = 'surat/store';
+$route['surat/detail/(:num)'] = 'surat/detail/$1';
+$route['surat/download/(:num)/(:any)'] = 'surat/download/$1/$2';
+$route['surat/lampiran/(:num)'] = 'surat/download_lampiran/$1';
+$route['surat/hapus/(:num)'] = 'surat/hapus/$1';
+$route['surat/disposisi/selesai/(:num)'] = 'surat/selesai_disposisi/$1';
+$route['surat_sekretaris'] = 'surat_sekretaris/index';
+$route['surat_masuk'] = 'surat_sekretaris/index';
+$route['surat_sekretaris/proses/(:num)'] = 'surat_sekretaris/proses/$1';
+$route['surat_sekretaris/simpan/(:num)'] = 'surat_sekretaris/simpan/$1';
+$route['surat_direktur'] = 'surat_direktur/index';
+$route['surat_direktur/proses/(:num)'] = 'surat_direktur/proses/$1';
+$route['surat_direktur/simpan/(:num)'] = 'surat_direktur/simpan/$1';
+$route['surat_direktur/selesai_disposisi/(:num)'] = 'surat_direktur/selesai_disposisi/$1';
