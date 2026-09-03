@@ -1,0 +1,17 @@
+# Local configuration and secrets
+application/config/database.php
+
+# Runtime and uploaded files
+application/cache/*
+!application/cache/index.html
+application/logs/*
+!application/logs/index.html
+uploads/*
+
+# Local archives and macOS metadata
+Archive.zip
+__MACOSX/
+
+# Generated/runtime logs
+error_log
+sertifikat/error_log
