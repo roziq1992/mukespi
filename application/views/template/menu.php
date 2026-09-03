@@ -109,6 +109,14 @@
     }
 </style>
 
+<!-- ================= PORTAL SISTEM ================= -->
+<li class="nav-item">
+    <a class="nav-link" href="<?=base_url();?>index.php/portal" title="Portal Sistem RS Airlangga" data-tooltip="true" data-placement="right">
+        <i class="nav-icon-badge icon-monitoring fas fa-th-large"></i>
+        <span>Portal Sistem</span>
+    </a>
+</li>
+
 <!-- ================= MANAJEMEN SURAT ================= -->
 <?php $surat_role = (int) $this->session->userdata('role_id'); ?>
 <?php $ci = get_instance(); $ci->load->model('Surat_model'); $surat_pending = $ci->Surat_model->pending_count($surat_role === 1 ? 'admin' : ($surat_role === 5 ? 'sekretaris' : ($surat_role === 4 ? 'direktur' : 'user')), $ci->session->userdata('id')); ?>
