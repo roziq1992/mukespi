@@ -62,7 +62,17 @@ class Surat extends CI_Controller
         $this->db->trans_start(); $id = $this->Surat_model->insert($data); log_surat($id, 'Pengajuan dibuat', 'Surat diajukan oleh pemohon.');
         $folder = $base . $id . '/lampiran/'; if (!is_dir($folder)) mkdir($folder, 0755, TRUE);
         if (!empty($_FILES['lampiran']['name'][0])) foreach ($_FILES['lampiran']['name'] as $key => $name) { $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]); $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 10240, 'encrypt_name' => TRUE)); if ($this->upload->do_upload('one_lampiran')) { $f = $this->upload->data(); $this->Surat_lampiran_model->insert(array('id_surat' => $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s'))); } }
-        $this->db->trans_complete(); $this->session->set_flashdata('message', 'Pengajuan surat berhasil dibuat.'); redirect('surat/detail/' . $id);
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE) show_error('Pengajuan surat gagal disimpan.', 500);
+        $penerima = $this->db->where_in('role_id', array(4, 5))->order_by('id', 'ASC')->get('users')->result();
+        $pesan = 'Terdapat pengajuan surat baru yang perlu ditindaklanjuti.<br><br>'
+            . '<strong>Perihal:</strong> ' . htmlspecialchars($data['perihal'], ENT_QUOTES, 'UTF-8') . '<br>'
+            . '<strong>Jenis:</strong> ' . htmlspecialchars(ucfirst($data['jenis']), ENT_QUOTES, 'UTF-8') . '<br>'
+            . '<strong>Tujuan:</strong> ' . htmlspecialchars($data['tujuan'], ENT_QUOTES, 'UTF-8');
+        foreach ($penerima as $user) {
+            surat_kirim_notifikasi($user->email, $user->name, 'Pemberitahuan Pengajuan Surat Baru', $pesan, $id);
+        }
+        $this->session->set_flashdata('message', 'Pengajuan surat berhasil dibuat.'); redirect('surat/detail/' . $id);
     }
 
     public function detail($id)
