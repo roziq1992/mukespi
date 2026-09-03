@@ -114,7 +114,7 @@
 <?php $ci = get_instance(); $ci->load->model('Surat_model'); $surat_pending = $ci->Surat_model->pending_count($surat_role === 1 ? 'admin' : ($surat_role === 5 ? 'sekretaris' : ($surat_role === 4 ? 'direktur' : 'user')), $ci->session->userdata('id')); ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSurat" aria-expanded="false" title="Manajemen Surat Internal & Eksternal">
-        <i class="nav-icon-badge icon-dokumen fas fa-envelope"></i><span>Surat</span><?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?>
+        <i class="nav-icon-badge icon-dokumen fas fa-envelope"></i><span>E-OFFICE</span><?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?>
     </a>
     <div id="collapseSurat" class="collapse" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">

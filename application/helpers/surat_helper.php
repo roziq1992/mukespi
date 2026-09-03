@@ -27,7 +27,7 @@ function surat_status_class($status)
     return isset($map[$status]) ? $map[$status] : 'dark';
 }
 
-function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $id_surat)
+function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $id_surat, $document_type = '')
 {
     if (!filter_var($email_tujuan, FILTER_VALIDATE_EMAIL)) {
         log_message('error', 'Notifikasi surat tidak dikirim: alamat email tidak valid.');
@@ -40,8 +40,8 @@ function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $i
     $ci->email->from(config_item('email_from_address'), config_item('email_from_name'));
     $ci->email->to($email_tujuan, $nama_tujuan);
     $ci->email->subject($subjek);
-    $link = rtrim(config_item('email_app_url'), '/') . '/index.php/surat/detail/' . (int) $id_surat;
-    $ci->email->message('<p>Yth. ' . htmlspecialchars($nama_tujuan, ENT_QUOTES, 'UTF-8') . ',</p><p>' . $pesan . '</p><p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Buka detail dan tracking surat</a></p>');
+    $link = rtrim(config_item('email_app_url'), '/') . '/index.php/auth';
+    $ci->email->message('<p>Yth. ' . htmlspecialchars($nama_tujuan, ENT_QUOTES, 'UTF-8') . ',</p><p>' . $pesan . '</p><p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Login ke sistem E-OFFICE RSA</a></p>');
 
     if (!$ci->email->send()) {
         log_message('error', 'Notifikasi surat gagal dikirim ke ' . $email_tujuan . ': ' . $ci->email->print_debugger(array('headers')));

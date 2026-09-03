@@ -53,7 +53,7 @@ class Surat extends CI_Controller
         $base = FCPATH . 'uploads/surat/';
         $data = array('jenis' => $this->input->post('jenis', TRUE), 'perihal' => $this->input->post('perihal', TRUE), 'tujuan' => $this->input->post('tujuan', TRUE), 'tanggal_pengajuan' => $this->input->post('tanggal_pengajuan', TRUE), 'keterangan' => $this->input->post('keterangan', TRUE), 'id_pemohon' => $this->session->userdata('id'), 'status' => 'Diajukan', 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s'));
         if (!empty($_FILES['file_draft']['name'])) {
-            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => 'doc|docx', 'max_size' => 5120, 'encrypt_name' => TRUE);
+            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
             if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0755, TRUE);
             $this->upload->initialize($config);
             if (!$this->upload->do_upload('file_draft')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat/create'); return; }
@@ -75,7 +75,7 @@ class Surat extends CI_Controller
 
     public function download($id, $type = 'draft', $file = '')
     {
-        $surat = $this->Surat_model->get($id); if (!$surat) show_404(); $path = $type === 'draft' ? $surat->file_draft : ($type === 'numbered' ? $surat->file_ber_nomor : $surat->file_final); if (!$path) show_404(); if (!is_file(FCPATH . $path)) show_404(); force_download(FCPATH . $path, NULL);
+        $surat = $this->Surat_model->get($id); if (!$surat) show_404(); $path = $type === 'draft' ? $surat->file_draft : ($type === 'numbered' ? $surat->file_ber_nomor : ($surat->file_final ?: ($surat->file_ber_nomor ?: $surat->file_draft))); if (!$path) show_404(); if (!is_file(FCPATH . $path)) show_404(); force_download(FCPATH . $path, NULL);
     }
 
     public function download_lampiran($id)
