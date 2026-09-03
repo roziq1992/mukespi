@@ -10,7 +10,9 @@ class Surat_model extends CI_Model
         $this->db->join('users u', 'u.id = s.id_pemohon');
         $this->db->join('(SELECT x.id_surat, x.created_at, x.id_user FROM surat_log x INNER JOIN (SELECT id_surat, MAX(id) AS max_id FROM surat_log GROUP BY id_surat) y ON y.max_id=x.id) l', 'l.id_surat=s.id', 'left', false);
         $this->db->join('users lu', 'lu.id = l.id_user', 'left');
-        if ($role === 'user') $this->db->where('s.id_pemohon', (int) $user_id);
+        if ($role === 'user') {
+            $this->db->where("(s.id_pemohon = " . (int) $user_id . " OR EXISTS (SELECT 1 FROM surat_disposisi sd WHERE sd.id_surat = s.id AND sd.ke_user = " . (int) $user_id . "))", NULL, FALSE);
+        }
         // Sekretaris melihat antrian aktif sekaligus riwayat surat yang sudah diteruskan.
         // Direktur melihat antrian aktif sekaligus riwayat surat yang pernah diterima.
         if (!empty($filters['status'])) $this->db->where('s.status', $filters['status']);
@@ -26,7 +28,9 @@ class Surat_model extends CI_Model
     public function update($id, $data) { return $this->db->where('id', (int) $id)->update('surat', $data); }
     public function pending_count($role, $user_id) {
         $this->db->from('surat');
-        if ($role === 'user') $this->db->where('id_pemohon', $user_id)->where_not_in('status', array('Selesai', 'Ditandatangani'));
+        if ($role === 'user') {
+            $this->db->where("( (id_pemohon = " . (int) $user_id . " AND status NOT IN ('Selesai', 'Ditandatangani')) OR EXISTS (SELECT 1 FROM surat_disposisi sd WHERE sd.id_surat = surat.id AND sd.ke_user = " . (int) $user_id . " AND sd.status <> 'Selesai') )", NULL, FALSE);
+        }
         if ($role === 'admin') $this->db->where_not_in('status', array('Selesai', 'Ditandatangani'));
         if ($role === 'sekretaris') $this->db->where_in('status', array('Diajukan', 'Diproses Sekretaris'));
         if ($role === 'direktur') $this->db->where_in('status', array('Sudah Diberi Nomor', 'Diteruskan ke Direktur'));
