@@ -203,6 +203,40 @@
 		margin: 0;
 		max-width: 42ch;
 	}
+	.eoffice-note {
+		display: flex;
+		align-items: flex-start;
+		gap: 11px;
+		margin-top: 18px;
+		padding: 12px 14px;
+		border: 1px solid rgba(45, 212, 191, .25);
+		border-radius: 10px;
+		background: rgba(15, 118, 110, .18);
+		max-width: 42ch;
+	}
+	.eoffice-note-icon {
+		width: 30px;
+		height: 30px;
+		border-radius: 8px;
+		background: #2DD4BF;
+		color: #083344;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 30px;
+	}
+	.eoffice-note strong {
+		display: block;
+		font-size: 13px;
+		color: #FFFFFF;
+		margin-bottom: 3px;
+	}
+	.eoffice-note span {
+		display: block;
+		font-size: 11px;
+		line-height: 1.5;
+		color: #B6E8E2;
+	}
 
 	.module-grid {
 		display: grid;
@@ -540,6 +574,10 @@
 			<div class="system-intro">
 				<h2 class="system-name">Mutu, PPI &amp; <em>Dokumen</em></h2>
 				<p class="system-sub">Portal terpadu untuk pengelolaan indikator mutu, pencegahan infeksi, serta integrasi dokumen akreditasi rumah sakit.</p>
+				<div class="eoffice-note">
+					<div class="eoffice-note-icon"><i class="fas fa-envelope-open-text"></i></div>
+					<div><strong>E-OFFICE RSA</strong><span>Manajemen surat internal dan eksternal untuk pengajuan, penomoran, disposisi, tanda tangan, dan pelacakan dokumen.</span></div>
+				</div>
 
 				<div class="module-grid">
 					<div class="module-card">
