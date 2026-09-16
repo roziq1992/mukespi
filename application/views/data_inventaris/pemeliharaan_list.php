@@ -13,10 +13,8 @@
     }
     .di-list-header h2 { margin: 0; font-size: 1.2rem; font-weight: 700; }
     .di-list-header p { margin: 4px 0 0; font-size: 0.8rem; opacity: 0.85; }
-
     .di-list-body { padding: 22px; }
     @media (max-width: 576px) { .di-list-body { padding: 14px; } }
-
     .di-toolbar {
         display: flex;
         justify-content: space-between;
@@ -38,7 +36,49 @@
         display: inline-block;
     }
     .di-btn-add:hover { background: #1b3a5c; color: #fff; text-decoration: none; }
-
+    .di-flash {
+        background: #eaf3fb;
+        color: #1b3a5c;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+    }
+    .di-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .di-table thead th {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #8a94a6;
+        font-weight: 700;
+        border-bottom: 2px solid #eef0f3;
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+    .di-table tbody td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f3f6;
+        font-size: 0.87rem;
+        color: #33475b;
+        vertical-align: middle;
+    }
+    .di-table tbody tr:hover { background: #f8fafc; }
+    .di-actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+    .di-action-btn {
+        width: 32px; height: 32px;
+        border-radius: 7px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.85rem;
+        text-decoration: none;
+        border: 1px solid #eef0f3;
+    }
+    .di-action-btn.edit { color: #b8860b; }
+    .di-action-btn.del { color: #c0392b; }
+    .di-action-btn:hover { background: #f1f3f6; text-decoration: none; }
+    .di-empty { text-align: center; padding: 40px 16px; color: #8a94a6; }
+    .di-badge-aktif { background: #d4edda; color: #1e7e34; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .di-badge-proses { background: #fff3cd; color: #856404; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .di-badge-batal { background: #f8d7da; color: #a71d2a; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
     .di-search-form {
         flex: 1 1 260px;
         min-width: 220px;
@@ -69,172 +109,151 @@
         padding: 0 16px;
         font-size: 0.85rem;
         font-weight: 600;
-        cursor: pointer;
     }
-    .di-search-reset { 
-        font-size: 0.78rem; 
-        color: #8a94a6; 
-        margin-left: 8px; 
-        white-space: nowrap; 
-        align-self: center;
-        text-decoration: none;
-    }
-    .di-search-reset:hover { color: #2c5f8a; }
+    .di-search-reset { font-size: 0.78rem; color: #8a94a6; margin-left: 8px; white-space: nowrap; align-self: center; }
+</style>
 
-    .di-flash {
-        background: #eaf3fb;
-        color: #1b3a5c;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        margin-bottom: 16px;
-    }
+<div class="container-fluid">
+    <div class="di-list-card">
+        <div class="di-list-header">
+            <h2>🔧 Data Pemeliharaan</h2>
+            <p>Kelola data pemeliharaan inventaris barang</p>
+        </div>
 
-    .di-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-    .di-table thead th {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: #8a94a6;
-        font-weight: 700;
-        border-bottom: 2px solid #eef0f3;
-        padding: 10px 12px;
-        white-space: nowrap;
-    }
-    .di-table tbody td {
-        padding: 12px;
-        border-bottom: 1px solid #f1f3f6;
-        font-size: 0.87rem;
-        color: #33475b;
-        vertical-align: middle;
-    }
-    .di-table tbody tr:hover { background: #f8fafc; }
+        <div class="di-list-body">
+            <?php
+                $flash = $this->session->flashdata('message');
+                if ($flash <> '') {
+                    echo '<div class="di-flash">' . $flash . '</div>';
+                }
+            ?>
 
-    .di-code-chip {
-        display: inline-block;
-        background: #eef2f7;
-        color: #33475b;
-        font-size: 0.78rem;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 20px;
-        white-space: nowrap;
-    }
+            <div class="di-toolbar">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="<?php echo site_url('data_inventaris/pemeliharaan_form'); ?>" class="di-btn-add">+ Tambah Pemeliharaan</a>
+                    <a href="<?php echo site_url('data_inventaris'); ?>" class="di-btn-add" style="background: #6c757d;">← Kembali ke Inventaris</a>
+                </div>
 
-    .di-kondisi-chip {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 3px 10px;
-        border-radius: 20px;
-        white-space: nowrap;
-        background: #eef2f7;
-        color: #556;
-    }
-    .di-kondisi-baik { background: #d4edda; color: #1e7e34; }
-    .di-kondisi-rusak-ringan { background: #fff3cd; color: #856404; }
-    .di-kondisi-rusak-berat { background: #f8d7da; color: #a71d2a; }
+                <form action="<?php echo site_url('data_inventaris/pemeliharaan'); ?>" method="get" class="di-search-form">
+                    <div class="di-search-wrap">
+                        <input type="text" name="q" placeholder="Cari kode, nama barang..." value="<?php echo $q; ?>">
+                        <button type="submit">🔍</button>
+                    </div>
+                    <?php if ($q <> ''): ?>
+                        <a href="<?php echo site_url('data_inventaris/pemeliharaan'); ?>" class="di-search-reset">Reset</a>
+                    <?php endif; ?>
+                </form>
+            </div>
 
-    .di-badge {
-        display: inline-block;
-        padding: 3px 11px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-    }
-    .di-badge-aktif { background: #d4edda; color: #1e7e34; }
-    .di-badge-proses { background: #fff3cd; color: #856404; }
-    .di-badge-nonaktif { background: #e2e3e5; color: #495057; }
-    .di-badge-rusak { background: #f8d7da; color: #a71d2a; }
+            <div class="table-responsive">
+                <table class="di-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Kode Inven</th>
+                            <th>Nama Barang</th>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Biaya</th>
+                            <th>Petugas</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (count($data_pemeliharaan) == 0): ?>
+                            <tr>
+                                <td colspan="9">
+                                    <div class="di-empty">
+                                        <div class="icon">🔧</div>
+                                        Belum ada data pemeliharaan.
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php 
+                            $no = $start + 1;
+                            foreach ($data_pemeliharaan as $item): 
+                            ?>
+                            <tr>
+                                <td data-label="No"><?php echo $no++; ?></td>
+                                <td data-label="Kode Inven"><strong><?php echo $item->kode_inven; ?></strong></td>
+                                <td data-label="Nama Barang"><?php echo $item->nm_barang; ?></td>
+                                <td data-label="Tanggal"><?php echo date('d/m/Y', strtotime($item->tanggal)); ?></td>
+                                <td data-label="Keterangan"><?php echo substr($item->keterangan, 0, 50) . (strlen($item->keterangan) > 50 ? '...' : ''); ?></td>
+                                <td data-label="Biaya">Rp <?php echo number_format($item->biaya, 0, ',', '.'); ?></td>
+                                <td data-label="Petugas"><?php echo $item->petugas; ?></td>
+                                <td data-label="Status">
+                                    <span class="di-badge-<?php echo strtolower($item->status); ?>">
+                                        <?php echo $item->status; ?>
+                                    </span>
+                                </td>
+                                <td data-label="Aksi">
+                                    <div class="di-actions-cell">
+                                        <a href="<?php echo site_url('data_inventaris/pemeliharaan_form/'.$item->id_pemeliharaan); ?>" class="di-action-btn edit" title="Edit">✏️</a>
+                                        <a href="<?php echo site_url('data_inventaris/pemeliharaan_delete/'.$item->id_pemeliharaan); ?>" class="di-action-btn del" title="Hapus" onclick="return confirm('Yakin hapus data pemeliharaan ini?')">🗑️</a>
+                                        <a href="javascript:void(0)" onclick="openTrackingModal('<?php echo $item->id_inven; ?>')" 
+   class="di-action-btn tracking" title="Lihat Tracking" style="color:#17a2b8;">📊</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
-    .di-harga { font-weight: 600; color: #33475b; white-space: nowrap; }
+            <div class="di-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 18px;">
+                <div>
+                    <span style="background: #eef2f7; color: #33475b; font-size: 0.8rem; font-weight: 600; padding: 6px 14px; border-radius: 20px;">
+                        Total: <?php echo $total_rows; ?> data
+                    </span>
+                </div>
+                <div>
+                    <ul class="pagination mb-0">
+                        <?php echo $pagination; ?>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ============================================ -->
+<!-- MODAL TRACKING MAINTENANCE -->
+<!-- ============================================ -->
+<div class="modal fade" id="trackingModal" tabindex="-1" role="dialog" aria-labelledby="trackingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2c5f8a 0%, #1b3a5c 100%); color: #fff;">
+                <h5 class="modal-title" id="trackingModalLabel">
+                    <span id="trackingIcon">📊</span> Tracking Maintenance - <span id="trackingTitle">Loading...</span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:1;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="trackingModalBody">
+                <div style="text-align:center;padding:40px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p style="margin-top:15px;color:#8a94a6;">Memuat data maintenance...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    .di-actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
-    .di-action-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 7px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.85rem;
-        text-decoration: none;
-        border: 1px solid #eef0f3;
-        cursor: pointer;
-        background: #fff;
-        transition: all 0.2s;
-    }
-    .di-action-btn.view { color: #2c5f8a; }
-    .di-action-btn.edit { color: #b8860b; }
-    .di-action-btn.del { color: #c0392b; }
-    .di-action-btn.barcode { color: #2e7d32; }
-    .di-action-btn.tracking { color: #17a2b8; }
-    .di-action-btn:hover { 
-        background: #f1f3f6; 
-        text-decoration: none;
-        transform: scale(1.05);
+<style>
+    /* Tracking Modal Styles */
+    .di-action-btn.tracking {
+        color: #17a2b8;
     }
     .di-action-btn.tracking:hover {
         background: #17a2b8;
         color: #fff;
     }
-
-    .di-empty { text-align: center; padding: 40px 16px; color: #8a94a6; }
-    .di-empty .icon { font-size: 2.2rem; margin-bottom: 8px; }
-
-    .di-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 18px;
-    }
-    .di-total-chip {
-        background: #eef2f7;
-        color: #33475b;
-        font-size: 0.8rem;
-        font-weight: 600;
-        padding: 6px 14px;
-        border-radius: 20px;
-    }
-
-    .di-pagination ul { margin: 0; }
-    .di-pagination .pagination { margin-bottom: 0; }
-
-    /* Mobile: ubah tabel jadi kartu */
-    @media (max-width: 768px) {
-        .di-table thead { display: none; }
-        .di-table, .di-table tbody, .di-table tr, .di-table td { display: block; width: 100%; }
-        .di-table tr {
-            border: 1px solid #eef0f3;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            padding: 12px;
-        }
-        .di-table td {
-            border: none;
-            padding: 6px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-        .di-table td::before {
-            content: attr(data-label);
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #8a94a6;
-            flex-shrink: 0;
-        }
-        .di-table td:first-child { display: none; }
-        .di-actions-cell { justify-content: flex-end; width: 100%; }
-    }
-
-    /* Tracking Modal Styles */
+    
     .tracking-stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -364,7 +383,6 @@
     }
     .tab-track .nav-link:hover { color: #2c5f8a; }
     
-    /* Priority badge */
     .priority-badge {
         font-size: 0.7rem;
         padding: 2px 10px;
@@ -378,166 +396,13 @@
     .priority-badge.Rendah { background: #28a745; }
 </style>
 
-<div class="container-fluid">
-    <div class="di-list-card">
-        <div class="di-list-header">
-            <h2>📦 Data Inventaris</h2>
-            <p>Kelola seluruh data inventaris barang</p>
-        </div>
-
-        <div class="di-list-body">
-
-            <?php
-                $flash = $this->session->flashdata('message');
-                if ($flash <> '') {
-                    echo '<div class="di-flash">' . $flash . '</div>';
-                }
-            ?>
-
-            <div class="di-toolbar">
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="<?php echo site_url('data_inventaris/create'); ?>" class="di-btn-add">+ Tambah Inventaris</a>
-                    <a href="<?php echo site_url('data_inventaris/maintenance_dashboard'); ?>" class="di-btn-add" style="background: #17a2b8;">🔧 Maintenance Asset</a>
-                    <a href="<?php echo site_url('data_inventaris/maintenance_schedule'); ?>" class="di-btn-add" style="background: #6c757d;">📅 Jadwal</a>
-                    <a href="<?php echo site_url('data_inventaris/maintenance_history'); ?>" class="di-btn-add" style="background: #28a745;">📋 Riwayat</a>
-                </div>
-
-                <form action="<?php echo site_url('data_inventaris/index'); ?>" method="get" class="di-search-form">
-                    <div class="di-search-wrap">
-                        <input type="text" name="q" placeholder="Cari kode, nama barang..." value="<?php echo $q; ?>">
-                        <button type="submit">🔍</button>
-                    </div>
-                    <?php if ($q <> ''): ?>
-                        <a href="<?php echo site_url('data_inventaris'); ?>" class="di-search-reset">Reset</a>
-                    <?php endif; ?>
-                </form>
-            </div>
-
-            <div class="table-responsive">
-                <table class="di-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Kode Inven</th>
-                            <th>Nama Barang</th>
-                            <th>Merek</th>
-                            <th>Tipe</th>
-                            <th>SN</th>
-                            <th>Jenis</th>
-                            <th>Kondisi</th>
-                            <th>Ruang</th>
-                            <th>Harga</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (count($data_inventaris_data) == 0): ?>
-                            <tr>
-                                <td colspan="12">
-                                    <div class="di-empty">
-                                        <div class="icon">🗄️</div>
-                                        Belum ada data inventaris<?php echo $q <> '' ? ' yang cocok dengan pencarian "' . $q . '"' : ''; ?>.
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php else: ?>
-                            <?php 
-                            $no = $start;
-                            foreach ($data_inventaris_data as $data_inventaris):
-                                $no++;
-
-                                $kondisi_key = strtolower(str_replace(' ', '-', trim($data_inventaris->kondisi)));
-                                $kondisi_class = 'di-kondisi-chip';
-                                if (in_array($kondisi_key, array('baik'))) $kondisi_class .= ' di-kondisi-baik';
-                                elseif (in_array($kondisi_key, array('rusak-ringan'))) $kondisi_class .= ' di-kondisi-rusak-ringan';
-                                elseif (in_array($kondisi_key, array('rusak-berat', 'rusak'))) $kondisi_class .= ' di-kondisi-rusak-berat';
-
-                                $stts_key = strtolower(trim($data_inventaris->stts));
-                                $stts_class = 'di-badge-nonaktif';
-                                if (in_array($stts_key, array('aktif', 'baik', 'tersedia'))) $stts_class = 'di-badge-aktif';
-                                elseif (in_array($stts_key, array('proses', 'perbaikan'))) $stts_class = 'di-badge-proses';
-                                elseif (in_array($stts_key, array('rusak', 'hilang'))) $stts_class = 'di-badge-rusak';
-                            ?>
-                            <tr>
-                                <td data-label="No" width="50px"><?php echo $no; ?></td>
-                                <td data-label="Kode Inven"><span class="di-code-chip"><?php echo $data_inventaris->kode_inven; ?></span></td>
-                                <td data-label="Nama Barang"><?php echo $data_inventaris->nm_barang; ?></td>
-                                <td data-label="Merek"><?php echo $data_inventaris->merek; ?></td>
-                                <td data-label="Tipe"><?php echo $data_inventaris->tipe; ?></td>
-                                <td data-label="SN"><?php echo $data_inventaris->sn; ?></td>
-                                <td data-label="Jenis"><?php echo $data_inventaris->jenis; ?></td>
-                                <td data-label="Kondisi"><span class="<?php echo $kondisi_class; ?>"><?php echo $data_inventaris->kondisi; ?></span></td>
-                                <td data-label="Ruang"><?php echo $data_inventaris->id_ruang; ?></td>
-                                <td data-label="Harga"><span class="di-harga">Rp <?php echo number_format((float) $data_inventaris->harga, 0, ',', '.'); ?></span></td>
-                                <td data-label="Status"><span class="di-badge <?php echo $stts_class; ?>"><?php echo ucfirst($data_inventaris->stts); ?></span></td>
-                                <td data-label="Aksi">
-                                    <div class="di-actions-cell">
-                                        <a href="<?php echo site_url('data_inventaris/read/'.$data_inventaris->id_inven); ?>" class="di-action-btn view" title="Lihat">👁️</a>
-                                        <a href="<?php echo site_url('data_inventaris/update/'.$data_inventaris->id_inven); ?>" class="di-action-btn edit" title="Edit">✏️</a>
-                                        <a href="<?php echo site_url('data_inventaris/delete/'.$data_inventaris->id_inven); ?>" class="di-action-btn del" title="Hapus" onclick="return confirm('Yakin hapus data inventaris ini?')">🗑️</a>
-                                        <a href="javascript:void(0)" onclick="openTrackingModal('<?php echo $data_inventaris->id_inven; ?>')" class="di-action-btn tracking" title="Tracking Maintenance">📊</a>
-                                        <a href="<?php echo site_url('data_inventaris/print_barcode_local/'.$data_inventaris->id_inven); ?>" class="di-action-btn barcode" title="Cetak Barcode" target="_blank">📱</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="di-footer">
-                <div>
-                    <span class="di-total-chip">Total: <?php echo $total_rows; ?> data</span>
-                </div>
-                <div class="di-pagination">
-                    <ul class="pagination mb-0">
-                        <?php echo $pagination; ?>
-                    </ul>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- ============================================ -->
-<!-- MODAL TRACKING MAINTENANCE -->
-<!-- ============================================ -->
-<div class="modal fade" id="trackingModal" tabindex="-1" role="dialog" aria-labelledby="trackingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #2c5f8a 0%, #1b3a5c 100%); color: #fff;">
-                <h5 class="modal-title" id="trackingModalLabel">
-                    <span id="trackingIcon">📊</span> Tracking Maintenance - <span id="trackingTitle">Loading...</span>
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:1;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="trackingModalBody">
-                <div style="text-align:center;padding:40px;">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                    <p style="margin-top:15px;color:#8a94a6;">Memuat data maintenance...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- ============================================ -->
-<!-- JAVASCRIPT UNTUK TRACKING MODAL (UPDATE) -->
-<!-- ============================================ -->
 <script>
 // Define base URL
 var baseUrl = '<?php echo base_url(); ?>';
 var siteUrl = '<?php echo site_url(); ?>';
 
-console.log('Base URL:', baseUrl);
+console.log('Pemeliharaan List - Tracking Modal loaded');
 console.log('Site URL:', siteUrl);
-console.log('jQuery loaded:', typeof jQuery !== 'undefined');
 
 /**
  * Open tracking modal for inventory item
@@ -587,8 +452,6 @@ function openTrackingModal(id) {
                 document.getElementById('trackingModalBody').innerHTML = `
                     <div class="alert alert-danger">
                         <strong>Error:</strong> ${response.message || 'Gagal memuat data'}
-                        <br><br>
-                        <button class="btn btn-sm btn-primary" onclick="openTrackingModal('${id}')">🔄 Coba Lagi</button>
                     </div>
                 `;
             }
@@ -623,7 +486,7 @@ function openTrackingModal(id) {
 }
 
 /**
- * Render tracking modal with data (Updated with Quick Maintenance)
+ * Render tracking modal with data
  */
 function renderTrackingModal(data) {
     console.log('Rendering tracking modal...');
@@ -660,7 +523,7 @@ function renderTrackingModal(data) {
     `;
     
     // ============================================
-    // 2. STATISTICS (Updated with Quick Maintenance)
+    // 2. STATISTICS
     // ============================================
     var totalMaintenance = stats.total_maintenance || 0;
     var totalCost = stats.total_cost || 0;
@@ -693,7 +556,7 @@ function renderTrackingModal(data) {
     `;
     
     // ============================================
-    // 3. LAST MAINTENANCE (Updated with source)
+    // 3. LAST MAINTENANCE
     // ============================================
     if (stats.last_maintenance) {
         var lm = stats.last_maintenance;
@@ -711,7 +574,7 @@ function renderTrackingModal(data) {
     }
     
     // ============================================
-    // 4. TABS (Dengan Pemeliharaan Cepat)
+    // 4. TABS
     // ============================================
     var totalHistory = history.length + quickMaintenance.length;
     
@@ -745,12 +608,12 @@ function renderTrackingModal(data) {
     // ============================================
     html += `<div class="tab-content">`;
     
-    // ---------- TAB: HISTORY (Gabungan Semua) ----------
+    // ---------- TAB: HISTORY (Gabungan) ----------
     html += `<div class="tab-pane fade show active" id="tabHistory" role="tabpanel">`;
     
     // Gabungkan history dan quick maintenance
     var allHistory = [...history, ...quickMaintenance];
-    // Sort by date (terbaru di atas)
+    // Sort by date
     allHistory.sort(function(a, b) {
         return new Date(b.tanggal) - new Date(a.tanggal);
     });
@@ -907,28 +770,24 @@ function renderTrackingModal(data) {
 }
 
 /**
- * Activate tab manually (fallback if Bootstrap tabs don't work)
+ * Activate tab manually
  */
 function activateTab(tabId) {
-    // Remove active from all tabs
     var tabs = document.querySelectorAll('.tab-track .nav-link');
     tabs.forEach(function(tab) {
         tab.classList.remove('active');
     });
     
-    // Remove active from all panes
     var panes = document.querySelectorAll('.tab-pane');
     panes.forEach(function(pane) {
         pane.classList.remove('show', 'active');
     });
     
-    // Activate clicked tab
     var clickedTab = document.querySelector('.tab-track .nav-link[href="#' + tabId + '"]');
     if (clickedTab) {
         clickedTab.classList.add('active');
     }
     
-    // Activate corresponding pane
     var pane = document.getElementById(tabId);
     if (pane) {
         pane.classList.add('show', 'active');
@@ -943,10 +802,9 @@ function formatDate(dateStr) {
     try {
         var d = new Date(dateStr);
         if (isNaN(d.getTime())) return dateStr;
-        var day = String(d.getDate()).padStart(2, '0');
-        var month = String(d.getMonth() + 1).padStart(2, '0');
-        var year = d.getFullYear();
-        return day + '/' + month + '/' + year;
+        return String(d.getDate()).padStart(2, '0') + '/' + 
+               String(d.getMonth() + 1).padStart(2, '0') + '/' + 
+               d.getFullYear();
     } catch(e) {
         return dateStr;
     }
@@ -960,23 +818,9 @@ function formatNumber(num) {
     return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-/**
- * Get priority color
- */
-function getPriorityColor(priority) {
-    switch(priority) {
-        case 'Kritis': return '#dc3545';
-        case 'Tinggi': return '#fd7e14';
-        case 'Sedang': return '#ffc107';
-        case 'Rendah': return '#28a745';
-        default: return '#6c757d';
-    }
-}
-
 // ============================================
 // EVENT LISTENERS
 // ============================================
-// When modal is hidden, reset content
 document.addEventListener('DOMContentLoaded', function() {
     var modal = document.getElementById('trackingModal');
     if (modal) {
@@ -994,7 +838,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Log that script is loaded
-console.log('Data Inventaris List script loaded successfully');
-console.log('openTrackingModal function defined:', typeof openTrackingModal);
+console.log('Pemeliharaan List - openTrackingModal function defined:', typeof openTrackingModal);
 </script>
