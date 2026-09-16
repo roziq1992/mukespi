@@ -84,3 +84,7 @@ $route['surat_direktur'] = 'surat_direktur/index';
 $route['surat_direktur/proses/(:num)'] = 'surat_direktur/proses/$1';
 $route['surat_direktur/simpan/(:num)'] = 'surat_direktur/simpan/$1';
 $route['surat_direktur/selesai_disposisi/(:num)'] = 'surat_direktur/selesai_disposisi/$1';
+$route['data_inventaris/get_maintenance_tracking/(:any)'] = 'data_inventaris/get_maintenance_tracking/$1';
+$route['data_inventaris/maintenance_history_form/(:any)'] = 'data_inventaris/maintenance_history_form/$1';
+$route['data_inventaris/maintenance_history_form'] = 'data_inventaris/maintenance_history_form';
+$route['data_inventaris/sparepart_delete/(:any)'] = 'data_inventaris/sparepart_delete/$1';

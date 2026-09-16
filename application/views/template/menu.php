@@ -175,7 +175,30 @@
         </div>
     </div>
 </li>
-
+<!-- ================= SIASSET RSA ================= -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSiasset"
+       aria-expanded="false" aria-controls="collapseSiasset"
+       data-tooltip="true" data-placement="right"
+       title="SIASSET RSA — Sistem Informasi Manajemen Aset Rumah Sakit">
+        <i class="nav-icon-badge icon-siasset fas fa-boxes"></i>
+        <span>SIASSET</span>
+    </a>
+    <div id="collapseSiasset" class="collapse" aria-labelledby="headingSiasset" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Entry Asset:</h6>
+            <a class="collapse-item" href="<?=base_url();?>index.php/data_inventaris"><i class="fas fa-cube"></i> Data Aset</a>
+            <!--<a class="collapse-item" href="<?=base_url();?>index.php/siasset/kategori"><i class="fas fa-tags"></i> Kategori Aset</a>-->
+            <a class="collapse-item" href="<?=base_url();?>index.php/siasset/maintenance_dashboard"><i class="fas fa-tools"></i> Maintenance Aset</a>
+            
+            <!--<?php if($this->session->userdata('email')=='admin@mail.com' || $this->session->userdata('role_id')==1) {?>-->
+            <!--<h6 class="collapse-header">Laporan & Pengaturan:</h6>-->
+            <!--<a class="collapse-item" href="<?=base_url();?>index.php/siasset/laporan"><i class="fas fa-file-excel"></i> Rekapitulasi Aset</a>-->
+            <!--<a class="collapse-item" href="<?=base_url();?>index.php/siasset/pengaturan"><i class="fas fa-cogs"></i> Pengaturan <span class="nav-badge-admin">Admin</span></a>-->
+            <!--<?php } ?>-->
+        </div>
+    </div>
+</li>
 <!-- ================= DOKUMEN UNIT ================= -->
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo4"

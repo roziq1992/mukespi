@@ -40,7 +40,8 @@ function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $i
     $ci->email->from(config_item('email_from_address'), config_item('email_from_name'));
     $ci->email->to($email_tujuan, $nama_tujuan);
     $ci->email->subject($subjek);
-    $link = rtrim(config_item('email_app_url'), '/') . '/index.php/auth';
+    // $link = rtrim(config_item('email_app_url'), '/') . '/index.php/auth';
+    $link = rtrim(config_item('email_app_url'), '/') . 'https://api-rsa.com/mukespi';
     $ci->email->message('<p>Yth. ' . htmlspecialchars($nama_tujuan, ENT_QUOTES, 'UTF-8') . ',</p><p>' . $pesan . '</p><p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Login ke sistem E-OFFICE RSA</a></p>');
 
     if (!$ci->email->send()) {
