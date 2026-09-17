@@ -59,6 +59,48 @@ $route['register'] = 'auth/register';
 $route['logout'] = 'auth/logout';
 $route['portal'] = 'portal/index';
 
+// Profil pengguna (nama, avatar, password)
+$route['profile'] = 'profile/index';
+
+// Manajemen User & Role Menu Akses (admin)
+$route['users'] = 'users/index';
+$route['users/create'] = 'users/create';
+$route['users/store'] = 'users/create_action';
+$route['users/edit/(:num)'] = 'users/update/$1';
+$route['users/update'] = 'users/update_action';
+$route['users/toggle_active/(:num)'] = 'users/toggle_active/$1';
+$route['users/delete/(:num)'] = 'users/delete/$1';
+
+$route['menu'] = 'menu/index';
+$route['menu/create'] = 'menu/create';
+$route['menu/store'] = 'menu/store';
+$route['menu/edit/(:num)'] = 'menu/edit/$1';
+$route['menu/update'] = 'menu/update';
+$route['menu/delete/(:num)'] = 'menu/delete/$1';
+$route['menu/roles'] = 'menu/roles';
+$route['menu/roles/create'] = 'menu/role_create';
+$route['menu/roles/store'] = 'menu/role_store';
+$route['menu/roles/edit/(:num)'] = 'menu/role_edit/$1';
+$route['menu/roles/update'] = 'menu/role_update';
+$route['menu/roles/delete/(:num)'] = 'menu/role_delete/$1';
+$route['menu/role_access/(:num)'] = 'menu/role_access/$1';
+$route['menu/role_access'] = 'menu/role_access/1';
+$route['menu/role_access/save'] = 'menu/role_access_save';
+
+// Manajemen Data Pegawai (mutasi, riwayat, nonaktif)
+$route['pegawai'] = 'pegawai/index';
+$route['pegawai/create'] = 'pegawai/create';
+$route['pegawai/store'] = 'pegawai/create_action';
+$route['pegawai/edit/(:num)'] = 'pegawai/update/$1';
+$route['pegawai/update'] = 'pegawai/update_action';
+$route['pegawai/detail/(:num)'] = 'pegawai/detail/$1';
+$route['pegawai/mutasi'] = 'pegawai/mutasi_action';
+$route['pegawai/nonaktif'] = 'pegawai/nonaktif_action';
+$route['pegawai/aktifkan'] = 'pegawai/aktifkan_action';
+$route['pegawai/export_excel'] = 'pegawai/export_excel';
+$route['pegawai/template_excel'] = 'pegawai/template_excel';
+$route['pegawai/import_excel'] = 'pegawai/import_excel';
+
 $route['operan'] = 'operan/index';
 $route['operan/create'] = 'operan/create';
 $route['operan/store'] = 'operan/create_action';

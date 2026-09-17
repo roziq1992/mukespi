@@ -31,7 +31,7 @@ class Auth extends CI_Controller
             $this->session->set_userdata('login_redirect', $tujuan);
         }
 
-        if ($this->session->userdata('email')) {
+        if ($this->session->userdata('email') || $this->session->userdata('is_pegawai')) {
             // kalau sudah login tapi klik kartu portal, langsung arahkan juga
             $tujuan_existing = $this->session->userdata('login_redirect');
             if ($tujuan_existing && isset($this->redirect_map[$tujuan_existing])) {
@@ -54,7 +54,7 @@ class Auth extends CI_Controller
 
     private function _login()
     {
-        $email = $this->input->post('email');
+        $identifier = trim($this->input->post('email'));
         $password = $this->input->post('password');
 
         // Mapping kode singkat ke email asli
@@ -62,24 +62,33 @@ class Auth extends CI_Controller
             'DIR01' => 'DIR01@dir.com',
         ];
 
-        if (isset($email_map[$email])) {
-            $email = $email_map[$email];
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->session->set_flashdata('message', '<div class="alert alert-danger" 
-                role="alert"> The Email field must contain a valid email address. </div>');
-            redirect('auth');
+        if (isset($email_map[$identifier])) {
+            $identifier = $email_map[$identifier];
+        }
+
+        // Login Pegawai via NIK (username NIK, password dari data pegawai)
+        if (!filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $this->_login_pegawai($identifier, $password);
             return;
         }
 
-        $user = $this->db->get_where('users', ['email' => $email])->row_array();
+        $user = $this->db->get_where('users', ['email' => $identifier])->row_array();
 
         if ($user) {
+            if (isset($user['is_active']) && (int) $user['is_active'] !== 1) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"
+                    role="alert"> Akun Anda tidak aktif. Hubungi administrator. </div>');
+                redirect('auth');
+                return;
+            }
+
             if (password_verify($password, $user['password'])) {
                 $data = [
                     'id' => $user['id'],
                     'name' => $user['name'],
                     'email' => $user['email'],
-                    'role_id' => $user['role_id']
+                    'role_id' => $user['role_id'],
+                    'avatar' => isset($user['avatar']) ? $user['avatar'] : NULL
                 ];
                 $this->session->set_userdata($data);
 
@@ -103,6 +112,69 @@ class Auth extends CI_Controller
                 role="alert"> Email is not registered </div>');
             redirect('auth');
         }
+    }
+
+    // Login karyawan via tabel pegawai: username = NIK, password dari data pegawai
+    private function _login_pegawai($nik, $password)
+    {
+        $pegawai = $this->db->get_where('pegawai', ['nik' => $nik])->row_array();
+
+        if (!$pegawai) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger"
+                role="alert"> NIK tidak terdaftar sebagai pegawai. </div>');
+            redirect('auth');
+            return;
+        }
+
+        if ((isset($pegawai['status']) ? $pegawai['status'] : 'aktif') !== 'aktif') {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger"
+                role="alert"> Akun pegawai tidak aktif. Hubungi HRD. </div>');
+            redirect('auth');
+            return;
+        }
+
+        if (empty($pegawai['password'])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger"
+                role="alert"> Password belum diatur untuk NIK ini. Hubungi HRD/Admin. </div>');
+            redirect('auth');
+            return;
+        }
+
+        if (!password_verify($password, $pegawai['password'])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger"
+                role="alert"> Password salah. </div>');
+            redirect('auth');
+            return;
+        }
+
+        // Cocokkan ke akun users (dibuat dari data pegawai) supaya role ikut terpakai.
+        // Role diperoleh dari akun users; bila tidak ada akun, default role "pegawai" (7).
+        $acc = NULL;
+        if (!empty($pegawai['email'])) {
+            $acc = $this->db->get_where('users', ['email' => $pegawai['email']])->row_array();
+            if ($acc && (isset($acc['is_active']) && (int) $acc['is_active'] !== 1)) {
+                $acc = NULL;
+            }
+        }
+
+        $role_id = $acc ? (int) $acc['role_id'] : 7;
+
+        $this->session->set_userdata([
+            'is_pegawai' => TRUE,
+            'id_pegawai' => (int) $pegawai['id_pegawai'],
+            'nik'        => $pegawai['nik'],
+            'name'       => $pegawai['nama'],
+            'email'      => !empty($pegawai['email']) ? $pegawai['email'] : '',
+            'avatar'     => NULL,
+            'role_id'    => $role_id,
+            'id'         => $acc ? (int) $acc['id'] : NULL,
+        ]);
+
+        $this->session->unset_userdata('login_redirect');
+
+        $this->session->set_flashdata('message', '<div class="alert alert-success"
+            role="alert"> Selamat datang, ' . html_escape($pegawai['nama']) . '! </div>');
+        redirect('pegawai/detail/' . (int) $pegawai['id_pegawai']);
     }
 
     public function registerx()

@@ -572,7 +572,8 @@
 					<tr>
 						<th class="col-index">No</th>
 						<th>Kelompok</th>
-						<th>Jenis / Unit</th>
+						<th>Jenis</th>
+						<th>Unit</th>
 						<th>Judul Indikator</th>
 						<th>Target</th>
 						<th style="text-align:center">Aksi</th>
@@ -588,8 +589,15 @@
 						<td data-label="Kelompok">
 							<span class="badge-kelompok"><?php echo $list_indikator->kelompok ?></span>
 						</td>
-						<td data-label="Jenis / Unit" class="txt-jenis-unit">
+						<td data-label="Jenis" class="txt-jenis-unit">
 							<?php echo $list_indikator->jenis ?>
+						</td>
+						<td data-label="Unit">
+							<?php if (!empty($list_indikator->nm_unit)) { ?>
+								<span class="badge-kelompok"><?php echo $list_indikator->nm_unit ?></span>
+							<?php } else { ?>
+								<span class="text-muted">-</span>
+							<?php } ?>
 						</td>
 						<td data-label="Judul Indikator" class="txt-judul-indikator">
 							<?php echo $list_indikator->judul ?>

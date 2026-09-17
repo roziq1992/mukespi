@@ -72,6 +72,7 @@
     .icon-password     { background: linear-gradient(135deg, #546e7a, #37474f); }
     .icon-akses        { background: linear-gradient(135deg, #c0392b, #922b21); }
     .icon-monitoring   { background: linear-gradient(135deg, #16a085, #0e6655); }
+    .icon-pegawai      { background: linear-gradient(135deg, #4f46e5, #312e81); }
 
     /* 1. Paksa Modal & Backdrop Bootstrap selalu berada di z-index paling atas */
     .modal-backdrop {
@@ -110,13 +111,73 @@
 </style>
 
 <!-- ================= PORTAL SISTEM ================= -->
+<?php if (is_menu_accessible('portal')) { ?>
 <li class="nav-item">
     <a class="nav-link" href="<?=base_url();?>index.php/portal" title="Portal Sistem RS Airlangga" data-tooltip="true" data-placement="right">
         <i class="nav-icon-badge icon-monitoring fas fa-th-large"></i>
         <span>Portal Sistem</span>
     </a>
 </li>
+<?php } ?>
 
+<?php $pgw_role = (int) $this->session->userdata('role_id'); ?>
+<?php $pid_pgw = current_pegawai_id(); ?>
+<?php if ($pgw_role === 1 || $pgw_role === 6 || $pgw_role === 7 || $this->session->userdata('is_pegawai')) {?>
+<!-- ================= DATA PEGAWAI ================= -->
+<?php if ($pgw_role === 1 || $pgw_role === 6) { ?>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePegawai"
+       aria-expanded="false" aria-controls="collapsePegawai"
+       data-tooltip="true" data-placement="right"
+       title="SIMPEG — Manajemen Data Pegawai, Mutasi & Riwayat">
+        <i class="nav-icon-badge icon-pegawai fas fa-users"></i>
+        <span>PEGAWAI</span>
+    </a>
+    <div id="collapsePegawai" class="collapse" aria-labelledby="headingPegawai" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Entry Pegawai:</h6>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pegawai"><i class="fas fa-users"></i> Data Pegawai</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pegawai/create"><i class="fas fa-user-plus"></i> Tambah Pegawai</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pegawai?status=nonaktif"><i class="fas fa-user-slash"></i> Pegawai Nonaktif</a>
+        </div>
+    </div>
+</li>
+<?php } ?>
+
+<?php if ($pid_pgw) { ?>
+<!-- ================= DATA SAYA (Pegawai) ================= -->
+<li class="nav-item">
+    <a class="nav-link" href="<?=base_url();?>index.php/pegawai/detail/<?= (int) $pid_pgw; ?>"
+       data-tooltip="true" data-placement="right"
+       title="Data diri sebagai pegawai">
+        <i class="nav-icon-badge icon-pegawai fas fa-id-badge"></i>
+        <span>DATA SAYA</span>
+    </a>
+</li>
+<?php } ?>
+<?php } ?>
+
+<?php if (is_menu_accessible('pelaporan')) { ?>
+<!-- ================= PELAPORAN / PENGADUAN KARYAWAN ================= -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePelaporan"
+       aria-expanded="false" aria-controls="collapsePelaporan"
+       data-tooltip="true" data-placement="right"
+       title="Pelaporan & pengaduan karyawan — penilaian sesama karyawan">
+        <i class="nav-icon-badge icon-monitoring fas fa-star-half-alt"></i>
+        <span>PELAPORAN</span>
+    </a>
+    <div id="collapsePelaporan" class="collapse" aria-labelledby="headingPelaporan" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Pelaporan Karyawan:</h6>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pelaporan"><i class="fas fa-list"></i> Daftar Laporan</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pelaporan/create"><i class="fas fa-pen"></i> Buat Laporan</a>
+        </div>
+    </div>
+</li>
+<?php } ?>
+
+<?php if (is_menu_accessible('surat')) { ?>
 <!-- ================= MANAJEMEN SURAT ================= -->
 <?php $surat_role = (int) $this->session->userdata('role_id'); ?>
 <?php $ci = get_instance(); $ci->load->model('Surat_model'); $surat_pending = $ci->Surat_model->pending_count($surat_role === 1 ? 'admin' : ($surat_role === 5 ? 'sekretaris' : ($surat_role === 4 ? 'direktur' : 'user')), $ci->session->userdata('id')); ?>
@@ -141,6 +202,7 @@
         </div>
     </div>
 </li>
+<?php } ?>
 
 <!-- Heading -->
 <!--<div class="sidebar-heading">-->
@@ -148,6 +210,7 @@
 <!--</div>-->
 
 <!-- ================= MUKESPI ================= -->
+<?php if (is_menu_accessible('list_indikator')) { ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
        aria-expanded="false" aria-controls="collapseTwo"
@@ -175,8 +238,10 @@
         </div>
     </div>
 </li>
+<?php } ?>
 
 <!-- ================= DOKUMEN UNIT ================= -->
+<?php if (is_menu_accessible('dokumen_unit')) { ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo4"
        aria-expanded="false" aria-controls="collapseTwo"
@@ -195,8 +260,10 @@
         </div>
     </div>
 </li>
+<?php } ?>
 
 <!-- ================= AKREDITASI ================= -->
+<?php if (is_menu_accessible('penilaian_ep')) { ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo5"
        aria-expanded="false" aria-controls="collapseTwo"
@@ -216,7 +283,9 @@
         </div>
     </div>
 </li>
+<?php } ?>
 
+<?php if (is_menu_accessible('monitoring_pj')) { ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMonitoringPj"
        aria-expanded="false" aria-controls="collapseMonitoringPj"
@@ -242,6 +311,34 @@
 
     </div>
 </li>
+<?php } ?>
+
+<!-- ================= PENILAIAN KINERJA ================= -->
+<?php if (is_menu_accessible('penilaian_kinerja')) { ?>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePenilaianKinerja"
+       aria-expanded="false" aria-controls="collapsePenilaianKinerja"
+       data-tooltip="true" data-placement="right"
+       title="Penilaian Kinerja Pegawai per Unit">
+        <i class="nav-icon-badge icon-monitoring fas fa-clipboard-check"></i>
+        <span>PENILAIAN KINERJA</span>
+    </a>
+    <div id="collapsePenilaianKinerja" class="collapse" aria-labelledby="headingPenilaianKinerja" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja"><i class="fas fa-clipboard-check"></i> Penilaian Kinerja</a>
+            <?php if ((int)$this->session->userdata('role_id') == 1) { ?>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kriteria"><i class="fas fa-sliders-h"></i> Kriteria &amp; Bobot</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kepala_unit"><i class="fas fa-user-tie"></i> Kepala Unit</a>
+            <?php } ?>
+            <?php if ((int)$this->session->userdata('role_id') == 1 || (int)$this->session->userdata('role_id') == 6) { ?>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/periode"><i class="fas fa-calendar-alt"></i> Periode</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/rekap"><i class="fas fa-chart-bar"></i> Rekap Penilaian</a>
+            <?php } ?>
+        </div>
+    </div>
+</li>
+<?php } ?>
+
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>
 <!-- ================= SERTIFIKAT ONLINE ================= -->
 <li class="nav-item">
@@ -335,25 +432,39 @@
 <!--</li>-->
 <?php } ?>
 
-<!-- ================= EDIT PASSWORD ================= -->
-<li class="nav-item">
-    <a class="nav-link" href="<?=base_url();?>index.php/List_indikator/vapassword"
-       data-tooltip="true" data-placement="right"
-       title="Edit Password — Ubah Kata Sandi Akun Anda">
-        <i class="nav-icon-badge icon-password fas fa-key"></i>
-        <span>Edit Password</span>
-    </a>
-</li>
+
 
 <?php if($this->session->userdata('role_id')==1) {?>
 <!-- ================= AKSES UNIT USER ================= -->
-<li class="nav-item">
+<!-- <li class="nav-item">
     <a class="nav-link" href="<?=base_url();?>index.php/user_unit"
        data-tooltip="true" data-placement="right"
        title="Akses Unit User — Kelola Hak Akses User per Unit">
         <i class="nav-icon-badge icon-akses fas fa-user-shield"></i>
         <span>Akses Unit User</span>
     </a>
+</li> -->
+
+<!-- ================= MANAJEMEN USER ================= -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseManajemen"
+       aria-expanded="false" aria-controls="collapseManajemen"
+       data-tooltip="true" data-placement="right"
+       title="Manajemen — Kelola User, Menu & Hak Akses Role">
+        <i class="nav-icon-badge icon-akses fas fa-user-cog"></i>
+        <span>MANAJEMEN USER</span>
+    </a>
+    <div id="collapseManajemen" class="collapse" aria-labelledby="headingManajemen" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Pengelolaan Sistem:</h6>
+            <a class="collapse-item" href="<?=site_url('users')?>"><i class="fas fa-user-cog"></i> User Management</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/user_unit"><i class="fas fa-bars"></i> Akses User Unit</a>
+            <a class="collapse-item" href="<?=site_url('user_list_indikator')?>"><i class="fas fa-list-check"></i> Akses Indikator User</a>
+            <a class="collapse-item" href="<?=site_url('menu')?>"><i class="fas fa-bars"></i> Menu Management</a>
+            <a class="collapse-item" href="<?=site_url('menu/roles')?>"><i class="fas fa-user-tag"></i> Role Management</a>
+            <a class="collapse-item" href="<?=site_url('menu/role_access/1')?>"><i class="fas fa-user-lock"></i> Role &amp; Hak Akses Menu</a>
+        </div>
+    </div>
 </li>
 <?php } ?>
 

@@ -24,21 +24,130 @@
 .portal-simonika .portal-icon { background:linear-gradient(135deg,#0891b2,#0e7490); }
 .portal-website .portal-icon { background:linear-gradient(135deg,#e11d48,#9f1239); }
 .portal-sheet .portal-icon { background:linear-gradient(135deg,#16a34a,#15803d); }
+/* SIASSET - Sistem Informasi Aset */
+.portal-siasset .portal-icon { background:linear-gradient(135deg,#7c3aed,#5b21b6); }
 @media(max-width:1100px){.portal-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:650px){.portal-hero{padding:15px}.portal-hero h1{font-size:1rem}.portal-grid{grid-template-columns:1fr 1fr;gap:8px}.portal-card{min-height:120px;padding:11px}}
 @media(max-width:420px){.portal-grid{grid-template-columns:1fr}}
 </style>
 
 <div class="container-fluid portal">
-    <div class="portal-hero"><div class="portal-eyebrow">RS Airlangga / Portal Terpadu</div><h1>Selamat datang di Portal Sistem RS Airlangga</h1><p>Satu halaman untuk mengakses seluruh layanan digital mutu, dokumen, penilaian, monitoring, dan manajemen surat.</p></div>
-    <div class="portal-section-title"><h2>Pilih layanan sistem</h2><span>Akses sesuai kewenangan akun Anda</span></div>
+    <div class="portal-hero">
+        <div class="portal-eyebrow">RS Airlangga / Portal Terpadu</div>
+        <h1>Selamat datang di Portal Sistem RS Airlangga</h1>
+        <p>Satu halaman untuk mengakses seluruh layanan digital mutu, dokumen, penilaian, monitoring, dan manajemen surat.</p>
+    </div>
+    
+    <div class="portal-section-title">
+        <h2>Pilih layanan sistem</h2>
+        <span>Akses sesuai kewenangan akun Anda</span>
+    </div>
+    
     <div class="portal-grid">
-        <a class="portal-card portal-website" href="https://rumahsakitairlangga.com/" target="_blank" rel="noopener noreferrer"><span class="portal-icon"><i class="fas fa-globe"></i></span><h3>WEBSITE RSA</h3><p>Kunjungi website resmi RS Airlangga untuk informasi layanan publik.</p><span class="portal-open">Buka website <i class="fas fa-arrow-right"></i></span></a>
-        <a class="portal-card portal-office" href="<?php echo site_url('surat'); ?>"><span class="portal-icon"><i class="fas fa-envelope-open-text"></i></span><h3>E-OFFICE RSA</h3><p>Pengajuan, penomoran, disposisi, tanda tangan, dan tracking surat.</p><span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span></a>
-        <a class="portal-card portal-mukespi" href="<?php echo site_url('list_indikator'); ?>"><span class="portal-icon"><i class="fas fa-heartbeat"></i></span><h3>MUKESPI</h3><p>Manajemen mutu, keselamatan pasien, insiden, dan PPI.</p><span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span></a>
-        <a class="portal-card portal-sidokta" href="<?php echo site_url('dokumen_unit'); ?>"><span class="portal-icon"><i class="fas fa-folder-open"></i></span><h3>SIDOKTA</h3><p>Sistem informasi dokumen terpadu dan akses dokumen unit.</p><span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span></a>
-        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_ep'); ?>"><span class="portal-icon"><i class="fas fa-award"></i></span><h3>SIPARDI</h3><p>Penilaian akreditasi dan pemantauan eviden rumah sakit.</p><span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span></a>
-        <a class="portal-card portal-simonika" href="<?php echo site_url('monitoring_pj'); ?>"><span class="portal-icon"><i class="fas fa-chart-line"></i></span><h3>SIMONIKA</h3><p>Monitoring penanggung jawab dan tindak lanjut kegiatan.</p><span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span></a>
-    <a class="portal-card portal-sheet" href="https://docs.google.com/spreadsheets/d/1EZyX69HEBVTDsRIH8S0db70Gn7hSq5jp/edit?usp=sharing&ouid=106587354370618703140&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer"><span class="portal-icon"><i class="fas fa-table"></i></span><h3>Monitoring Document Akreditasi</h3><p>Akses data dan rekap dalam format spreadsheet Google Sheets.</p><span class="portal-open">Buka sheet <i class="fas fa-arrow-right"></i></span></a>
+        <!-- WEBSITE RSA -->
+        <a class="portal-card portal-website" href="https://rumahsakitairlangga.com/" target="_blank" rel="noopener noreferrer">
+            <span class="portal-icon"><i class="fas fa-globe"></i></span>
+            <h3>WEBSITE RSA</h3>
+            <p>Kunjungi website resmi RS Airlangga untuk informasi layanan publik.</p>
+            <span class="portal-open">Buka website <i class="fas fa-arrow-right"></i></span>
+        </a>
+        
+        <?php if (is_menu_accessible('surat')) { ?>
+        <!-- E-OFFICE RSA -->
+        <a class="portal-card portal-office" href="<?php echo site_url('surat'); ?>">
+            <span class="portal-icon"><i class="fas fa-envelope-open-text"></i></span>
+            <h3>E-OFFICE RSA</h3>
+            <p>Pengajuan, penomoran, disposisi, tanda tangan, dan tracking surat.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+        
+        <?php if (is_menu_accessible('list_indikator')) { ?>
+        <!-- MUKESPI -->
+        <a class="portal-card portal-mukespi" href="<?php echo site_url('list_indikator'); ?>">
+            <span class="portal-icon"><i class="fas fa-heartbeat"></i></span>
+            <h3>MUKESPI</h3>
+            <p>Manajemen mutu, keselamatan pasien, insiden, dan PPI.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+        
+        <?php if (is_menu_accessible('data_inventaris')) { ?>
+        <!-- SIASSET - Sistem Informasi Aset (BARU) -->
+        <a class="portal-card portal-siasset" href="<?php echo site_url('data_inventaris'); ?>">
+            <span class="portal-icon"><i class="fas fa-boxes"></i></span>
+            <h3>SIASSET</h3>
+            <p>Sistem informasi manajemen aset, inventaris, pemeliharaan, dan tracking barang.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+        
+        <?php if (is_menu_accessible('dokumen_unit')) { ?>
+        <!-- SIDOKTA -->
+        <a class="portal-card portal-sidokta" href="<?php echo site_url('dokumen_unit'); ?>">
+            <span class="portal-icon"><i class="fas fa-folder-open"></i></span>
+            <h3>SIDOKTA</h3>
+            <p>Sistem informasi dokumen terpadu dan akses dokumen unit.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+        
+        <?php if (is_menu_accessible('penilaian_ep')) { ?>
+        <!-- SIPARDI -->
+        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_ep'); ?>">
+            <span class="portal-icon"><i class="fas fa-award"></i></span>
+            <h3>SIPARDI</h3>
+            <p>Penilaian akreditasi dan pemantauan eviden rumah sakit.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+        
+        <?php if (is_menu_accessible('monitoring_pj')) { ?>
+        <!-- SIMONIKA -->
+        <a class="portal-card portal-simonika" href="<?php echo site_url('monitoring_pj'); ?>">
+            <span class="portal-icon"><i class="fas fa-chart-line"></i></span>
+            <h3>SIMONIKA</h3>
+            <p>Monitoring penanggung jawab dan tindak lanjut kegiatan.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+
+        <?php if (is_menu_accessible('penilaian_kinerja')) { ?>
+        <!-- PENILAIAN KINERJA -->
+        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_kinerja'); ?>">
+            <span class="portal-icon"><i class="fas fa-clipboard-check"></i></span>
+            <h3>PENILAIAN KINERJA</h3>
+            <p>Penilaian kinerja pegawai per unit dengan kriteria dan bobot.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+        
+        <!-- Monitoring Document Akreditasi -->
+        <a class="portal-card portal-sheet" href="https://docs.google.com/spreadsheets/d/1EZyX69HEBVTDsRIH8S0db70Gn7hSq5jp/edit?usp=sharing&ouid=106587354370618703140&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer">
+            <span class="portal-icon"><i class="fas fa-table"></i></span>
+            <h3>Monitoring Document Akreditasi</h3>
+            <p>Akses data dan rekap dalam format spreadsheet Google Sheets.</p>
+            <span class="portal-open">Buka sheet <i class="fas fa-arrow-right"></i></span>
+        </a>
+
+        <?php if (is_menu_accessible('pelaporan')) { ?>
+        <!-- PELAPORAN KARYAWAN -->
+        <a class="portal-card portal-office" href="<?php echo site_url('pelaporan'); ?>">
+            <span class="portal-icon"><i class="fas fa-star-half-alt"></i></span>
+            <h3>PELAPORAN KARYAWAN</h3>
+            <p>Penilaian dan pengaduan sesama karyawan dengan bintang.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+
+        <?php if (current_pegawai_id()) { ?>
+        <!-- DATA SAYA PEGAWAI -->
+        <a class="portal-card portal-siasset" href="<?php echo site_url('pegawai/detail/' . current_pegawai_id()); ?>">
+            <span class="portal-icon"><i class="fas fa-id-badge"></i></span>
+            <h3>DATA SAYA</h3>
+            <p>Lihat dan perbarui data diri Anda sebagai pegawai.</p>
+            <span class="portal-open">Buka data <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
     </div>
 </div>

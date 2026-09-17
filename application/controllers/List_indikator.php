@@ -10,7 +10,21 @@ class List_indikator extends CI_Controller
         parent::__construct();
          is_logged_in();
         $this->load->model('List_indikator_model');
+        $this->load->model('User_list_indikator_model');
         $this->load->library('form_validation');
+    }
+
+    /**
+     * Indikator yang boleh diakses user (Akses Indikator User).
+     * NULL = tanpa batasan untuk admin (role 1) & direktur (role 4).
+     */
+    private function _allowed_indikators()
+    {
+        $role_id = (int) $this->session->userdata('role_id');
+        if ($role_id === 1 || $role_id === 4) {
+            return NULL;
+        }
+        return $this->User_list_indikator_model->get_indikator_ids_by_user((int) $this->session->userdata('id'));
     }
 
     public function index()
@@ -28,8 +42,9 @@ class List_indikator extends CI_Controller
 
         $config['per_page'] = 10;
         $config['page_query_string'] = TRUE;
-        $config['total_rows'] = $this->List_indikator_model->total_rows($q);
-        $list_indikator = $this->List_indikator_model->get_limit_data($config['per_page'], $start, $q);
+        $allowed_units = $this->_allowed_indikators();
+        $config['total_rows'] = $this->List_indikator_model->total_rows($q, $allowed_units);
+        $list_indikator = $this->List_indikator_model->get_limit_data($config['per_page'], $start, $q, $allowed_units);
 
         $this->load->library('pagination');
         $this->pagination->initialize($config);
@@ -56,6 +71,8 @@ class List_indikator extends CI_Controller
 		'kelompok' => $row->kelompok,
 		'jenis' => $row->jenis,
 		'judul' => $row->judul,
+		'id_unit' => $row->id_unit,
+		'nm_unit' => $row->nm_unit,
 	    );
             $this->load->view('list_indikator/list_indikator_read', $data);
         } else {
@@ -73,7 +90,14 @@ class List_indikator extends CI_Controller
 	    'kelompok' => set_value('kelompok'),
 	    'jenis' => set_value('jenis'),
 	    'judul' => set_value('judul'),
-	    'users' => $this->List_indikator_model->users() 
+	    'target' => set_value('target'),
+	    'num' => set_value('num'),
+	    'denum' => set_value('denum'),
+	    'ket_judul' => set_value('ketjudul'),
+	    'id_unit' => set_value('id_unit'),
+	    'userid' => set_value('user', $this->session->userdata('id')),
+	    'users' => $this->List_indikator_model->users(),
+	    'units' => $this->List_indikator_model->units()
 	);
 	
         $this->load->view('template/header',$data);
@@ -95,7 +119,8 @@ class List_indikator extends CI_Controller
 		'target' => $this->input->post('target',TRUE),
 		'ket_num' => $this->input->post('num',TRUE),
 		'ket_denum' => $this->input->post('denum',TRUE),
-		'userid' => $this->input->post('user',TRUE),
+		'id_unit' => (int) $this->input->post('id_unit',TRUE),
+		'userid' => (int) $this->input->post('user',TRUE) ?: (int) $this->session->userdata('id'),
 	    );
 
             $this->List_indikator_model->insert($data);
@@ -119,7 +144,11 @@ class List_indikator extends CI_Controller
 		'target' => set_value('target', $row->target),
 		'num' => set_value('num', $row->ket_num),
 		'denum' => set_value('denum', $row->ket_denum),
-		'ket_judul' => set_value('ket_judul', $row->ket_judul),
+		'ket_judul' => set_value('ketjudul', $row->ket_judul),
+		'id_unit' => set_value('id_unit', $row->id_unit),
+		'userid' => set_value('user', $row->userid),
+		'users' => $this->List_indikator_model->users(),
+		'units' => $this->List_indikator_model->units()
 	    );
         $this->load->view('template/header',$data);
         $this->load->view('list_indikator/list_indikator_form');
@@ -145,6 +174,7 @@ class List_indikator extends CI_Controller
 		'ket_num' => $this->input->post('num',TRUE),
 		'ket_denum' => $this->input->post('denum',TRUE),
 		'ket_judul' => $this->input->post('ketjudul',TRUE),
+		'id_unit' => (int) $this->input->post('id_unit',TRUE),
 	    );
 
             $this->List_indikator_model->update($this->input->post('id_indikator', TRUE), $data);
@@ -172,6 +202,7 @@ class List_indikator extends CI_Controller
 	$this->form_validation->set_rules('kelompok', 'kelompok', 'trim|required');
 	$this->form_validation->set_rules('jenis', 'jenis', 'trim|required');
 	$this->form_validation->set_rules('judul', 'judul', 'trim|required');
+	$this->form_validation->set_rules('id_unit', 'Unit', 'trim|required|integer');
 
 	$this->form_validation->set_rules('id_indikator', 'id_indikator', 'trim');
 	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
@@ -201,15 +232,17 @@ class List_indikator extends CI_Controller
         xlsWriteLabel($tablehead, $kolomhead++, "No");
 	xlsWriteLabel($tablehead, $kolomhead++, "Kelompok");
 	xlsWriteLabel($tablehead, $kolomhead++, "Jenis");
+	xlsWriteLabel($tablehead, $kolomhead++, "Unit");
 	xlsWriteLabel($tablehead, $kolomhead++, "Judul");
 
-	foreach ($this->List_indikator_model->get_all() as $data) {
+	foreach ($this->List_indikator_model->get_all($this->_allowed_indikators()) as $data) {
             $kolombody = 0;
 
             //ubah xlsWriteLabel menjadi xlsWriteNumber untuk kolom numeric
             xlsWriteNumber($tablebody, $kolombody++, $nourut);
 	    xlsWriteLabel($tablebody, $kolombody++, $data->kelompok);
 	    xlsWriteLabel($tablebody, $kolombody++, $data->jenis);
+	    xlsWriteLabel($tablebody, $kolombody++, $data->nm_unit);
 	    xlsWriteLabel($tablebody, $kolombody++, $data->judul);
 
 	    $tablebody++;

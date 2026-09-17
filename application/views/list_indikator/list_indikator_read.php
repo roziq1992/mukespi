@@ -14,6 +14,7 @@
         <table class="table">
 	    <tr><td>Kelompok</td><td><?php echo $kelompok; ?></td></tr>
 	    <tr><td>Jenis</td><td><?php echo $jenis; ?></td></tr>
+	    <tr><td>Unit</td><td><?php echo isset($nm_unit) ? $nm_unit : '-'; ?></td></tr>
 	    <tr><td>Judul</td><td><?php echo $judul; ?></td></tr>
 	    <tr><td></td><td><a href="<?php echo site_url('list_indikator') ?>" class="btn btn-default">Cancel</a></td></tr>
 	</table>

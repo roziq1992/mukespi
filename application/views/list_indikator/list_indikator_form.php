@@ -15,6 +15,15 @@
             <input type="text" class="form-control" name="jenis" id="jenis" placeholder="Jenis" value="<?php echo $jenis; ?>" />
         </div>
 	    <div class="form-group">
+            <label for="id_unit">Unit <?php echo form_error('id_unit') ?></label>
+            <select class="form-control" id="id_unit" name="id_unit" required>
+                <option value="">— Pilih Unit —</option>
+                <?php foreach ($units as $u) { ?>
+                <option value="<?php echo $u->id_unit ?>" <?php echo (set_value('id_unit', isset($id_unit) ? $id_unit : '') == $u->id_unit) ? 'selected' : ''; ?>><?php echo $u->nm_unit ?></option>
+                <?php } ?>
+            </select>
+        </div>
+	    <div class="form-group">
             <label for="varchar">Judul <?php echo form_error('judul') ?></label>
             <input type="text" class="form-control" name="judul" id="judul" placeholder="Judul" value="<?php echo $judul; ?>" />
         </div>
@@ -37,9 +46,9 @@
          <div class="form-group">
             <label for="varchar">User </label>
             <select class="form-control form-control-solid" id="user" name="user">
-         <?php  foreach ($users as $users)
+         <?php  foreach ($users as $u)
             { ?>
-           <option  value="<?php echo $users->id ?>"><?php echo $users->name?></option>
+           <option value="<?php echo $u->id ?>" <?php echo (set_value('user', isset($userid) ? $userid : '') == $u->id) ? 'selected' : ''; ?>><?php echo $u->name?></option>
           <?php } ?>
             </select>
         </div>

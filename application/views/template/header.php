@@ -81,14 +81,18 @@
 					<ul class="navbar-nav ml-auto">
 
 						<!-- Nav Item - User Information -->
+						<?php
+						$_avatar = $this->session->userdata('avatar');
+						$_avatar_src = (!empty($_avatar) && file_exists(FCPATH . $_avatar)) ? base_url($_avatar) . '?v=' . md5($_avatar) : base_url('assets/img/undraw_profile.svg');
+						?>
 						<li class="nav-item dropdown no-arrow">
 							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								<span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo html_escape($this->session->userdata('name') ?: $this->session->userdata('email')); ?> </span>
-								<img class="img-profile rounded-circle" src="<?=base_url('assets/');?>img/undraw_profile.svg">
+								<img class="img-profile rounded-circle" src="<?php echo $_avatar_src; ?>">
 							</a>
 							<!-- Dropdown - User Information -->
 							<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-								<a class="dropdown-item" href="#">
+								<a class="dropdown-item" href="<?php echo site_url('profile'); ?>">
 									<i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
 									Profile
 								</a>

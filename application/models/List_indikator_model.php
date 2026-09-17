@@ -16,63 +16,79 @@ class List_indikator_model extends CI_Model
     }
 
     // get all
-    function get_all()
+    // $allowed_indikators: NULL = tanpa batasan (admin/direktur); array id_indikator = hanya itu
+    function get_all($allowed_indikators = NULL)
     {
-        $this->db->order_by($this->id, $this->order);
-        return $this->db->get($this->table)->result();
+        $this->db->select('list_indikator.*, unit.nm_unit');
+        $this->db->from($this->table);
+        $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
+        $this->_apply_scope($allowed_indikators);
+        $this->db->order_by('list_indikator.' . $this->id, $this->order);
+        return $this->db->get()->result();
+    }
+
+    /**
+     * Batasi data sesuai akses indikator per user (tabel user_list_indikator).
+     * - $allowed_indikators === NULL : tanpa batasan (admin/direktur).
+     * - array berisi id_indikator : hanya indikator tsb.
+     * - array kosong : tidak ada indikator yang boleh dilihat.
+     */
+    private function _apply_scope($allowed_indikators = NULL)
+    {
+        if ($allowed_indikators === NULL) {
+            return;
+        }
+        if (!empty($allowed_indikators)) {
+            $this->db->where_in('list_indikator.id_indikator', $allowed_indikators);
+        } else {
+            $this->db->where('1 = 0', NULL, FALSE);
+        }
+    }
+
+    // Pencarian pada kolom teks (termasuk nama unit)
+    private function _apply_search($q = NULL)
+    {
+        if ($q === NULL || $q === '') {
+            return;
+        }
+        $this->db->group_start();
+        $this->db->like('list_indikator.id_indikator', $q);
+        $this->db->or_like('list_indikator.kelompok', $q);
+        $this->db->or_like('list_indikator.jenis', $q);
+        $this->db->or_like('list_indikator.judul', $q);
+        $this->db->or_like('unit.nm_unit', $q);
+        $this->db->group_end();
     }
 
     // get data by id
     function get_by_id($id)
     {
-        $this->db->where($this->id, $id);
-        return $this->db->get($this->table)->row();
+        $this->db->select('list_indikator.*, unit.nm_unit');
+        $this->db->from($this->table);
+        $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
+        $this->db->where('list_indikator.' . $this->id, $id);
+        return $this->db->get()->row();
     }
     
     // get total rows
-    function total_rows($q = NULL) {
-        if($this->session->userdata('email')=='admin@mail.com' || $this->session->userdata('email')=='DIR01@dir.com' ) {
-    $this->db->like('id_indikator', $q);
-	$this->db->or_like('kelompok', $q);
-	$this->db->or_like('jenis', $q);
-	$this->db->or_like('judul', $q);
-	$this->db->from($this->table);
-        }else{
-    $iduser=$this->session->userdata('id');
-    $this->db->where('userid', $iduser);
-     $this->db->group_start();
-    $this->db->like('id_indikator', $q);
-	$this->db->or_like('kelompok', $q);
-	$this->db->or_like('jenis', $q);
-	$this->db->or_like('judul', $q);
-	$this->db->group_end();
-	$this->db->from($this->table);
-        }
+    function total_rows($q = NULL, $allowed_indikators = NULL) {
+        $this->db->from($this->table);
+        $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
+        $this->_apply_scope($allowed_indikators);
+        $this->_apply_search($q);
         return $this->db->count_all_results();
     }
 
     // get data with limit and search
-    function get_limit_data($limit, $start = 0, $q = NULL) {
-        if($this->session->userdata('email')=='admin@mail.com' || $this->session->userdata('email')=='DIR01@dir.com' ) {
-        $this->db->order_by($this->id, $this->order);
-        $this->db->like('id_indikator', $q);
-    	$this->db->or_like('kelompok', $q);
-    	$this->db->or_like('jenis', $q);
-    	$this->db->or_like('judul', $q);
-	    $this->db->limit($limit, $start);
-        }else{
-            $iduser=$this->session->userdata('id');
-        $this->db->order_by($this->id, $this->order);
-        $this->db->where('userid', $iduser);
-        $this->db->group_start();
-        $this->db->like('id_indikator', $q);
-    	$this->db->or_like('kelompok', $q);
-    	$this->db->or_like('jenis', $q);
-    	$this->db->or_like('judul', $q);
-    	$this->db->group_end();
-	    $this->db->limit($limit, $start);
-        }
-        return $this->db->get($this->table)->result();
+    function get_limit_data($limit, $start = 0, $q = NULL, $allowed_indikators = NULL) {
+        $this->db->select('list_indikator.*, unit.nm_unit');
+        $this->db->from($this->table);
+        $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
+        $this->_apply_scope($allowed_indikators);
+        $this->_apply_search($q);
+        $this->db->order_by('list_indikator.' . $this->id, $this->order);
+        $this->db->limit($limit, $start);
+        return $this->db->get()->result();
     }
 
     // insert data
@@ -98,6 +114,12 @@ class List_indikator_model extends CI_Model
     {
         
         return $this->db->get('users')->result();
+    }
+
+    // daftar unit untuk dropdown form indikator
+    function units()
+    {
+        return $this->db->order_by('nm_unit', 'ASC')->get('unit')->result();
     }
 
 }
