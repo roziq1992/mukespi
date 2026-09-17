@@ -17,7 +17,9 @@
 
 	<!-- Custom styles for this template-->
 	<link href="<?=base_url('assets/');?>css/sb-admin-2.min.css" rel="stylesheet">
-
+<!-- jQuery first, then Bootstrap JS -->
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>-->
 	
 </head>
 

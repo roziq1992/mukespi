@@ -153,7 +153,16 @@
 		pointer-events: none;
 	}
 
-	.brand-header { position: relative; z-index: 1; }
+        /* ================= BRAND SIDE ================= */
+        .brand-side {
+            position: relative;
+            background: linear-gradient(172deg, var(--navy-900) 0%, var(--navy-950) 100%);
+            padding: 52px 48px 40px;
+            display: flex;
+            flex-direction: column;
+            color: #EEF2F6;
+            overflow: hidden;
+        }
 
 	.brand-badge {
 		display: inline-flex;
@@ -638,7 +647,18 @@
 					<p>Masukkan kredensial untuk mengakses sistem.</p>
 				</div>
 
-				<div class="flash-message"><?= $this->session->flashdata('message'); ?></div>
+                <div class="crest-row">
+                    <div class="crest-mark">
+                        <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M26 4 L46 11 V25 C46 37 37.5 45.5 26 48 C14.5 45.5 6 37 6 25 V11 Z" />
+                            <path d="M26 16 V32 M18 24 H34" stroke="#4CDBA8" stroke-width="2" fill="none" />
+                        </svg>
+                    </div>
+                    <div class="crest-text">
+                        <h1>RS AIRLANGGA</h1>
+                        <p>Jombang, Jawa Timur</p>
+                    </div>
+                </div>
 
 				<form class="user" method="POST" action="">
 					<div class="field">
@@ -662,15 +682,39 @@
 						<?= form_error('password', '<small class="field-error">', '</small>'); ?>
 					</div>
 
-					<div class="field-row">
-						<label class="remember" for="customCheck">
-							<input type="checkbox" id="customCheck">
-							Ingat Sesi Saya
-						</label>
-					</div>
+                <div class="module-panel">
+                    <div class="module-row">
+                        <span class="module-dot"></span>
+                        <span class="name">MUKESPI</span>
+                        <span class="desc">Mutu, insiden & PPI</span>
+                    </div>
+                    <div class="module-row">
+                        <span class="module-dot"></span>
+                        <span class="name">SIDOKTA</span>
+                        <span class="desc">Dokumen unit terpadu</span>
+                    </div>
+                    <div class="module-row">
+                        <span class="module-dot"></span>
+                        <span class="name">SIPARDI</span>
+                        <span class="desc">Penilaian & akreditasi</span>
+                    </div>
+                    <div class="module-row">
+                        <span class="module-dot"></span>
+                        <span class="name">SIASSET</span>
+                        <span class="desc">Aset & maintenance</span>
+                    </div>
+                    <div class="module-row">
+                        <span class="module-dot"></span>
+                        <span class="name">SIMONIKA</span>
+                        <span class="desc">Monitoring aplikasi Kemenkes</span>
+                    </div>
+                </div>
 
-					<button type="submit" class="btn-submit">Masuk ke System</button>
-				</form>
+                <div class="brand-foot">
+                    <span class="pulse-dot"></span>
+                    Server online &nbsp;·&nbsp; &copy; 2026 Much Roziq, S.Kom
+                </div>
+            </div>
 
 				<hr class="form-hr">
 				<div class="form-foot">
@@ -729,7 +773,25 @@
 
 		
 
-	</div>
+    <script>
+        (function () {
+            const toggle = document.getElementById('togglePass');
+            const pass = document.getElementById('passwordInput');
+            const eye = document.getElementById('eyeIcon');
+
+            if (toggle && pass && eye) {
+                toggle.addEventListener('click', function () {
+                    const isPass = pass.getAttribute('type') === 'password';
+                    pass.setAttribute('type', isPass ? 'text' : 'password');
+                    this.setAttribute('aria-label', isPass ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+
+                    eye.innerHTML = isPass
+                        ? '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.38M1 1l22 22"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/>'
+                        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+                });
+            }
+        })();
+    </script>
 
 	<script>
 	(function(){

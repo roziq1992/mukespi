@@ -1,6 +1,7 @@
 # Local configuration and secrets
 application/config/database.php
 application/config/email.php
+application/config/config.php
 
 # Runtime and uploaded files #
 application/cache/*
