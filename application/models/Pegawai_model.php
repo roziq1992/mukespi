@@ -172,6 +172,7 @@ class Pegawai_model extends CI_Model
     // daftar unit kerja dari tabel unit (id_unit, nm_unit, jns_unit)
     function units()
     {
+        $this->db->where('status', 'aktif');
         $this->db->order_by('nm_unit', 'ASC');
         return $this->db->get('unit')->result();
     }

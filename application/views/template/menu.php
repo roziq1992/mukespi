@@ -139,6 +139,7 @@
             <a class="collapse-item" href="<?=base_url();?>index.php/pegawai"><i class="fas fa-users"></i> Data Pegawai</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/pegawai/create"><i class="fas fa-user-plus"></i> Tambah Pegawai</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/pegawai?status=nonaktif"><i class="fas fa-user-slash"></i> Pegawai Nonaktif</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/unit"><i class="fas fa-building"></i> Unit Kerja</a>
         </div>
     </div>
 </li>
@@ -314,7 +315,7 @@
 <?php } ?>
 
 <!-- ================= PENILAIAN KINERJA ================= -->
-<?php if (is_menu_accessible('penilaian_kinerja')) { ?>
+<?php if (is_menu_accessible('penilaian_kinerja') || is_menu_accessible('penilaian_otk')) { ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePenilaianKinerja"
        aria-expanded="false" aria-controls="collapsePenilaianKinerja"
@@ -325,36 +326,19 @@
     </a>
     <div id="collapsePenilaianKinerja" class="collapse" aria-labelledby="headingPenilaianKinerja" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja"><i class="fas fa-clipboard-check"></i> Penilaian Kinerja</a>
+            <!-- <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja"><i class="fas fa-clipboard-check"></i> Penilaian Kinerja</a> -->
+            <?php if (is_menu_accessible('penilaian_otk')) { ?>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk"><i class="fas fa-user-check"></i> Penilaian Kinerja</a>
+            <?php } ?>
             <?php if ((int)$this->session->userdata('role_id') == 1) { ?>
             <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kriteria"><i class="fas fa-sliders-h"></i> Kriteria &amp; Bobot</a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kepala_unit"><i class="fas fa-user-tie"></i> Kepala Unit</a>
+            <!-- <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kepala_unit"><i class="fas fa-user-tie"></i> Kepala Unit</a> -->
             <?php } ?>
             <?php if ((int)$this->session->userdata('role_id') == 1 || (int)$this->session->userdata('role_id') == 6) { ?>
             <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/periode"><i class="fas fa-calendar-alt"></i> Periode</a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/rekap"><i class="fas fa-chart-bar"></i> Rekap Penilaian</a>
-            <?php } ?>
-        </div>
-    </div>
-</li>
-<?php } ?>
-
-<!-- ================= PENILAIAN KINERJA OTK ================= -->
-<?php if (is_menu_accessible('penilaian_otk')) { ?>
-<li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePenilaianOtk"
-       aria-expanded="false" aria-controls="collapsePenilaianOtk"
-       data-tooltip="true" data-placement="right"
-       title="Penilaian Kinerja OTK — penilai -> yang dinilai">
-        <i class="nav-icon-badge icon-monitoring fas fa-user-check"></i>
-        <span>PENILAIAN OTK</span>
-    </a>
-    <div id="collapsePenilaianOtk" class="collapse" aria-labelledby="headingPenilaianOtk" data-parent="#accordionSidebar">
-        <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk"><i class="fas fa-user-check"></i> Penilaian OTK</a>
-            <?php if ((int)$this->session->userdata('role_id') == 1 || (int)$this->session->userdata('role_id') == 6) { ?>
-            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/kelola"><i class="fas fa-user-cog"></i> Kelola Penilai</a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/rekap"><i class="fas fa-chart-bar"></i> Rekap OTK</a>
+            <!-- <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/rekap"><i class="fas fa-chart-bar"></i> Rekap Penilaian</a> -->
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/kelola"><i class="fas fa-user-cog"></i> Kelola Penilai </a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/rekap"><i class="fas fa-chart-bar"></i> Rekap Penilai</a>
             <?php } ?>
         </div>
     </div>

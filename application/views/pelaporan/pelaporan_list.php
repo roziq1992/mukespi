@@ -144,7 +144,8 @@
 								<span class="plr-sub"><?= html_escape($l->jabatan_terlapor ?: '—') ?> • <?= html_escape($l->unit_terlapor ?: '—') ?></span>
 							</td>
 							<td><span style="white-space:nowrap;"><?= plr_stars($l->bintang) ?></span></td>
-							<td><span class="plr-alasan" title="<?= html_escape($l->alasan) ?>"><?= html_escape($l->alasan) ?></span></td>
+							<td><span class="plr-alasan" title="<?= html_escape($l->alasan) ?>"><?= html_escape($l->alasan) ?></span>
+								<?php if (!empty($l->sanggahan)): ?><span class="plr-sub" style="color:#047857;"><i class="fas fa-reply mr-1"></i> Sudah ada sanggahan</span><?php endif; ?></td>
 							<td><span class="plr-date"><?= date('d M Y', strtotime($l->created_at)) ?></span></td>
 							<?php if ($is_hrd): ?>
 							<td><span class="plr-pelapor"><?= html_escape($l->nama_pelapor ?: '—') ?></span></td>
@@ -152,7 +153,12 @@
 							<td style="text-align:center;">
 								<div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
 									<?= anchor(site_url('pelaporan/detail/' . $l->id_laporan), '<i class="fas fa-eye"></i>', 'class="plr-btn plr-btn-eye" title="Lihat detail"') ?>
+									<?php if (!empty($l->viewer_is_terlapor)): ?>
+									<?= anchor(site_url('pelaporan/detail/' . $l->id_laporan), '<i class="fas fa-reply"></i> Sanggah', 'class="plr-btn plr-btn-soft" title="Sanggah laporan ini"') ?>
+									<?php endif; ?>
+									<?php if (!empty($l->can_delete)): ?>
 									<?= anchor(site_url('pelaporan/delete/' . $l->id_laporan), '<i class="fas fa-trash"></i>', 'class="plr-btn plr-btn-danger" title="Hapus laporan" onclick="return confirm(\'Hapus laporan ini?\');"') ?>
+									<?php endif; ?>
 								</div>
 							</td>
 						</tr>

@@ -119,7 +119,7 @@ class List_indikator_model extends CI_Model
     // daftar unit untuk dropdown form indikator
     function units()
     {
-        return $this->db->order_by('nm_unit', 'ASC')->get('unit')->result();
+        return $this->db->where('status', 'aktif')->order_by('nm_unit', 'ASC')->get('unit')->result();
     }
 
 }

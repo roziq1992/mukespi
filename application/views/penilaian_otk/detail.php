@@ -19,7 +19,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-3 pk-no-print">
         <div>
             <a href="<?php echo site_url('penilaian_otk'); ?>" class="text-gray-600 small"><i class="fas fa-arrow-left"></i> Kembali</a>
-            <h1 class="h3 mb-0 text-gray-800 mt-1">Detail Penilaian Kinerja OTK</h1>
+            <h1 class="h3 mb-0 text-gray-800 mt-1">Detail Penilaian Kinerja </h1>
         </div>
         <div>
             <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Cetak</button>
@@ -30,7 +30,7 @@
         <div class="card shadow mb-3">
             <div class="card-body pk-result">
                 <div class="text-center mb-3">
-                    <div class="font-weight-bold" style="font-size:1.1rem;">FORMULIR PENILAIAN KINERJA OTK</div>
+                    <div class="font-weight-bold" style="font-size:1.1rem;">FORMULIR PENILAIAN KINERJA </div>
                     <div class="text-muted">RS AIRLANGGA &mdash; <?php echo html_escape($penilaian->nama_periode); ?></div>
                 </div>
                 <div class="row mb-3">

@@ -24,10 +24,25 @@
         <?php endif; ?>
     </div>
 
+    <?php if (empty($dalam_jadwal)): ?>
+    <div class="alert alert-warning d-flex align-items-center">
+        <i class="fas fa-calendar-times fa-lg mr-3"></i>
+        <div>
+            <strong>Di luar jadwal input periode penilaian.</strong><br>
+            Periode ini hanya dapat diisi pada
+            <strong><?php echo $periode->input_mulai ? date('d M Y', strtotime($periode->input_mulai)) : '-'; ?> &ndash; <?php echo $periode->input_selesai ? date('d M Y', strtotime($periode->input_selesai)) : '-'; ?></strong>.
+            Formulir dikunci. Centang opsi "Izinkan input di luar jadwal" di bagian bawah untuk membukanya.
+        </div>
+    </div>
+    <?php endif; ?>
+
     <form method="post" action="<?php echo site_url('penilaian_kinerja/save'); ?>">
         <input type="hidden" name="id_periode" value="<?php echo (int) $periode->id_periode; ?>">
         <input type="hidden" name="id_unit" value="<?php echo (int) $unit->id_unit; ?>">
         <input type="hidden" name="id_dinilai" value="<?php echo (int) $target->id_pegawai; ?>">
+        <?php if (empty($dalam_jadwal)): ?>
+        <input type="hidden" name="bypass" id="bypassField" value="0">
+        <?php endif; ?>
 
         <!-- Info pegawai yang dinilai -->
         <div class="card shadow mb-4">
@@ -136,8 +151,16 @@
                         <div class="progress mt-2" style="height:8px;"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
                     </div>
                     <div class="col-md-8 text-md-right">
-                        <button type="submit" name="status" value="draft" class="btn btn-secondary"><i class="fas fa-save"></i> Simpan Draft</button>
-                        <button type="submit" name="status" value="selesai" class="btn btn-success" onclick="return confirm('Selesaikan penilaian ini? Semua kriteria harus terisi dan nilai akhir akan dikunci.')"><i class="fas fa-check-circle"></i> Simpan &amp; Selesaikan</button>
+                        <?php if (empty($dalam_jadwal)): ?>
+                        <div class="form-check mb-2 text-left">
+                            <input type="checkbox" class="form-check-input" id="bypassJadwal">
+                            <label class="form-check-label" for="bypassJadwal">
+                                <i class="fas fa-unlock text-warning"></i> Izinkan input di luar jadwal (bypass periode)
+                            </label>
+                        </div>
+                        <?php endif; ?>
+                        <button type="submit" name="status" value="draft" class="btn btn-secondary btn-submit-penilaian" <?php echo empty($dalam_jadwal) ? 'disabled' : ''; ?>><i class="fas fa-save"></i> Simpan Draft</button>
+                        <button type="submit" name="status" value="selesai" class="btn btn-success btn-submit-penilaian" <?php echo empty($dalam_jadwal) ? 'disabled' : ''; ?> onclick="return confirm('Selesaikan penilaian ini? Semua kriteria harus terisi dan nilai akhir akan dikunci.')"><i class="fas fa-check-circle"></i> Simpan &amp; Selesaikan</button>
                     </div>
                 </div>
             </div>
@@ -188,5 +211,15 @@
 
     selects.forEach(function (sel) { sel.addEventListener('change', recompute); });
     recompute(); // tampilkan nilai tersimpan saat halaman dimuat
+
+    // Bypass jadwal periode: centang => form terbuka + kirim bypass=1
+    var cb = document.getElementById('bypassJadwal');
+    var f = document.getElementById('bypassField');
+    if (cb && f) {
+        cb.addEventListener('change', function () {
+            f.value = cb.checked ? '1' : '0';
+            document.querySelectorAll('.btn-submit-penilaian').forEach(function (b) { b.disabled = !cb.checked; });
+        });
+    }
 })();
 </script>

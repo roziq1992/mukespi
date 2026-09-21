@@ -188,7 +188,7 @@ function get_limit_data($limit, $start = 0, $q = NULL, $id_unit = NULL, $id_jeni
     // dropdown pilihan Unit (untuk form create/update)
     public function unit()
     {
-        return $this->db->order_by('nm_unit', 'ASC')->get('unit')->result();
+        return $this->db->where('status', 'aktif')->order_by('nm_unit', 'ASC')->get('unit')->result();
     }
 
     // dropdown pilihan Jenis Dokumen (untuk form create/update)

@@ -14,7 +14,7 @@
     <?php if ($flash): ?><div class="mt-3"><?php echo $flash; ?></div><?php endif; ?>
 
     <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-3">
-        <h1 class="h3 mb-0 text-gray-800">Penilaian Kinerja OTK</h1>
+        <h1 class="h3 mb-0 text-gray-800">Penilaian Kinerja </h1>
         <?php if ($is_manager): ?>
         <div class="btn-group">
             <a href="<?php echo site_url('penilaian_otk/kelola'); ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-user-check"></i> Kelola Penilai</a>
@@ -27,7 +27,10 @@
     <div class="alert alert-primary py-2 px-3" style="font-size:.85rem;">
         <strong>Periode aktif:</strong> <?php echo html_escape($periode->nama); ?>
         <?php if ($periode->tanggal_mulai && $periode->tanggal_selesai): ?>
-            (<?php echo date('d M Y', strtotime($periode->tanggal_mulai)); ?> &ndash; <?php echo date('d M Y', strtotime($periode->tanggal_selesai)); ?>)
+            | Penilaian: <?php echo date('d M Y', strtotime($periode->tanggal_mulai)); ?> &ndash; <?php echo date('d M Y', strtotime($periode->tanggal_selesai)); ?>
+        <?php endif; ?>
+        <?php if ($periode->input_mulai && $periode->input_selesai): ?>
+            | Input: <?php echo date('d M Y', strtotime($periode->input_mulai)); ?> &ndash; <?php echo date('d M Y', strtotime($periode->input_selesai)); ?>
         <?php endif; ?>
     </div>
     <?php else: ?>
@@ -63,11 +66,32 @@
     </div>
     <?php endif; ?>
 
-    <?php if (!empty($pekerjaan_saya)): ?>
-    <!-- Penilaian yang ditugaskan ke saya sebagai penilai -->
-    <div class="card shadow mb-4 border-left-primary">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-user-check"></i> Tanggungan Penilaian Saya (Periode <?php echo html_escape($periode ? $periode->nama : '-'); ?>)</h6>
+    <?php
+    $ada_tugas = FALSE;
+    if (!empty($tugas_per_periode)) {
+        foreach ($tugas_per_periode as $tp) {
+            if (!empty($tp['items'])) { $ada_tugas = TRUE; break; }
+        }
+    }
+    ?>
+
+    <?php if ($ada_tugas): ?>
+    <!-- Penilaian yang ditugaskan ke saya sebagai penilai (SEMUA periode) -->
+    <?php foreach ($tugas_per_periode as $tp): ?>
+    <?php if (empty($tp['items'])) continue; ?>
+    <div class="card shadow mb-4 border-left-<?php echo $tp['buka'] ? 'success' : 'secondary'; ?>">
+        <div class="card-header py-3 d-flex flex-wrap align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-user-check"></i> Tanggungan Penilaian Saya &mdash; <?php echo html_escape($tp['periode']->nama); ?></h6>
+        </div>
+        <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center" style="background:#f8f9fc;font-size:.8rem;">
+            <span class="badge <?php echo $tp['periode']->status === 'aktif' ? 'badge-success' : ($tp['periode']->status === 'selesai' ? 'badge-secondary' : 'badge-warning'); ?> mr-2">Periode <?php echo ucfirst(html_escape($tp['periode']->status)); ?></span>
+            <?php if ($tp['buka']): ?>
+            <span class="badge badge-success mr-2"><i class="fas fa-unlock"></i> Jadwal input terbuka (<?php echo date('Y-m-d'); ?>)</span>
+            <?php else: ?>
+            <span class="badge badge-secondary mr-2"><i class="fas fa-lock"></i> Di luar jadwal input</span>
+            <?php endif; ?>
+            <span class="text-muted mr-3">Penilaian: <?php echo $tp['periode']->tanggal_mulai ? date('d M Y', strtotime($tp['periode']->tanggal_mulai)) : '-'; ?> &ndash; <?php echo $tp['periode']->tanggal_selesai ? date('d M Y', strtotime($tp['periode']->tanggal_selesai)) : '-'; ?></span>
+            <span class="text-muted">Input: <?php echo $tp['periode']->input_mulai ? date('d M Y', strtotime($tp['periode']->input_mulai)) : '-'; ?> &ndash; <?php echo $tp['periode']->input_selesai ? date('d M Y', strtotime($tp['periode']->input_selesai)) : '-'; ?></span>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -84,7 +108,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 0; foreach ($pekerjaan_saya as $a): $no++; ?>
+                        <?php $no = 0; foreach ($tp['items'] as $a): $no++; ?>
                         <tr>
                             <td><?php echo $no; ?></td>
                             <td class="font-weight-bold"><?php echo html_escape($a->nama_dinilai); ?></td>
@@ -103,9 +127,13 @@
                             </td>
                             <td class="font-weight-bold"><?php echo ($a->total_nilai !== NULL) ? number_format($a->total_nilai, 2) : '-'; ?></td>
                             <td class="text-right">
-                                <a class="btn btn-sm btn-primary" href="<?php echo site_url('penilaian_otk/form/' . $a->id_penilai . '/' . $a->id_dinilai . '/' . ((int)$periode->id_periode)); ?>">
-                                    <i class="fas fa-<?php echo $a->id_penilaian ? 'edit' : 'edit'; ?>"></i> <?php echo $a->id_penilaian ? 'Edit' : 'Isi'; ?>
+                                <?php if (!$tp['buka'] && !$is_manager): ?>
+                                <span class="btn btn-sm btn-secondary disabled" title="Input dibuka <?php echo $tp['periode']->input_mulai ? date('d M Y', strtotime($tp['periode']->input_mulai)) : '-'; ?> s/d <?php echo $tp['periode']->input_selesai ? date('d M Y', strtotime($tp['periode']->input_selesai)) : '-'; ?>"><i class="fas fa-lock"></i> <?php echo $a->id_penilaian ? 'Edit' : 'Isi'; ?></span>
+                                <?php else: ?>
+                                <a class="btn btn-sm btn-primary" href="<?php echo site_url('penilaian_otk/form/' . $a->id_penilai . '/' . $a->id_dinilai . '/' . (int)$tp['periode']->id_periode); ?>">
+                                    <i class="fas fa-edit"></i> <?php echo $a->id_penilaian ? 'Edit' : 'Isi'; ?>
                                 </a>
+                                <?php endif; ?>
                                 <?php if ($a->id_penilaian): ?>
                                 <a class="btn btn-sm btn-outline-primary" href="<?php echo site_url('penilaian_otk/detail/' . $a->id_penilaian); ?>"><i class="fas fa-eye"></i></a>
                                 <?php endif; ?>
@@ -117,6 +145,7 @@
             </div>
         </div>
     </div>
+    <?php endforeach; ?>
     <?php endif; ?>
 
     <?php if (!empty($penilaian_saya)): ?>
@@ -162,11 +191,11 @@
     </div>
     <?php endif; ?>
 
-    <?php if (empty($pekerjaan_saya) && empty($penilaian_saya) && !$is_manager): ?>
+    <?php if (!$ada_tugas && empty($penilaian_saya) && !$is_manager): ?>
     <div class="card shadow mb-4">
         <div class="card-body text-center text-muted py-5">
             <i class="fas fa-user-check fa-3x mb-3"></i>
-            <p>Anda belum ditugaskan sebagai penilai maupun dinilai pada periode ini.</p>
+            <p>Anda belum ditugaskan sebagai penilai maupun dinilai pada periode mana pun.</p>
             <p class="small">Jika seharusnya Anda menilai, hubungi administrator/HRD untuk menetapkan tanggungan penilaian (kelola penilai).</p>
         </div>
     </div>

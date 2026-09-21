@@ -39,7 +39,9 @@ function check_access($role_id, $menu_id)
 /**
  * ID pegawai milik pengguna yang sedang login.
  * - Login via NIK : id_pegawai sudah ada di session.
- * - Login via email dengan role "pegawai" (role 7): dicocokkan lewat email.
+ * - Login via email : dicocokkan lewat email ke tabel pegawai (email unik),
+ *   berlaku untuk role apa pun (pegawai, User KA Unit, dsb) agar penilai
+ *   yang memakai akun users tetap dikenali sebagai pegawai.
  */
 function current_pegawai_id()
 {
@@ -50,9 +52,10 @@ function current_pegawai_id()
         return (int) $id;
     }
 
-    if ((int) $ci->session->userdata('role_id') === 7 && $ci->session->userdata('email')) {
+    $email = $ci->session->userdata('email');
+    if ($email) {
         $ci->load->model('Pegawai_model');
-        $row = $ci->Pegawai_model->get_by_email($ci->session->userdata('email'));
+        $row = $ci->Pegawai_model->get_by_email($email);
         if ($row && isset($row['id_pegawai'])) {
             return (int) $row['id_pegawai'];
         }

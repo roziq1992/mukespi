@@ -5,9 +5,12 @@
     <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-3">
         <div>
             <a href="<?php echo site_url('penilaian_otk'); ?>" class="text-gray-600 small"><i class="fas fa-arrow-left"></i> Kembali</a>
-            <h1 class="h3 mb-0 text-gray-800 mt-1">Rekap Penilaian OTK</h1>
+            <h1 class="h3 mb-0 text-gray-800 mt-1">Rekap Penilaian </h1>
         </div>
         <div class="btn-group">
+            <?php if ($periode): ?>
+            <a class="btn btn-success btn-sm" href="<?php echo site_url('penilaian_otk/export_excel/' . (int)$periode->id_periode); ?>"><i class="fas fa-file-excel"></i> Export Excel</a>
+            <?php endif; ?>
             <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Cetak</button>
         </div>
     </div>

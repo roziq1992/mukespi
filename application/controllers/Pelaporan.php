@@ -22,21 +22,43 @@ class Pelaporan extends CI_Controller
         return $this->session->userdata('is_pegawai') === TRUE || (int) $this->session->userdata('role_id') === 7;
     }
 
-    // petunjuk laporan yang boleh dilihat pengguna saat ini: HRD = semua, pegawai = laporannya sendiri
+    // petunjuk laporan yang boleh dilihat pengguna saat ini: HRD = semua, pegawai = laporannya sendiri + laporan tentang dirinya
     public function index()
     {
-        if ($this->is_pegawai_login()) {
-            $list = $this->Pelaporan_model->list_by_pegawai(current_pegawai_id());
-        } elseif ($this->is_hrd()) {
-            $list = $this->Pelaporan_model->list_all();
+        $my_pid = current_pegawai_id();
+        $my_uid = (int) $this->session->userdata('id');
+
+        if ($this->is_hrd()) {
+            $raw = $this->Pelaporan_model->list_all();
+        } elseif ($this->is_pegawai_login()) {
+            $raw = array_merge(
+                $this->Pelaporan_model->list_by_pegawai($my_pid),
+                $my_pid ? $this->Pelaporan_model->list_by_terlapor($my_pid) : array()
+            );
         } else {
-            // user biasa (login email) dilihat berdasarkan user yang melaporkan
-            $list = $this->Pelaporan_model->list_by_user((int) $this->session->userdata('id'));
+            $raw = $this->Pelaporan_model->list_by_user($my_uid);
+        }
+
+        // dedupe + tambah flag per baris untuk view
+        $seen = array();
+        $list = array();
+        foreach ($raw as $l) {
+            if (isset($seen[$l->id_laporan])) continue;
+            $seen[$l->id_laporan] = TRUE;
+            $viewer_is_pelapor = ($l->id_pelapor && (int)$l->id_pelapor === $my_pid)
+                || ($l->id_user_pelapor && (int)$l->id_user_pelapor === $my_uid);
+            $viewer_is_terlapor = $my_pid && (int)$l->id_terlapor === $my_pid;
+            $l->viewer_is_pelapor  = $viewer_is_pelapor;
+            $l->viewer_is_terlapor = $viewer_is_terlapor;
+            $l->can_delete = $this->is_hrd() || $viewer_is_pelapor;
+            // terlapor maupun pelapor boleh melihat detail; identitas pelapor disembunyikan utk terlapor
+            $list[] = $l;
         }
 
         $data = array(
             'laporan' => $list,
             'is_hrd' => $this->is_hrd(),
+            'my_pegawai_id' => $my_pid,
         );
 
         $this->load->view('template/header', $data);
@@ -97,7 +119,19 @@ class Pelaporan extends CI_Controller
                 $data['id_pelapor'] = NULL;
             }
 
-            $this->Pelaporan_model->insert($data);
+            $id_laporan = $this->Pelaporan_model->insert($data);
+
+            // notifikasi ke terlapor: ada pelaporan baru tentang dirinya
+            $this->load->model('Notifikasi_model');
+            $peg = $this->Pegawai_model->get_by_id($id_terlapor);
+            if ($peg && !empty($peg->email)) {
+                $this->db->select('id');
+                $users = $this->db->where('email', $peg->email)->get('users')->result();
+                $pesan = 'Ada laporan / pengaduan baru atas nama Anda. Silakan buka dan berikan sanggahan bila perlu.';
+                foreach ($users as $u) {
+                    $this->Notifikasi_model->add($u->id, $pesan, 'pelaporan/detail/' . $id_laporan);
+                }
+            }
 
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Laporan / penilaian berhasil dikirim.</div>');
             redirect('pelaporan');
@@ -121,6 +155,8 @@ class Pelaporan extends CI_Controller
             'row' => $row,
             'is_hrd' => $this->is_hrd(),
             'is_pelapor' => $this->_is_pelapor($row),
+            'show_pelapor_identitas' => ($this->is_hrd() && !$this->is_pegawai_login()) || $this->_is_pelapor($row),
+            'is_terlapor' => current_pegawai_id() && (int) $row->id_terlapor === (int) current_pegawai_id() && !$this->is_hrd(),
         );
 
         $this->load->view('template/header', $data);
@@ -137,14 +173,49 @@ class Pelaporan extends CI_Controller
             redirect('pelaporan');
         }
 
-        if (!$this->_can_access($row)) {
-            show_error('Anda tidak memiliki akses ke laporan ini.', 403);
+        // hanya HRD/Admin atau pelapor sendiri yang boleh menghapus (terlapor tidak)
+        if (!($this->is_hrd() && !$this->is_pegawai_login()) && !$this->_is_pelapor($row)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Anda tidak memiliki akses untuk menghapus laporan ini.</div>');
+            redirect('pelaporan');
         }
 
         $this->Pelaporan_model->delete($id);
 
         $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Laporan berhasil dihapus.</div>');
         redirect('pelaporan');
+    }
+
+    // simpan sanggahan (terlapor) — identitas pelapor tetap disembunyikan
+    public function sanggah_action()
+    {
+        $id_laporan = (int) $this->input->post('id_laporan', TRUE);
+        $row = $this->Pelaporan_model->data($id_laporan);
+
+        if (!$row) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Laporan tidak ditemukan.</div>');
+            redirect('pelaporan');
+        }
+
+        // pelapor / admin-HRD / terlapor yang bersangkutan boleh menyanggah
+        $is_hrd_oleh = $this->is_hrd() && !$this->is_pegawai_login();
+        if (!$is_hrd_oleh && (!current_pegawai_id() || (int) $row->id_terlapor !== (int) current_pegawai_id())) {
+            show_error('Anda tidak berhak menyanggah laporan ini.', 403);
+        }
+
+        $sanggahan = trim($this->input->post('sanggahan', TRUE));
+        if ($sanggahan === '') {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Sanggahan tidak boleh kosong.</div>');
+            redirect('pelaporan/detail/' . $id_laporan);
+        }
+
+        $this->Pelaporan_model->sanggah($id_laporan, array(
+            'sanggahan'     => htmlspecialchars($sanggahan),
+            'sanggahan_at'  => date('Y-m-d H:i:s'),
+            'sanggahan_oleh'=> $is_hrd_oleh ? 'Admin / HRD' : trim($row->nama_terlapor ?: 'Terlapor'),
+        ));
+
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Sanggahan berhasil disimpan.</div>');
+        redirect('pelaporan/detail/' . $id_laporan);
     }
 
     private function _is_pelapor($row)
@@ -161,7 +232,12 @@ class Pelaporan extends CI_Controller
         if ($this->is_hrd() && !$this->is_pegawai_login()) {
             return TRUE;
         }
-        // selain HRD, hanya pelapor yang bisa melihat laporannya sendiri
-        return $this->_is_pelapor($row);
+        // pelapor laporannya sendiri
+        if ($this->_is_pelapor($row)) {
+            return TRUE;
+        }
+        // terlapor melihat laporan tentang dirinya (identitas pelapor disembunyikan)
+        $my_pid = current_pegawai_id();
+        return $my_pid && (int) $row->id_terlapor === (int) $my_pid;
     }
 }

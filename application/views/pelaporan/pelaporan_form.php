@@ -78,7 +78,8 @@
 					<h6 class="plrf-section-tag"><i class="fas fa-user-check mr-1"></i> Karyawan yang Dinilai</h6>
 					<div class="form-group">
 						<label>Pilih Karyawan <span class="text-danger">*</span></label>
-						<select name="id_terlapor" class="form-control" required>
+						<input type="text" class="form-control mb-2" id="plrfCariKaryawan" placeholder="Cari karyawan (ketik nama / jabatan / unit)..." oninput="filterKaryawan(this.value)" style="min-height:44px; padding:10px 14px; font-size:.9rem;">
+						<select name="id_terlapor" id="id_terlapor" class="form-control" style="min-height:44px; padding:10px 14px; font-size:.9rem; line-height:1.4;" required onchange="karyawanTerpilih(this)">
 							<option value="">— Pilih karyawan —</option>
 							<?php foreach ($pegawai_list as $p):
 								$selected = ($set_laporan_id && $set_laporan_id === (int) $p->id_pegawai) ? 'selected' : '';
@@ -89,6 +90,7 @@
 								</option>
 							<?php endforeach; ?>
 						</select>
+						<div id="plrfCariInfo" style="margin-top:6px; font-size:.8rem;"></div>
 						<?= form_error('id_terlapor') ?>
 					</div>
 
@@ -123,5 +125,54 @@
 			</form>
 		</div>
 	</div>
+
+	<script>
+	function karyawanTerpilih(sel) {
+		var info = document.getElementById('plrfCariInfo');
+		if (!sel || !info) return;
+		var idx = sel.selectedIndex;
+		var nama = idx >= 0 && sel.options[idx].text ? sel.options[idx].text.replace(/\s+/g, ' ').trim() : '';
+		if (sel.value === '') {
+			info.innerHTML = '';
+			return;
+		}
+		info.innerHTML = '<span style="color:#047857; font-weight:600;"><i class="fas fa-check-circle"></i> Karyawan terpilih: <strong>' + nama.split(/[—-]/)[0].trim() + '</strong></span>';
+	}
+
+	function filterKaryawan(q) {
+		var sel = document.getElementById('id_terlapor');
+		var info = document.getElementById('plrfCariInfo');
+		if (!sel) return;
+		var norm = (q || '').trim().toLowerCase();
+		var opts = sel.options;
+		var matched = 0, lastMatch = -1;
+		for (var i = 0; i < opts.length; i++) {
+			if (i === 0) { opts[0].hidden = false; continue; }
+			var show = opts[i].text.toLowerCase().indexOf(norm) !== -1;
+			opts[i].hidden = !show;
+			if (show) { matched++; lastMatch = i; }
+		}
+
+		if (norm === '') {
+			if (info) info.innerHTML = '';
+		} else if (matched === 1) {
+			// persis 1 hasil -> auto pilih
+			sel.selectedIndex = lastMatch;
+			if (info) info.innerHTML = '<span style="color:#047857; font-weight:600;"><i class="fas fa-check-circle"></i> Ditemukan 1 karyawan, otomatis terpilih: <strong>' + opts[lastMatch].text.split(/[—-]/)[0].trim() + '</strong></span>';
+			return;
+		} else if (matched > 1) {
+			if (info) info.innerHTML = '<span style="color:#1d4ed8;"><i class="fas fa-search"></i> Ditemukan <strong>' + matched + '</strong> karyawan yang cocok, pilih salah satu di daftar.</span>';
+		} else {
+			sel.selectedIndex = 0;
+			if (info) info.innerHTML = '<span style="color:#b91c1c;"><i class="fas fa-exclamation-circle"></i> Tidak ada karyawan yang cocok</span>';
+			return;
+		}
+
+		// lebih dari 1 hasil: jangan auto-pilih; jika pilihan lama di-filter keluar, kembalikan ke placeholder
+		if (sel.selectedIndex > 0 && opts[sel.selectedIndex] && opts[sel.selectedIndex].hidden) {
+			sel.selectedIndex = 0;
+		}
+	}
+	</script>
 
 </div>

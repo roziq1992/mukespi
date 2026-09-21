@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS pk_periode (
   tahun YEAR NOT NULL,
   tanggal_mulai DATE DEFAULT NULL,
   tanggal_selesai DATE DEFAULT NULL,
+  input_mulai DATE DEFAULT NULL,
+  input_selesai DATE DEFAULT NULL,
   status ENUM('aktif','selesai','draft') NOT NULL DEFAULT 'draft',
   created_at DATETIME DEFAULT NULL,
   updated_at DATETIME DEFAULT NULL,

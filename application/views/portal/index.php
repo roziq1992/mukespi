@@ -116,8 +116,8 @@
         <!-- PENILAIAN KINERJA -->
         <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_kinerja'); ?>">
             <span class="portal-icon"><i class="fas fa-clipboard-check"></i></span>
-            <h3>PENILAIAN KINERJA</h3>
-            <p>Penilaian kinerja pegawai per unit dengan kriteria dan bobot.</p>
+            <h3>SIPENA</h3>
+            <p>Sistem Penilaian Pegawai</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
@@ -134,8 +134,8 @@
         <!-- PELAPORAN KARYAWAN -->
         <a class="portal-card portal-office" href="<?php echo site_url('pelaporan'); ?>">
             <span class="portal-icon"><i class="fas fa-star-half-alt"></i></span>
-            <h3>PELAPORAN KARYAWAN</h3>
-            <p>Penilaian dan pengaduan sesama karyawan dengan bintang.</p>
+            <h3>SIRETA</h3>
+            <p>Sistem Rating dan Aduan.</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>

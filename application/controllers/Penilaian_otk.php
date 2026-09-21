@@ -42,31 +42,61 @@ class Penilaian_otk extends CI_Controller
         return $this->_is_admin() || $this->_is_hrd();
     }
 
+    /**
+     * Apakah periode boleh diisi hari ini (tanggal hari ini dalam jadwal input periode).
+     * Kalau tanggal input mulai/selesai belum di-set, dianggap terbuka.
+     */
+    private function _periode_terbuka($periode)
+    {
+        if (!$periode || !$periode->input_mulai || !$periode->input_selesai) {
+            return TRUE;
+        }
+        $tgl = date('Y-m-d');
+        return $tgl >= $periode->input_mulai && $tgl <= $periode->input_selesai;
+    }
+
     // ================= HALAMAN UTAMA =================
 
     public function index()
     {
-        $id_pegawai   = current_pegawai_id();
-        $periode      = $this->Penilaian_kinerja_model->get_active_periode();
-        $id_periode   = $periode ? (int)$periode->id_periode : 0;
+        $id_pegawai = current_pegawai_id();
 
-        $my_assignments = array();
+        // SEMUA periode ditampilkan ke penilai (aktif, draft, selesai).
+        // Yang menentukan boleh tidaknya input adalah jadwal input periode.
+        $periodes  = $this->Penilaian_kinerja_model->get_periodes();
+        $tugas_per_periode = array();
+        $total_tugas = 0;
         $penilaian_saya = array();
+
         if ($id_pegawai) {
-            // penilaian yang ditugaskan ke login sebagai penilai
-            $my_assignments = $this->Penilaian_otk_model->get_assignments($id_periode, $id_pegawai);
+            foreach ($periodes as $pr) {
+                $items = $this->Penilaian_otk_model->get_assignments((int)$pr->id_periode, $id_pegawai);
+                $selesai = 0;
+                foreach ($items as $it) {
+                    if ($it->status === 'selesai') $selesai++;
+                }
+                $total_tugas += count($items);
+                $tugas_per_periode[] = array(
+                    'periode' => $pr,
+                    'buka'    => $this->_periode_terbuka($pr),
+                    'items'   => $items,
+                    'total'   => count($items),
+                    'selesai' => $selesai,
+                );
+            }
             // penilaian yang menyasar login sebagai yang dinilai
             $penilaian_saya = $this->Penilaian_otk_model->get_penilaian_saya($id_pegawai);
         }
 
         $data = array(
             'title'           => 'Penilaian Kinerja OTK',
-            'periode'         => $periode,
+            'periode'         => $this->Penilaian_kinerja_model->get_active_periode(),
             'is_admin'        => $this->_is_admin(),
             'is_hrd'          => $this->_is_hrd(),
             'is_manager'      => $this->_is_manager(),
             'id_pegawai'      => $id_pegawai,
-            'pekerjaan_saya'  => $my_assignments,
+            'tugas_per_periode' => $tugas_per_periode,
+            'total_tugas'     => $total_tugas,
             'penilaian_saya'  => $penilaian_saya,
             'stat'            => array(
                 'total_push' => $this->Penilaian_otk_model->count_assignments(),
@@ -130,6 +160,27 @@ class Penilaian_otk extends CI_Controller
             $this->Penilaian_otk_model->replace_assignments($id_penilai, $dinilai_ids);
             $peg = $this->Penilaian_kinerja_model->get_pegawai($id_penilai);
             $this->session->set_flashdata('message', '<div class="alert alert-success">Penilai <strong>' . html_escape($peg ? $peg->nama : '') . '</strong> &mdash; ' . count($dinilai_ids) . ' pegawai yang dinilai berhasil disimpan.</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Pilih penilai terlebih dahulu.</div>');
+        }
+        redirect(site_url('penilaian_otk/kelola/' . $id_penilai));
+    }
+
+    /**
+     * Reset seluruh tanggungan penilaian milik satu penilai
+     * (hapus semua baris pk_otk untuk id_penilai tersebut).
+     */
+    public function kelola_reset($id_penilai = 0)
+    {
+        if (!$this->_is_manager()) {
+            redirect(site_url('penilaian_otk'));
+            return;
+        }
+        $id_penilai = (int) $id_penilai;
+        if ($id_penilai) {
+            $this->Penilaian_otk_model->replace_assignments($id_penilai, array());
+            $peg = $this->Penilaian_kinerja_model->get_pegawai($id_penilai);
+            $this->session->set_flashdata('message', '<div class="alert alert-success">Semua tanggungan penilaian untuk <strong>' . html_escape($peg ? $peg->nama : '') . '</strong> berhasil direset.</div>');
         } else {
             $this->session->set_flashdata('message', '<div class="alert alert-danger">Pilih penilai terlebih dahulu.</div>');
         }
@@ -206,6 +257,7 @@ class Penilaian_otk extends CI_Controller
             'is_manager' => $this->_is_manager(),
             'back_url'   => site_url('penilaian_otk'),
             'has_kriteria' => $id_unit ? $this->Penilaian_kinerja_model->has_kriteria($id_unit) : FALSE,
+            'dalam_jadwal' => $this->_periode_terbuka($periode),
         );
 
         $this->load->view('template/header', $data);
@@ -252,6 +304,14 @@ class Penilaian_otk extends CI_Controller
         if (!$this->Penilaian_otk_model->is_assigned($id_penilai, $id_dinilai)) {
             $this->session->set_flashdata('message', '<div class="alert alert-danger">Pasangan penilai-dinilai tidak valid.</div>');
             redirect(site_url('penilaian_otk'));
+            return;
+        }
+
+        // batas jadwal input periode (non-admin non-manager harus dalam tanggal input periode, kecuali bypass)
+        $bypass = $this->input->post('bypass', TRUE) === '1';
+        if (!$bypass && !$this->_is_manager() && !$this->_periode_terbuka($periode)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-warning">Input penilaian periode ini di luar jadwal input (' . date('d M Y', strtotime($periode->input_mulai)) . ' s/d ' . date('d M Y', strtotime($periode->input_selesai)) . ').</div>');
+            redirect(site_url('penilaian_otk/form/' . $id_penilai . '/' . $id_dinilai . '/' . $id_periode));
             return;
         }
 
@@ -390,6 +450,85 @@ class Penilaian_otk extends CI_Controller
         $this->load->view('template/header', $data);
         $this->load->view('penilaian_otk/rekap', $data);
         $this->load->view('template/footer');
+    }
+
+    /**
+     * Export rekap OTK ke file Excel (.xls) tanpa library tambahan
+     * (menggunakan tabel HTML yang dibuka langsung oleh Excel).
+     */
+    public function export_excel($id_periode = 0)
+    {
+        if (!$this->_is_manager()) {
+            redirect(site_url('penilaian_otk'));
+            return;
+        }
+
+        $id_periode = (int) $id_periode;
+        if (!$id_periode) {
+            $id_periode = (int) $this->input->get('periode', TRUE);
+        }
+        if (!$id_periode) {
+            $periode = $this->Penilaian_kinerja_model->get_active_periode();
+            $id_periode = $periode ? (int)$periode->id_periode : 0;
+        }
+        $periode = $this->Penilaian_kinerja_model->get_periode_by_id($id_periode);
+        if (!$periode) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Periode tidak valid.</div>');
+            redirect(site_url('penilaian_otk/rekap'));
+            return;
+        }
+
+        $rekap = $this->Penilaian_otk_model->get_rekap_grouped($id_periode);
+        foreach ($rekap as &$g) {
+            foreach ($g['items'] as &$it) {
+                $it->predikat = $this->Penilaian_kinerja_model->get_predikat((int)$it->id_unit_dinilai, $it->total_nilai);
+            }
+        }
+
+        $nama_file = 'rekap_otk_' . strtolower(str_replace(' ', '_', $periode->nama)) . '_' . (int)$periode->tahun . '.xls';
+
+        $rows_html = '';
+        $no = 0;
+        foreach ($rekap as $g) {
+            foreach ($g['items'] as $it) {
+                $no++;
+                $status = $it->status === 'selesai' ? 'Selesai' : ($it->status === 'draft' ? 'Draft' : ($it->status === 'ditolak' ? 'Ditolak' : 'Belum'));
+                $total  = $it->total_nilai !== NULL ? number_format((float)$it->total_nilai, 2) : '-';
+                $rows_html .= '<tr>'
+                    . '<td>' . $no . '</td>'
+                    . '<td>' . html_escape($it->nama_penilai) . '</td>'
+                    . '<td>' . html_escape($it->jabatan_penilai) . '</td>'
+                    . '<td>' . html_escape($it->unit_penilai) . '</td>'
+                    . '<td>' . html_escape($it->nama_dinilai) . '</td>'
+                    . '<td>' . html_escape($it->jabatan_dinilai) . '</td>'
+                    . '<td>' . html_escape($it->unit_dinilai) . '</td>'
+                    . '<td>' . $status . '</td>'
+                    . '<td>' . $total . '</td>'
+                    . '<td>' . html_escape($it->predikat) . '</td>'
+                    . '</tr>';
+            }
+        }
+
+        $html = '<html><head><meta charset="UTF-8"><title>Rekap OTK</title></head><body>'
+            . '<h3>REKAP PENILAIAN KINERJA OTK</h3>'
+            . '<p>Periode: <strong>' . html_escape($periode->nama) . '</strong> (Tahun ' . (int)$periode->tahun . ')</p>'
+            . '<p>Periode Penilaian: ' . ($periode->tanggal_mulai ? date('d M Y', strtotime($periode->tanggal_mulai)) : '-')
+            . ' s/d ' . ($periode->tanggal_selesai ? date('d M Y', strtotime($periode->tanggal_selesai)) : '-')
+            . ' | Input: ' . ($periode->input_mulai ? date('d M Y', strtotime($periode->input_mulai)) : '-')
+            . ' s/d ' . ($periode->input_selesai ? date('d M Y', strtotime($periode->input_selesai)) : '-') . '</p>'
+            . '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;">'
+            . '<thead><tr style="background:#f0f0f0;font-weight:bold;">'
+            . '<td>No</td><td>Penilai</td><td>Jabatan Penilai</td><td>Unit Penilai</td>'
+            . '<td>Pegawai Dinilai</td><td>Jabatan Dinilai</td><td>Unit Dinilai</td>'
+            . '<td>Status</td><td>Total Nilai</td><td>Predikat</td>'
+            . '</tr></thead><tbody>' . $rows_html . '</tbody></table>'
+            . '</body></html>';
+
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $nama_file . '"');
+        header('Cache-Control: max-age=0');
+        // BOM supaya karakter UTF-8 (mis. tanda dash) terbaca Excel
+        echo "\xEF\xBB\xBF" . $html;
     }
 }
 /* End of file Penilaian_otk.php */

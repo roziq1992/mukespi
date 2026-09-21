@@ -15,7 +15,7 @@
     <div class="d-sm-flex align-items-center justify-content-between mt-3 mb-3">
         <div>
             <a href="<?php echo isset($back_url) ? $back_url : site_url('penilaian_otk'); ?>" class="text-gray-600 small"><i class="fas fa-arrow-left"></i> Kembali ke daftar</a>
-            <h1 class="h3 mb-0 text-gray-800 mt-1">Formulir Penilaian Kinerja OTK</h1>
+            <h1 class="h3 mb-0 text-gray-800 mt-1">Formulir Penilaian Kinerja</h1>
             <div class="small text-muted mt-1">Unit pegawai dinilai: <strong><?php echo html_escape($unit ? $unit->nm_unit : '-'); ?></strong> &mdash; Periode: <strong><?php echo html_escape($periode->nama); ?></strong></div>
         </div>
         <?php if ($penilaian): ?>
@@ -29,6 +29,19 @@
         <input type="hidden" name="id_periode" value="<?php echo (int) $periode->id_periode; ?>">
         <input type="hidden" name="id_penilai" value="<?php echo (int) $penilai->id_pegawai; ?>">
         <input type="hidden" name="id_dinilai" value="<?php echo (int) $target->id_pegawai; ?>">
+        <input type="hidden" name="bypass" id="bypassField" value="0">
+
+        <?php if (empty($dalam_jadwal)): ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-calendar-times"></i> <strong>Di luar jadwal input:</strong> input penilaian periode ini hanya diperbolehkan
+            <?php if ($periode->input_mulai && $periode->input_selesai): ?>
+            pada tanggal <strong><?php echo date('d M Y', strtotime($periode->input_mulai)); ?></strong> s/d <strong><?php echo date('d M Y', strtotime($periode->input_selesai)); ?></strong>.
+            <?php else: ?>
+            sesuai periode input yang ditentukan.
+            <?php endif; ?>
+            Centang opsi di bawah untuk mengizinkan input di luar jadwal.
+        </div>
+        <?php endif; ?>
 
         <!-- Info pegawai yang dinilai -->
         <div class="card shadow mb-4">
@@ -47,7 +60,12 @@
                     <div class="col-md">
                         <div class="small text-muted">PERIODE</div>
                         <div class="font-weight-bold"><?php echo html_escape($periode->nama); ?></div>
-                        <small class="text-muted">Tahun <?php echo (int) $periode->tahun; ?></small>
+                        <small class="text-muted">Tahun <?php echo (int) $periode->tahun; ?><br>
+                        Penilaian:
+                        <?php echo $periode->tanggal_mulai ? date('d M Y', strtotime($periode->tanggal_mulai)) : '-'; ?> &ndash; <?php echo $periode->tanggal_selesai ? date('d M Y', strtotime($periode->tanggal_selesai)) : '-'; ?><br>
+                        Input:
+                        <?php echo $periode->input_mulai ? date('d M Y', strtotime($periode->input_mulai)) : '-'; ?> &ndash; <?php echo $periode->input_selesai ? date('d M Y', strtotime($periode->input_selesai)) : '-'; ?>
+                        </small>
                     </div>
                 </div>
                 <hr>
@@ -137,8 +155,14 @@
                         <div class="progress mt-2" style="height:8px;"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
                     </div>
                     <div class="col-md-8 text-md-right">
-                        <button type="submit" name="status" value="draft" class="btn btn-secondary"><i class="fas fa-save"></i> Simpan Draft</button>
-                        <button type="submit" name="status" value="selesai" class="btn btn-success" onclick="return confirm('Selesaikan penilaian ini? Semua kriteria harus terisi dan nilai akhir akan dikunci.')"><i class="fas fa-check-circle"></i> Simpan &amp; Selesaikan</button>
+                        <?php if (empty($dalam_jadwal)): ?>
+                        <div class="form-check form-check-inline mb-2 mr-3">
+                            <input type="checkbox" class="form-check-input" id="bypassJadwal">
+                            <label class="form-check-label small" for="bypassJadwal">Izinkan input di luar jadwal input periode</label>
+                        </div>
+                        <?php endif; ?>
+                        <button type="submit" name="status" value="draft" class="btn btn-secondary btn-submit-penilaian"><i class="fas fa-save"></i> Simpan Draft</button>
+                        <button type="submit" name="status" value="selesai" class="btn btn-success btn-submit-penilaian" onclick="return confirm('Selesaikan penilaian ini? Semua kriteria harus terisi dan nilai akhir akan dikunci.')"><i class="fas fa-check-circle"></i> Simpan &amp; Selesaikan</button>
                     </div>
                 </div>
             </div>
@@ -189,5 +213,18 @@
 
     selects.forEach(function (sel) { sel.addEventListener('change', recompute); });
     recompute();
+
+    var bypassCheck = document.getElementById('bypassJadwal');
+    var bypassField = document.getElementById('bypassField');
+    var submitBtns = Array.prototype.slice.call(document.querySelectorAll('.btn-submit-penilaian'));
+    if (bypassCheck) {
+        function toggleBypass() {
+            var on = bypassCheck.checked;
+            bypassField.value = on ? '1' : '0';
+            submitBtns.forEach(function (btn) { btn.disabled = !on; });
+        }
+        bypassCheck.addEventListener('change', toggleBypass);
+        toggleBypass();
+    }
 })();
 </script>

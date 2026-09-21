@@ -48,6 +48,15 @@ class Pelaporan_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    // laporan milik pegawai yang dinilai (terlapor)
+    function list_by_terlapor($id_pegawai)
+    {
+        $this->_base_query();
+        $this->db->where('l.id_terlapor', (int) $id_pegawai);
+        $this->db->order_by('l.id_laporan', 'DESC');
+        return $this->db->get()->result();
+    }
+
     function data($id)
     {
         $this->_base_query();
@@ -59,6 +68,13 @@ class Pelaporan_model extends CI_Model
     {
         $this->db->insert('pelaporan_karyawan', $data);
         return $this->db->insert_id();
+    }
+
+    // simpan / ubah sanggahan terlapor
+    function sanggah($id, $data)
+    {
+        $this->db->where('id_laporan', (int) $id);
+        return $this->db->update('pelaporan_karyawan', $data);
     }
 
     function delete($id)

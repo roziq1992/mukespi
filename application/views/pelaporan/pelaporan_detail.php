@@ -39,9 +39,15 @@
 	.plrd-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.82rem; font-weight:700; border:1px solid transparent; text-decoration:none!important; transition:all .15s; }
 	.plrd-btn-soft { background:#fff; color:#334155!important; border-color:#e2e8f0; }
 	.plrd-btn-soft:hover { background:#f8fafc; }
+	.plrd-btn-primary { background:linear-gradient(135deg,#4f46e5,#4338ca); color:#fff!important; border-color:#4338ca; box-shadow:0 4px 12px -3px rgba(79,70,229,.4); }
+	.plrd-btn-primary:hover { background:linear-gradient(135deg,#4338ca,#3730a3); }
 	.plrd-btn-danger { background:#fef2f2; border-color:rgba(239,68,68,.25); color:#b91c1c; }
 	.plrd-btn-danger:hover { background:#fee2e2; }
 	.plrd-empty { color:#94a3b8; font-style:italic; font-size:.85rem; }
+	.plrd-sanggah-box { background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:16px 18px; }
+	.plrd-sanggah-form label { display:block; font-size:.8rem; font-weight:600; color:#334155; margin-bottom:6px; }
+	.plrd-sanggah-form .form-control { border-color:#e2e8f0; border-radius:8px; padding:10px 12px; font-size:.875rem; }
+	.plrd-anon-note { font-size:.75rem; color:#64748b; margin-top:8px; }
 	@media (max-width:768px){ .plrd-body{padding:18px} .plrd-meta{grid-template-columns:1fr} }
 </style>
 
@@ -90,10 +96,56 @@
 					</div>
 					<div class="plrd-meta-item">
 						<label>Dilaporkan Oleh</label>
+						<?php if ($show_pelapor_identitas): ?>
 						<span><?= html_escape($row->nama_pelapor ?: '—') ?> <?= $is_hrd ? '<br><small style="font-weight:400;color:#94a3b8;">' . html_escape($row->identitas_pelapor ?: '') . '</small>' : '' ?></span>
+						<?php else: ?>
+						<span><i class="fas fa-user-shield mr-1" style="color:#64748b;"></i> Identitas pelapor disembunyikan (rahasia)</span>
+						<?php endif; ?>
 					</div>
 				</div>
 
+			</div>
+		</div>
+
+		<!-- Sanggahan terlapor -->
+		<div class="plrd-card" style="margin-top:16px;">
+			<div class="plrd-header" style="background:linear-gradient(135deg,#78350f 0%,#b45309 60%,#d97706 100%);">
+				<div class="plrd-header-title">
+					<div class="icon"><i class="fas fa-reply"></i></div>
+					<div>
+						<h5>Sanggahan</h5>
+						<div class="plrd-date">Tanggapan terlapor atas laporan ini</div>
+					</div>
+				</div>
+			</div>
+			<div class="plrd-body">
+				<?php if (!empty($row->sanggahan)): ?>
+				<div class="plrd-sanggah-box">
+					<div class="plrd-alasan-label"><i class="fas fa-reply mr-1"></i> Sanggahan</div>
+					<div class="plrd-alasan-text"><?= html_escape($row->sanggahan) ?></div>
+					<div class="plrd-sub" style="margin-top:8px;">
+						Oleh: <?= html_escape($row->sanggahan_oleh ?: 'Terlapor') ?> &mdash; <?= !empty($row->sanggahan_at) ? date('d M Y H:i', strtotime($row->sanggahan_at)) : '-' ?>
+					</div>
+				</div>
+				<?php else: ?>
+				<div class="plrd-empty"><i class="fas fa-reply mr-1"></i> Belum ada sanggahan atas laporan ini.</div>
+				<?php endif; ?>
+
+				<?php if ($is_terlapor || $is_hrd): ?>
+				<form method="POST" action="<?= site_url('pelaporan/sanggah_action') ?>" class="plrd-sanggah-form" style="margin-top:16px;">
+					<input type="hidden" name="id_laporan" value="<?= (int) $row->id_laporan ?>">
+					<label><?= $is_hrd && !$is_terlapor ? 'Sanggahan (atas nama terlapor)' : 'Tulis / ubah sanggahan Anda' ?></label>
+					<textarea name="sanggahan" class="form-control" rows="4" placeholder="Sampaikan tanggapan / sanggahan Anda terkait laporan ini..."><?= html_escape($row->sanggahan ?: '') ?></textarea>
+					<div class="d-flex align-items-center" style="gap:10px; margin-top:12px;">
+						<button type="submit" class="plrd-btn plrd-btn-primary"><i class="fas fa-paper-plane mr-1"></i> Simpan Sanggahan</button>
+					</div>
+					<?php if ($is_terlapor): ?>
+					<div class="plrd-anon-note"><i class="fas fa-shield-alt mr-1"></i> Identitas pelapor tidak akan pernah ditampilkan kepada Anda.</div>
+					<?php else: ?>
+					<div class="plrd-anon-note"><i class="fas fa-info-circle mr-1"></i> Diisi oleh HRD/Admin atas nama terlapor.</div>
+					<?php endif; ?>
+				</form>
+				<?php endif; ?>
 			</div>
 		</div>
 

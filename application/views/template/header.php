@@ -82,6 +82,25 @@
 					<!-- Topbar Navbar -->
 					<ul class="navbar-nav ml-auto">
 
+						<!-- Nav Item - Notifikasi -->
+						<?php
+						$_uid = (int) $this->session->userdata('id');
+						$_notif_unread = 0;
+						if ($_uid && isset($this->notifikasi)) {
+							$_notif_unread = (int) $this->notifikasi->count_unread($_uid);
+						}
+						?>
+						<li class="nav-item dropdown no-arrow mx-1">
+							<a class="nav-link" href="<?php echo site_url('notifikasi'); ?>" title="Notifikasi">
+								<i class="fas fa-bell fa-fw"></i>
+								<?php if ($_notif_unread > 0): ?>
+								<span class="badge badge-danger badge-counter"><?php echo $_notif_unread > 99 ? '99+' : $_notif_unread; ?></span>
+								<?php endif; ?>
+							</a>
+						</li>
+
+						<div class="topbar-divider d-none d-sm-block"></div>
+
 						<!-- Nav Item - User Information -->
 						<?php
 						$_avatar = $this->session->userdata('avatar');

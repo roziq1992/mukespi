@@ -60,6 +60,19 @@ class Penilaian_kinerja extends CI_Controller
         return (int) $this->session->userdata('id');
     }
 
+    /**
+     * Apakah periode boleh diisi hari ini (tanggal hari ini dalam jadwal input periode).
+     * Kalau tanggal input mulai/selesai belum di-set, dianggap terbuka.
+     */
+    private function _periode_terbuka($periode)
+    {
+        if (!$periode || !$periode->input_mulai || !$periode->input_selesai) {
+            return TRUE;
+        }
+        $tgl = date('Y-m-d');
+        return $tgl >= $periode->input_mulai && $tgl <= $periode->input_selesai;
+    }
+
     // ================= HALAMAN UTAMA =================
 
     public function index()
@@ -304,7 +317,8 @@ class Penilaian_kinerja extends CI_Controller
             'back_url'   => $is_kepala_assessor
                 ? site_url('penilaian_kinerja/kepala' . ($id_periode ? '/' . $id_periode : ''))
                 : site_url('penilaian_kinerja/unit/' . $id_unit . ($id_periode ? '/' . $id_periode : '')),
-            'has_kriteria' => $this->Penilaian_kinerja_model->has_kriteria($id_unit),
+            'has_kriteria'  => $this->Penilaian_kinerja_model->has_kriteria($id_unit),
+            'dalam_jadwal'  => $this->_periode_terbuka($periode),
         );
 
         $this->load->view('template/header', $data);
@@ -368,6 +382,21 @@ class Penilaian_kinerja extends CI_Controller
         }
 
         // Hapus skor yang tidak ada di form (kriteria dihapus admin dsb.)
+
+        // Batasan jadwal periode: di luar tanggal mulai-selesai tidak bisa input,
+        // kecuali ada izin bypass (tombol pada form) atau user admin.
+        if (!$this->_periode_terbuka($periode)) {
+            $bypass = $this->input->post('bypass', TRUE) === '1';
+            if (!$bypass && !$this->_is_admin()) {
+                $tgl = ($periode->tanggal_mulai ? date('d M Y', strtotime($periode->tanggal_mulai)) : '-')
+                    . ' s.d. '
+                    . ($periode->tanggal_selesai ? date('d M Y', strtotime($periode->tanggal_selesai)) : '-');
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Saat ini di luar jadwal periode penilaian (<strong>' . $tgl . '</strong>). Input ditutup. Centang <strong>"Izinkan input di luar jadwal"</strong> pada form jika tetap ingin mengisi.</div>');
+                redirect(site_url('penilaian_kinerja/form/' . $id_dinilai . '/' . $id_unit . '/' . $id_periode));
+                return;
+            }
+        }
+
         $this->Penilaian_kinerja_model->save_penilaian($id_periode, $id_unit, $user_id, $id_dinilai, $skor_map, $catatan, $status);
 
         $this->session->set_flashdata('message', '<div class="alert alert-success">Penilaian untuk <strong>' . html_escape($target->nama) . '</strong> berhasil disimpan.</div>');
@@ -689,6 +718,8 @@ class Penilaian_kinerja extends CI_Controller
                 'tahun'  => $tahun,
                 'tanggal_mulai' => $this->input->post('tanggal_mulai', TRUE) ?: NULL,
                 'tanggal_selesai' => $this->input->post('tanggal_selesai', TRUE) ?: NULL,
+                'input_mulai' => $this->input->post('input_mulai', TRUE) ?: NULL,
+                'input_selesai' => $this->input->post('input_selesai', TRUE) ?: NULL,
                 'status' => $status,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -721,6 +752,8 @@ class Penilaian_kinerja extends CI_Controller
             'tahun'           => (int) $this->input->post('tahun', TRUE),
             'tanggal_mulai'   => $this->input->post('tanggal_mulai', TRUE) ?: NULL,
             'tanggal_selesai' => $this->input->post('tanggal_selesai', TRUE) ?: NULL,
+            'input_mulai'     => $this->input->post('input_mulai', TRUE) ?: NULL,
+            'input_selesai'   => $this->input->post('input_selesai', TRUE) ?: NULL,
             'status'          => $this->input->post('status', TRUE) === 'aktif' ? 'aktif' : $this->input->post('status', TRUE),
             'updated_at'      => date('Y-m-d H:i:s'),
         ));

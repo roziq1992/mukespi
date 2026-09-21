@@ -193,7 +193,7 @@ class Pegawai extends CI_Controller
             // Admin/HRD boleh edit semua; pegawai hanya datanya sendiri & saat mode edit aktif
             $is_pegawai_view = FALSE;
             if (!$this->is_admin()) {
-                if (!$this->is_pegawai_login() || current_pegawai_id() !== (int) $id) {
+                if (current_pegawai_id() !== (int) $id) {
                     $this->session->set_flashdata('message', 'Anda tidak berhak mengubah data ini.');
                     redirect('portal');
                 }
@@ -322,7 +322,7 @@ class Pegawai extends CI_Controller
         if ($row) {
             $is_pegawai_view = FALSE;
             if (!$this->is_admin()) {
-                if (!$this->is_pegawai_login() || current_pegawai_id() !== (int) $id) {
+                if (current_pegawai_id() !== (int) $id) {
                     $this->session->set_flashdata('message', 'Anda tidak berhak melihat data ini.');
                     redirect('portal');
                 }

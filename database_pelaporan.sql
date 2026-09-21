@@ -34,6 +34,9 @@ CREATE TABLE IF NOT EXISTS `pelaporan_karyawan` (
     `id_terlapor`      int(11) NOT NULL,               -- id_pegawai yang dinilai / dilaporkan
     `bintang`          tinyint(1) NOT NULL DEFAULT 5,  -- rating 1 - 5
     `alasan`           text,
+    `sanggahan`        text DEFAULT NULL,              -- tanggapan / sanggahan terlapor (anonim pelapor)
+    `sanggahan_at`     datetime DEFAULT NULL,
+    `sanggahan_oleh`   varchar(150) DEFAULT NULL,
     `created_at`       datetime DEFAULT NULL,
     PRIMARY KEY (`id_laporan`),
     KEY `id_terlapor` (`id_terlapor`),
@@ -88,3 +91,15 @@ AND NOT EXISTS (
     SELECT 1 FROM user_access_menu uam
     WHERE uam.role_id = r.id AND uam.menu_id = m.id
 );
+
+-- 8b. Tabel notifikasi in-app (bell di header; contoh: notif pelaporan ke terlapor)
+CREATE TABLE IF NOT EXISTS `notifikasi` (
+    `id_notif`   BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_user`    BIGINT(20) UNSIGNED NOT NULL,
+    `pesan`      TEXT DEFAULT NULL,
+    `url`        VARCHAR(255) DEFAULT NULL,
+    `is_read`    TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_notif`),
+    KEY `id_user` (`id_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

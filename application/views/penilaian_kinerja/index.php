@@ -32,7 +32,10 @@
     <div class="alert alert-primary py-2 px-3" style="font-size:.85rem;">
         <strong>Periode aktif:</strong> <?php echo html_escape($periode->nama); ?>
         <?php if ($periode->tanggal_mulai && $periode->tanggal_selesai): ?>
-            (<?php echo date('d M Y', strtotime($periode->tanggal_mulai)); ?> &ndash; <?php echo date('d M Y', strtotime($periode->tanggal_selesai)); ?>)
+            (Penilaian: <?php echo date('d M Y', strtotime($periode->tanggal_mulai)); ?> &ndash; <?php echo date('d M Y', strtotime($periode->tanggal_selesai)); ?>)
+        <?php endif; ?>
+        <?php if ($periode->input_mulai && $periode->input_selesai): ?>
+            (Input: <?php echo date('d M Y', strtotime($periode->input_mulai)); ?> &ndash; <?php echo date('d M Y', strtotime($periode->input_selesai)); ?>)
         <?php endif; ?>
     </div>
     <?php else: ?>

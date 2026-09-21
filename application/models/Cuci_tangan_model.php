@@ -23,7 +23,7 @@ class Cuci_tangan_model extends CI_Model
     }
     function unit()
     {
-        
+        $this->db->where('status', 'aktif');
         return $this->db->get('unit')->result();
     }
     function moment()
