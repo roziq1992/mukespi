@@ -112,9 +112,9 @@
         </a>
         <?php } ?>
 
-        <?php if (is_menu_accessible('penilaian_kinerja')) { ?>
+        <?php if (is_menu_accessible('penilaian_otk')) { ?>
         <!-- PENILAIAN KINERJA -->
-        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_kinerja'); ?>">
+        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_otk'); ?>">
             <span class="portal-icon"><i class="fas fa-clipboard-check"></i></span>
             <h3>SIPENA</h3>
             <p>Sistem Penilaian Pegawai</p>
