@@ -100,9 +100,18 @@ class Pegawai extends CI_Controller
             'tanggal_lahir' => set_value('tanggal_lahir'),
             'alamat' => set_value('alamat'),
             'no_hp' => set_value('no_hp'),
+            'no_npwp' => set_value('no_npwp'),
             'email' => set_value('email'),
+            'nama_keluarga' => set_value('nama_keluarga'),
+            'no_hp_keluarga' => set_value('no_hp_keluarga'),
+            'nama_anak' => set_value('nama_anak'),
+            'kualifikasi_pendidikan' => set_value('kualifikasi_pendidikan'),
+            'pengalaman_kerja' => set_value('pengalaman_kerja'),
+            'pelatihan' => set_value('pelatihan'),
+            'organisasi' => set_value('organisasi'),
             'jabatan' => set_value('jabatan'),
             'unit_kerja' => set_value('unit_kerja'),
+            'status_kepegawaian' => set_value('status_kepegawaian'),
             'tanggal_masuk' => set_value('tanggal_masuk'),
             'password' => set_value('password'),
             'units' => $this->Pegawai_model->units(),
@@ -137,10 +146,19 @@ class Pegawai extends CI_Controller
                 'tanggal_lahir' => $this->input->post('tanggal_lahir', TRUE),
                 'alamat' => $this->input->post('alamat', TRUE),
                 'no_hp' => $this->input->post('no_hp', TRUE),
+                'no_npwp' => $this->input->post('no_npwp', TRUE),
                 'email' => ($email !== '') ? $email : NULL,
+                'nama_keluarga' => $this->input->post('nama_keluarga', TRUE),
+                'no_hp_keluarga' => $this->input->post('no_hp_keluarga', TRUE),
+                'nama_anak' => $this->input->post('nama_anak', TRUE),
+                'kualifikasi_pendidikan' => $this->input->post('kualifikasi_pendidikan', TRUE),
+                'pengalaman_kerja' => $this->input->post('pengalaman_kerja', TRUE),
+                'pelatihan' => $this->input->post('pelatihan', TRUE),
+                'organisasi' => $this->input->post('organisasi', TRUE),
                 'jabatan' => $this->input->post('jabatan', TRUE),
                 'unit_kerja' => $this->input->post('unit_kerja', TRUE),
                 'id_unit' => $this->Pegawai_model->unit_id_by_name($this->input->post('unit_kerja', TRUE)),
+                'status_kepegawaian' => $this->input->post('status_kepegawaian', TRUE),
                 'tanggal_masuk' => $this->input->post('tanggal_masuk', TRUE),
                 'password' => ($password !== '') ? password_hash($password, PASSWORD_DEFAULT) : NULL,
                 'status' => 'aktif',
@@ -198,9 +216,18 @@ class Pegawai extends CI_Controller
                 'tanggal_lahir' => set_value('tanggal_lahir', $row->tanggal_lahir),
                 'alamat' => set_value('alamat', $row->alamat),
                 'no_hp' => set_value('no_hp', $row->no_hp),
+                'no_npwp' => set_value('no_npwp', $row->no_npwp),
                 'email' => set_value('email', $row->email),
+                'nama_keluarga' => set_value('nama_keluarga', $row->nama_keluarga),
+                'no_hp_keluarga' => set_value('no_hp_keluarga', $row->no_hp_keluarga),
+                'nama_anak' => set_value('nama_anak', $row->nama_anak),
+                'kualifikasi_pendidikan' => set_value('kualifikasi_pendidikan', $row->kualifikasi_pendidikan),
+                'pengalaman_kerja' => set_value('pengalaman_kerja', $row->pengalaman_kerja),
+                'pelatihan' => set_value('pelatihan', $row->pelatihan),
+                'organisasi' => set_value('organisasi', $row->organisasi),
                 'jabatan' => set_value('jabatan', $row->jabatan),
                 'unit_kerja' => set_value('unit_kerja', $row->unit_kerja),
+                'status_kepegawaian' => set_value('status_kepegawaian', $row->status_kepegawaian),
                 'tanggal_masuk' => set_value('tanggal_masuk', $row->tanggal_masuk),
                 'password' => '',
                 'units' => $this->Pegawai_model->units(),
@@ -252,7 +279,15 @@ class Pegawai extends CI_Controller
                 'tanggal_lahir' => $this->input->post('tanggal_lahir', TRUE),
                 'alamat' => $this->input->post('alamat', TRUE),
                 'no_hp' => $this->input->post('no_hp', TRUE),
+                'no_npwp' => $this->input->post('no_npwp', TRUE),
                 'email' => ($email !== '') ? $email : NULL,
+                'nama_keluarga' => $this->input->post('nama_keluarga', TRUE),
+                'no_hp_keluarga' => $this->input->post('no_hp_keluarga', TRUE),
+                'nama_anak' => $this->input->post('nama_anak', TRUE),
+                'kualifikasi_pendidikan' => $this->input->post('kualifikasi_pendidikan', TRUE),
+                'pengalaman_kerja' => $this->input->post('pengalaman_kerja', TRUE),
+                'pelatihan' => $this->input->post('pelatihan', TRUE),
+                'organisasi' => $this->input->post('organisasi', TRUE),
             );
 
             // hanya admin/HRD yang boleh mengubah identitas kepegawaian
@@ -262,6 +297,7 @@ class Pegawai extends CI_Controller
                 $data['jabatan'] = $this->input->post('jabatan', TRUE);
                 $data['unit_kerja'] = $this->input->post('unit_kerja', TRUE);
                 $data['id_unit'] = $this->Pegawai_model->unit_id_by_name($this->input->post('unit_kerja', TRUE));
+                $data['status_kepegawaian'] = $this->input->post('status_kepegawaian', TRUE);
                 $data['tanggal_masuk'] = $this->input->post('tanggal_masuk', TRUE);
             }
 
@@ -504,8 +540,10 @@ class Pegawai extends CI_Controller
     private function _pegawai_headers()
     {
         return array(
-            'No', 'NIK', 'NIP', 'Nama', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir',
-            'Alamat', 'No HP', 'Email', 'Jabatan', 'Unit Kerja', 'Tanggal Masuk', 'Status',
+            'No', 'NRK (NIP)', 'No KTP (NIK)', 'Nama', 'Jenis Kelamin', 'Tempat Lahir', 'Tanggal Lahir',
+            'Alamat', 'No HP', 'No HP Keluarga', 'No NPWP', 'Email', 'Jabatan', 'Unit Kerja',
+            'Tanggal Masuk', 'Status Kepegawaian', 'Nama Suami/Istri/Ortu', 'Nama Anak',
+            'Kualifikasi Pendidikan', 'Pengalaman Kerja', 'Pelatihan', 'Organisasi', 'Status Aktif',
         );
     }
 
@@ -516,26 +554,158 @@ class Pegawai extends CI_Controller
         $key = str_replace(array('.', '_'), ' ', $key);
         $key = preg_replace('/\s+/', ' ', $key);
 
+        // 1) pasangan tetap (normalisasi sederhana)
         $map = array(
             'no' => NULL,
             'nik' => 'nik',
+            'no ktp' => 'nik',
             'nip' => 'nip',
+            'nrk' => 'nip',
             'nama' => 'nama',
+            'nama lengkap' => 'nama',
             'jenis kelamin' => 'jenis_kelamin',
             'tempat lahir' => 'tempat_lahir',
             'tanggal lahir' => 'tanggal_lahir',
+            'tgl lahir' => 'tanggal_lahir',
             'alamat' => 'alamat',
             'no hp' => 'no_hp',
             'nohp' => 'no_hp',
             'hp' => 'no_hp',
+            'tlp hp' => 'no_hp',
+            'tlp' => 'no_hp',
+            'telepon' => 'no_hp',
             'email' => 'email',
+            'no email' => 'email',
             'jabatan' => 'jabatan',
+            'bagian jbtn' => 'jabatan',
             'unit kerja' => 'unit_kerja',
             'unit' => 'unit_kerja',
             'tanggal masuk' => 'tanggal_masuk',
+            'tgl masuk' => 'tanggal_masuk',
+            'tgl msu' => 'tanggal_masuk',
             'status' => 'status',
+            'status kepegawaian' => 'status_kepegawaian',
+            'no npwp' => 'no_npwp',
+            'npwp' => 'no_npwp',
         );
-        return isset($map[$key]) ? $map[$key] : NULL;
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+
+        // 2) pencocokan kata kunci untuk judul kompleks/panjang
+        if (strpos($key, 'nrk') !== FALSE) return 'nip';
+        if (strpos($key, 'ktp') !== FALSE) return 'nik';
+        if (strpos($key, 'suami') !== FALSE || strpos($key, 'istri') !== FALSE || strpos($key, 'ortu') !== FALSE) {
+            if (strpos($key, 'hp') !== FALSE || strpos($key, 'tlp') !== FALSE || strpos($key, 'telepon') !== FALSE) {
+                return 'no_hp_keluarga';
+            }
+            return 'nama_keluarga';
+        }
+        if (strpos($key, 'keluarga') !== FALSE) {
+            return (strpos($key, 'hp') !== FALSE || strpos($key, 'tlp') !== FALSE) ? 'no_hp_keluarga' : NULL;
+        }
+        if (strpos($key, 'anak') !== FALSE) return 'nama_anak';
+        if (strpos($key, 'npwp') !== FALSE) return 'no_npwp';
+        if (strpos($key, 'pendidikan') !== FALSE) return 'kualifikasi_pendidikan';
+        if (strpos($key, 'pengalaman') !== FALSE) return 'pengalaman_kerja';
+        if (strpos($key, 'pelatihan') !== FALSE) return 'pelatihan';
+        if (strpos($key, 'organisasi') !== FALSE) return 'organisasi';
+        if (strpos($key, 'status aktif') !== FALSE || strpos($key, 'status pegawai') !== FALSE) return 'status';
+        if (strpos($key, 'status kepegawaian') !== FALSE) return 'status_kepegawaian';
+        if (strpos($key, 'laki') !== FALSE || strpos($key, 'perempuan') !== FALSE) return 'jenis_kelamin';
+        if (strpos($key, 'bagian') !== FALSE || strpos($key, 'jbtn') !== FALSE) return 'jabatan';
+        if (strpos($key, 'tlp') !== FALSE) return 'no_hp';
+        if (strpos($key, 'ttl') !== FALSE || strpos($key, 'tempat tanggal') !== FALSE) return 'ttl';
+        if (strpos($key, 'msuk') !== FALSE || strpos($key, 'tanggal masuk') !== FALSE) return 'tanggal_masuk';
+
+        return NULL;
+    }
+
+    // Pecah "Kota, dd-mm-yyyy" / "Kota, dd/mm/yyyy" -> ['tempat_lahir','tanggal_lahir']
+    private function _parse_ttl($value, $excel_io)
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return array('tempat_lahir' => NULL, 'tanggal_lahir' => NULL);
+        }
+        $tempat = NULL;
+        $tgl = NULL;
+        if (preg_match('/^(.*?)[,;]\s*(.+)$/i', $value, $m)) {
+            $tempat = trim($m[1]);
+            $tgl = $excel_io->parse_date(trim($m[2]));
+            if ($tgl === NULL) {
+                // batang tanggal tidak valid -> seluruh string jadikan tempat lahir
+                $tempat = $value;
+            }
+        } else {
+            // coba seluruh nilai sebagai tanggal
+            $tgl = $excel_io->parse_date($value);
+            if ($tgl === NULL) {
+                $tempat = $value;
+            }
+        }
+        return array('tempat_lahir' => $tempat, 'tanggal_lahir' => $tgl);
+    }
+
+    // Tebak unit kerja dari jabatan (dicocokkan dengan daftar unit)
+    private function _infer_unit($jabatan)
+    {
+        $j = strtolower(trim((string) $jabatan));
+        if ($j === '') {
+            return NULL;
+        }
+        $rules = array(
+            'rawat inap' => 'PERAWAT',
+            'perawat anestesi' => 'PERAWAT',
+            'perawat' => 'PERAWAT',
+            'case manager' => 'PERAWAT',
+            'asper' => 'PERAWAT',
+            'casemix' => 'CASMIX',
+            'bidan' => 'KEBIDANAN',
+            'apotek' => 'FARMASI',
+            'ttk' => 'FARMASI',
+            'farmasi' => 'FARMASI',
+            'analis' => 'LABORAT',
+            'lab' => 'LABORAT',
+            'radiolog' => 'RADIOLOGI',
+            'radiografi' => 'RADIOLOGI',
+            'k3' => 'KA YANMED',
+            'rm' => 'RM',
+            'gizi' => 'GIZI',
+            'masak' => 'GIZI',
+            'keuangan' => 'AKUNTING',
+            'akuntan' => 'AKUNTING',
+            'claim' => 'AKUNTING',
+            'marketing' => 'MARKETING',
+            'it dan sim' => 'IT',
+            'it' => 'IT',
+            'security' => 'UMUM',
+            'cleaning service' => 'UMUM',
+            'linen' => 'CSSD',
+            'cssd' => 'CSSD',
+            'ob' => 'UMUM',
+            'driver' => 'UMUM',
+            'jukir' => 'UMUM',
+            'logistik' => 'UMUM',
+            'gas medik' => 'UMUM',
+            'maintenance' => 'UMUM',
+            'admisi' => 'RAWAT JALAN',
+            'fo' => 'RAWAT JALAN',
+            'fisioterapi' => 'RAWAT JALAN',
+            'terapi wicara' => 'RAWAT JALAN',
+            'terapi okupasi' => 'RAWAT JALAN',
+            'kesehatan lingkungan' => 'KA YANMED',
+            'kepegawaian' => 'UMUM',
+            'sarana' => 'UMUM',
+            'atem' => 'UMUM',
+            'sek pt' => 'UMUM',
+        );
+        foreach ($rules as $needle => $unit) {
+            if (preg_match('/\b' . preg_quote($needle, '/') . '\b/', $j)) {
+                return $unit;
+            }
+        }
+        return NULL;
     }
 
     private function _normalize_gender($value)
@@ -562,6 +732,27 @@ class Pegawai extends CI_Controller
         return 'aktif';
     }
 
+    // Rapikan status kepegawaian: buang periode dalam kurung, samakan penulisan (Tetap/Kontrak/OJT/Orientasi)
+    private function _normalize_status_kepegawaian($value)
+    {
+        $v = trim((string) $value);
+        if ($v === '') {
+            return NULL;
+        }
+        $v = preg_replace('/\(.*\).*$/', '', $v);
+        $v = trim($v, " \t\n\r\0\x0B-");
+        if ($v === '') {
+            return NULL;
+        }
+        $low = strtolower($v);
+        if (strpos($low, 'kontrak') !== FALSE) return 'Kontrak';
+        if (strpos($low, 'ojt') !== FALSE) return 'OJT';
+        if (strpos($low, 'orientasi') !== FALSE) return 'Orientasi';
+        if (strpos($low, 'tetap') !== FALSE) return 'Tetap';
+        if (strpos($low, 'magang') !== FALSE) return 'Magang';
+        return $v;
+    }
+
     private function _require_admin()
     {
         if (!$this->is_admin()) {
@@ -580,18 +771,27 @@ class Pegawai extends CI_Controller
         foreach ($this->Pegawai_model->get_all() as $p) {
             $rows[] = array(
                 $no++,
-                (string) $p->nik,
                 (string) $p->nip,
+                (string) $p->nik,
                 (string) $p->nama,
                 (string) $p->jenis_kelamin,
                 (string) $p->tempat_lahir,
                 (string) $p->tanggal_lahir,
                 (string) $p->alamat,
                 (string) $p->no_hp,
+                (string) $p->no_hp_keluarga,
+                (string) $p->no_npwp,
                 (string) $p->email,
                 (string) $p->jabatan,
                 (string) $p->unit_kerja,
                 (string) $p->tanggal_masuk,
+                (string) $p->status_kepegawaian,
+                (string) $p->nama_keluarga,
+                (string) $p->nama_anak,
+                (string) $p->kualifikasi_pendidikan,
+                (string) $p->pengalaman_kerja,
+                (string) $p->pelatihan,
+                (string) $p->organisasi,
                 (string) $p->status,
             );
         }
@@ -605,8 +805,11 @@ class Pegawai extends CI_Controller
         $this->load->library('excel_io');
 
         $contoh = array(
-            1, '0031234', '19870102001', 'Nama Pegawai Contoh', 'Laki-laki', 'Surabaya', '1987-05-01',
-            'Jl. Contoh No. 1', '081234567890', 'pegawai@email.com', 'Staf', 'IT', '2019-12-17', 'aktif',
+            1, '19870102001', '0031234', 'Nama Pegawai Contoh', 'Laki-laki', 'Surabaya', '1987-05-01',
+            'Jl. Contoh No. 1', '081234567890', '081234567891', '00.000.000.0-000.000', 'pegawai@email.com',
+            'Staf', 'IT', '2019-12-17', 'Tetap', 'Nama Suami/Istri', 'Nama Anak',
+            'S1 Teknik Informatika', 'RS Contoh - Staf (2015-2018)', 'Pelatihan Contoh (2020)',
+            'Organisasi Contoh (2018-2020)', 'aktif',
         );
 
         $this->excel_io->export('template_import_pegawai.xlsx', $this->_pegawai_headers(), array($contoh), 'Template');
@@ -687,27 +890,74 @@ class Pegawai extends CI_Controller
                 continue;
             }
 
-            $jenis   = $this->_normalize_gender($val('jenis_kelamin'));
-            $status  = $this->_normalize_status($val('status'));
-            $tgl_lahir = $val('tanggal_lahir') !== '' ? $this->excel_io->parse_date($val('tanggal_lahir')) : NULL;
+            $jenis    = $this->_normalize_gender($val('jenis_kelamin'));
             $tgl_masuk = $val('tanggal_masuk') !== '' ? $this->excel_io->parse_date($val('tanggal_masuk')) : NULL;
+            $status   = NULL;
+
+            // STATUS: nilai aktif/nonaktif -> status aktif; nilai lain (mis. Tetap/Kontrak/OJT) -> status kepegawaian
+            $status_kepegawaian = $val('status_kepegawaian') !== '' ? $val('status_kepegawaian') : NULL;
+            $status_raw = trim($val('status'));
+            if ($status_raw !== '') {
+                $status_low = strtolower($status_raw);
+                if (in_array($status_low, array('aktif', 'nonaktif', 'non aktif', 'non-aktif', 'tidak aktif', '0'), TRUE)) {
+                    $status = $this->_normalize_status($status_raw);
+                } elseif ($status_kepegawaian === NULL) {
+                    $status_kepegawaian = $status_raw;
+                }
+            }
+            $status_kepegawaian = $this->_normalize_status_kepegawaian($status_kepegawaian);
+
+            // tempat & tanggal lahir: kolom terpisah, atau dipecah dari kolom TTL ("Kota, dd-mm-yyyy")
+            $tempat_lahir  = $val('tempat_lahir');
+            $tgl_lahir_str = $val('tanggal_lahir');
+            $tgl_lahir     = ($tgl_lahir_str !== '') ? $this->excel_io->parse_date($tgl_lahir_str) : NULL;
+            if (($tempat_lahir === '' || $tgl_lahir === NULL) && $val('ttl') !== '') {
+                $ttl = $this->_parse_ttl($val('ttl'), $this->excel_io);
+                if ($tempat_lahir === '') {
+                    $tempat_lahir = $ttl['tempat_lahir'] ?: '';
+                }
+                if ($tgl_lahir === NULL) {
+                    $tgl_lahir = $ttl['tanggal_lahir'];
+                }
+            }
+
+            // unit kerja: dari kolom eksplisit, atau ditebak dari jabatan
+            $jabatan = $val('jabatan');
             $unit_kerja = $val('unit_kerja');
+            if ($unit_kerja === '') {
+                $unit_kerja = (string) $this->_infer_unit($jabatan);
+            }
 
             $data = array(
-                'nik'           => $val('nik') ?: NULL,
-                'nip'           => $val('nip') ?: NULL,
-                'nama'          => $nama,
-                'jenis_kelamin' => $jenis,
-                'tempat_lahir'  => $val('tempat_lahir') ?: NULL,
-                'tanggal_lahir' => $tgl_lahir,
-                'alamat'        => $val('alamat') ?: NULL,
-                'no_hp'         => $val('no_hp') ?: NULL,
-                'email'         => $val('email') ?: NULL,
-                'jabatan'       => $val('jabatan') ?: NULL,
-                'unit_kerja'    => $unit_kerja ?: NULL,
-                'id_unit'       => $this->Pegawai_model->unit_id_by_name($unit_kerja),
-                'tanggal_masuk' => $tgl_masuk,
+                'nik'                   => $val('nik') ?: NULL,
+                'nip'                   => $val('nip') ?: NULL,
+                'nama'                  => $nama,
+                'jenis_kelamin'         => $jenis,
+                'tempat_lahir'          => $tempat_lahir ?: NULL,
+                'tanggal_lahir'         => $tgl_lahir,
+                'alamat'                => $val('alamat') ?: NULL,
+                'no_hp'                 => $val('no_hp') ?: NULL,
+                'no_npwp'               => $val('no_npwp') ?: NULL,
+                'email'                 => $val('email') ?: NULL,
+                'nama_keluarga'         => $val('nama_keluarga') ?: NULL,
+                'no_hp_keluarga'        => $val('no_hp_keluarga') ?: NULL,
+                'nama_anak'             => $val('nama_anak') ?: NULL,
+                'kualifikasi_pendidikan'=> $val('kualifikasi_pendidikan') ?: NULL,
+                'pengalaman_kerja'      => $val('pengalaman_kerja') ?: NULL,
+                'pelatihan'             => $val('pelatihan') ?: NULL,
+                'organisasi'            => $val('organisasi') ?: NULL,
+                'jabatan'               => $jabatan ?: NULL,
+                'unit_kerja'            => $unit_kerja ?: NULL,
+                'id_unit'               => $this->Pegawai_model->unit_id_by_name($unit_kerja),
+                'status_kepegawaian'    => $status_kepegawaian,
+                'tanggal_masuk'         => $tgl_masuk,
             );
+
+            // validasi format email (kolom sumber bisa saja berisi data lain)
+            if ($data['email'] !== NULL && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Baris ' . $line . ': nilai email "' . $data['email'] . '" tidak valid, diabaikan.';
+                $data['email'] = NULL;
+            }
 
             $existing = $this->Pegawai_model->find_identity($data['nik'], $data['nip'], $data['email']);
 

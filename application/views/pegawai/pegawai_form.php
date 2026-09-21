@@ -139,14 +139,59 @@
 					</div>
 				</div>
 
-				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-briefcase mr-1"></i> Kepegawaian</h6>
 				<div class="row">
 					<div class="col-md-4 mb-3">
+						<label for="no_npwp">No. NPWP</label>
+						<input type="text" class="form-control" id="no_npwp" name="no_npwp" value="<?= set_value('no_npwp', isset($no_npwp) ? $no_npwp : '') ?>" placeholder="00.000.000.0-000.000">
+					</div>
+				</div>
+
+				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-users mr-1"></i> Data Keluarga</h6>
+				<div class="row">
+					<div class="col-md-4 mb-3">
+						<label for="nama_keluarga">Nama Suami / Istri / Orang Tua</label>
+						<input type="text" class="form-control" id="nama_keluarga" name="nama_keluarga" value="<?= set_value('nama_keluarga', isset($nama_keluarga) ? $nama_keluarga : '') ?>" placeholder="Nama pasangan / orang tua">
+					</div>
+					<div class="col-md-4 mb-3">
+						<label for="no_hp_keluarga">No. HP Suami / Istri / Orang Tua</label>
+						<input type="text" class="form-control" id="no_hp_keluarga" name="no_hp_keluarga" value="<?= set_value('no_hp_keluarga', isset($no_hp_keluarga) ? $no_hp_keluarga : '') ?>" placeholder="08xxxxxxxxxx">
+					</div>
+					<div class="col-md-4 mb-3">
+						<label for="nama_anak">Nama Anak</label>
+						<textarea class="form-control" id="nama_anak" name="nama_anak" rows="3" placeholder="Satu nama per baris"><?= set_value('nama_anak', isset($nama_anak) ? $nama_anak : '') ?></textarea>
+					</div>
+				</div>
+
+				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-graduation-cap mr-1"></i> Pendidikan &amp; Pengalaman</h6>
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label for="kualifikasi_pendidikan">Kualifikasi Pendidikan</label>
+						<textarea class="form-control" id="kualifikasi_pendidikan" name="kualifikasi_pendidikan" rows="3" placeholder="Riwayat pendidikan"><?= set_value('kualifikasi_pendidikan', isset($kualifikasi_pendidikan) ? $kualifikasi_pendidikan : '') ?></textarea>
+					</div>
+					<div class="col-md-6 mb-3">
+						<label for="pengalaman_kerja">Pengalaman Kerja</label>
+						<textarea class="form-control" id="pengalaman_kerja" name="pengalaman_kerja" rows="3" placeholder="Riwayat pekerjaan"><?= set_value('pengalaman_kerja', isset($pengalaman_kerja) ? $pengalaman_kerja : '') ?></textarea>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label for="pelatihan">Pelatihan</label>
+						<textarea class="form-control" id="pelatihan" name="pelatihan" rows="3" placeholder="Pelatihan yang pernah diikuti"><?= set_value('pelatihan', isset($pelatihan) ? $pelatihan : '') ?></textarea>
+					</div>
+					<div class="col-md-6 mb-3">
+						<label for="organisasi">Organisasi</label>
+						<textarea class="form-control" id="organisasi" name="organisasi" rows="3" placeholder="Pengalaman organisasi"><?= set_value('organisasi', isset($organisasi) ? $organisasi : '') ?></textarea>
+					</div>
+				</div>
+
+				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-briefcase mr-1"></i> Kepegawaian</h6>
+				<div class="row">
+					<div class="col-md-3 mb-3">
 						<label for="jabatan">Jabatan <span class="text-danger">*</span></label>
 						<input type="text" class="form-control" id="jabatan" name="jabatan" value="<?= set_value('jabatan', isset($jabatan) ? $jabatan : '') ?>" placeholder="Contoh: Perawat, Bidan, Staf TU" <?= (!empty($is_pegawai_view)) ? 'readonly' : 'required' ?>>
 						<?= form_error('jabatan') ?>
 					</div>
-					<div class="col-md-4 mb-3">
+					<div class="col-md-3 mb-3">
 						<label for="unit_kerja">Unit Kerja <span class="text-danger">*</span></label>
 						<select class="form-control" id="unit_kerja" name="unit_kerja" <?= (!empty($is_pegawai_view)) ? 'disabled' : 'required' ?>>
 							<option value="">— Pilih Unit —</option>
@@ -161,7 +206,17 @@
 						<?php endif; ?>
 						<?= form_error('unit_kerja') ?>
 					</div>
-					<div class="col-md-4 mb-3">
+					<div class="col-md-3 mb-3">
+						<label for="status_kepegawaian">Status Kepegawaian</label>
+						<input type="text" class="form-control" id="status_kepegawaian" name="status_kepegawaian" list="status_kepegawaian_list" value="<?= set_value('status_kepegawaian', isset($status_kepegawaian) ? $status_kepegawaian : '') ?>" placeholder="Tetap / Kontrak / OJT" <?= (!empty($is_pegawai_view)) ? 'readonly' : '' ?>>
+						<datalist id="status_kepegawaian_list">
+							<option value="Tetap"></option>
+							<option value="Kontrak"></option>
+							<option value="OJT"></option>
+							<option value="Orientasi"></option>
+						</datalist>
+					</div>
+					<div class="col-md-3 mb-3">
 						<label for="tanggal_masuk">Tanggal Masuk <span class="text-danger">*</span></label>
 						<input type="date" class="form-control" id="tanggal_masuk" name="tanggal_masuk" value="<?= set_value('tanggal_masuk', isset($tanggal_masuk) ? $tanggal_masuk : '') ?>" <?= (!empty($is_pegawai_view)) ? 'readonly' : 'required' ?>>
 						<?= form_error('tanggal_masuk') ?>

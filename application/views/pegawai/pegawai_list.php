@@ -620,6 +620,9 @@ $prev_flash = $this->session->userdata('message');
 							<span class="badge-st <?= ($p->status === 'aktif') ? 'badge-st-aktif' : 'badge-st-nonaktif' ?>">
 								<span class="dot"></span> <?= ucfirst($p->status) ?>
 							</span>
+							<?php if (!empty($p->status_kepegawaian)): ?>
+								<span class="d-block mt-1" style="font-size:.72rem; color:#64748b; text-transform:none;"><?= html_escape($p->status_kepegawaian) ?></span>
+							<?php endif; ?>
 						</td>
 						<td data-label="Aksi">
 							<div class="action-flex">

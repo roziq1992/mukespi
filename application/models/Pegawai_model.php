@@ -99,6 +99,7 @@ class Pegawai_model extends CI_Model
             $this->db->or_like('nama', $q);
             $this->db->or_like('jabatan', $q);
             $this->db->or_like('unit_kerja', $q);
+            $this->db->or_like('status_kepegawaian', $q);
             $this->db->or_like('email', $q);
             $this->db->group_end();
         }
@@ -119,6 +120,7 @@ class Pegawai_model extends CI_Model
             $this->db->or_like('nama', $q);
             $this->db->or_like('jabatan', $q);
             $this->db->or_like('unit_kerja', $q);
+            $this->db->or_like('status_kepegawaian', $q);
             $this->db->or_like('email', $q);
             $this->db->group_end();
         }

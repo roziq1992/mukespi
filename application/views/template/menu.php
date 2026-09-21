@@ -339,6 +339,28 @@
 </li>
 <?php } ?>
 
+<!-- ================= PENILAIAN KINERJA OTK ================= -->
+<?php if (is_menu_accessible('penilaian_otk')) { ?>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePenilaianOtk"
+       aria-expanded="false" aria-controls="collapsePenilaianOtk"
+       data-tooltip="true" data-placement="right"
+       title="Penilaian Kinerja OTK — penilai -> yang dinilai">
+        <i class="nav-icon-badge icon-monitoring fas fa-user-check"></i>
+        <span>PENILAIAN OTK</span>
+    </a>
+    <div id="collapsePenilaianOtk" class="collapse" aria-labelledby="headingPenilaianOtk" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk"><i class="fas fa-user-check"></i> Penilaian OTK</a>
+            <?php if ((int)$this->session->userdata('role_id') == 1 || (int)$this->session->userdata('role_id') == 6) { ?>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/kelola"><i class="fas fa-user-cog"></i> Kelola Penilai</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/rekap"><i class="fas fa-chart-bar"></i> Rekap OTK</a>
+            <?php } ?>
+        </div>
+    </div>
+</li>
+<?php } ?>
+
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>
 <!-- ================= SERTIFIKAT ONLINE ================= -->
 <li class="nav-item">

@@ -389,6 +389,8 @@ class Excel_io
                 return $d;
             }
         }
+        // normalisasi nama bulan Indonesia -> Inggris
+        $value = $this->replace_indonesian_months($value);
         // coba format umum (dahulukan format Indonesia d/m/Y)
         $formats = array('Y-m-d', 'd/m/Y', 'd-m-Y', 'd.m.Y', 'Y/m/d', 'm/d/Y', 'd/m/Y H:i', 'Y-m-d H:i:s');
         foreach ($formats as $fmt) {
@@ -399,6 +401,24 @@ class Excel_io
         }
         $ts = strtotime($value);
         return $ts ? date('Y-m-d', $ts) : NULL;
+    }
+
+    // Ganti nama bulan Indonesia (Januari..Desember) menjadi nama Inggris
+    private function replace_indonesian_months($value)
+    {
+        static $bulan = array(
+            'januari' => 'January', 'februari' => 'February', 'maret' => 'March',
+            'april' => 'April', 'mei' => 'May', 'juni' => 'June', 'juli' => 'July',
+            'agustus' => 'August', 'september' => 'September', 'oktober' => 'October',
+            'november' => 'November', 'desember' => 'December',
+            'jan' => 'Jan', 'feb' => 'Feb', 'mar' => 'Mar', 'apr' => 'Apr',
+            'jun' => 'Jun', 'jul' => 'Jul', 'agu' => 'Aug', 'agt' => 'Aug',
+            'sep' => 'Sep', 'okt' => 'Oct', 'nov' => 'Nov', 'des' => 'Dec',
+        );
+        return preg_replace_callback('/\b[a-zA-Z]+\b/', function ($m) use ($bulan) {
+            $w = strtolower($m[0]);
+            return isset($bulan[$w]) ? $bulan[$w] : $m[0];
+        }, $value);
     }
 
     private function xmlText($value)

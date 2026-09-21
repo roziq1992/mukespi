@@ -274,10 +274,19 @@
 						</td></tr>
 						<tr><td>Alamat</td><td><span class="d-block text-lowercase" style="text-transform:none;"><?= html_escape($pegawai->alamat ?: '—') ?></span></td></tr>
 						<tr><td>No. HP</td><td><span class="d-block text-lowercase" style="text-transform:none;"><?= html_escape($pegawai->no_hp ?: '—') ?></span></td></tr>
+						<tr><td>No. HP Keluarga</td><td><span class="d-block text-lowercase" style="text-transform:none;"><?= html_escape($pegawai->no_hp_keluarga ?: '—') ?></span></td></tr>
+						<tr><td>No. NPWP</td><td><span class="d-block text-lowercase" style="text-transform:none;"><?= html_escape($pegawai->no_npwp ?: '—') ?></span></td></tr>
 						<tr><td>Email</td><td><span class="d-block text-lowercase" style="text-transform:none;"><?= html_escape($pegawai->email ?: '—') ?></span></td></tr>
+						<tr><td>Nama Suami/Istri/Orang Tua</td><td><span class="d-block" style="text-transform:none;"><?= html_escape($pegawai->nama_keluarga ?: '—') ?></span></td></tr>
+						<tr><td>Nama Anak</td><td><span class="d-block" style="text-transform:none; white-space:pre-line;"><?= html_escape($pegawai->nama_anak ?: '—') ?></span></td></tr>
 						<tr><td>Jabatan</td><td><?= html_escape($pegawai->jabatan) ?></td></tr>
 						<tr><td>Unit Kerja</td><td><?= html_escape($pegawai->unit_kerja) ?></td></tr>
+						<tr><td>Status Kepegawaian</td><td><span class="d-block" style="text-transform:none;"><?= html_escape($pegawai->status_kepegawaian ?: '—') ?></span></td></tr>
 						<tr><td>Tanggal Masuk</td><td><?= $pegawai->tanggal_masuk ? date('d M Y', strtotime($pegawai->tanggal_masuk)) : '—' ?></td></tr>
+						<tr><td>Kualifikasi Pendidikan</td><td><span class="d-block" style="text-transform:none; white-space:pre-line;"><?= html_escape($pegawai->kualifikasi_pendidikan ?: '—') ?></span></td></tr>
+						<tr><td>Pengalaman Kerja</td><td><span class="d-block" style="text-transform:none; white-space:pre-line;"><?= html_escape($pegawai->pengalaman_kerja ?: '—') ?></span></td></tr>
+						<tr><td>Pelatihan</td><td><span class="d-block" style="text-transform:none; white-space:pre-line;"><?= html_escape($pegawai->pelatihan ?: '—') ?></span></td></tr>
+						<tr><td>Organisasi</td><td><span class="d-block" style="text-transform:none; white-space:pre-line;"><?= html_escape($pegawai->organisasi ?: '—') ?></span></td></tr>
 					</table>
 				</div>
 			</div>
