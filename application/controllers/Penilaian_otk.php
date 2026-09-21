@@ -109,6 +109,39 @@ class Penilaian_otk extends CI_Controller
         $this->load->view('template/footer');
     }
 
+    // ================= HASIL PENILAIAN SAYA (untuk yang dinilai) =================
+
+    public function hasil()
+    {
+        $id_pegawai = current_pegawai_id();
+        if (!$id_pegawai) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Data pegawai Anda tidak ditemukan.</div>');
+            redirect(site_url('penilaian_otk'));
+            return;
+        }
+
+        // Hanya penilaian yang menyasar saya sebagai pegawai yang dinilai.
+        $hasil = $this->Penilaian_otk_model->get_penilaian_saya($id_pegawai);
+        foreach ($hasil as $h) {
+            $h->predikat = ($h->total_nilai !== NULL)
+                ? $this->Penilaian_kinerja_model->get_predikat((int) $h->id_unit_dinilai, (float) $h->total_nilai)
+                : '-';
+        }
+
+        $data = array(
+            'title'    => 'Hasil Penilaian Saya',
+            'periode'  => $this->Penilaian_kinerja_model->get_active_periode(),
+            'hasil'    => $hasil,
+            'is_admin' => $this->_is_admin(),
+            'is_hrd'   => $this->_is_hrd(),
+            'id_pegawai' => $id_pegawai,
+        );
+
+        $this->load->view('template/header', $data);
+        $this->load->view('penilaian_otk/hasil', $data);
+        $this->load->view('template/footer');
+    }
+
     // ================= KELOLA PENILAI -> DINILAI =================
 
     public function kelola($id_penilai = 0)

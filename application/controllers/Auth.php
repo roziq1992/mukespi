@@ -92,6 +92,13 @@ class Auth extends CI_Controller
                 ];
                 $this->session->set_userdata($data);
 
+                // Password masih "admin" -> wajib ganti password
+                if (strtolower(trim($password)) === 'admin') {
+                    $this->session->set_userdata(['must_change_password' => TRUE, 'pw_target' => 'users']);
+                } else {
+                    $this->session->unset_userdata(['must_change_password', 'pw_target']);
+                }
+
                 // --- Cek apakah user datang dari portal dengan tujuan tertentu ---
                 $tujuan = $this->session->userdata('login_redirect');
                 if ($tujuan && isset($this->redirect_map[$tujuan])) {
@@ -171,6 +178,13 @@ class Auth extends CI_Controller
         ]);
 
         $this->session->unset_userdata('login_redirect');
+
+        // Password masih "admin" -> wajib ganti password
+        if (strtolower(trim($password)) === 'admin') {
+            $this->session->set_userdata(['must_change_password' => TRUE, 'pw_target' => 'pegawai']);
+        } else {
+            $this->session->unset_userdata(['must_change_password', 'pw_target']);
+        }
 
         $this->session->set_flashdata('message', '<div class="alert alert-success"
             role="alert"> Selamat datang, ' . html_escape($pegawai['nama']) . '! </div>');

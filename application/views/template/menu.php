@@ -330,6 +330,9 @@
             <?php if (is_menu_accessible('penilaian_otk')) { ?>
             <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk"><i class="fas fa-user-check"></i> Penilaian Kinerja</a>
             <?php } ?>
+            <?php if ($pid_pgw) { ?>
+            <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_otk/hasil"><i class="fas fa-chart-pie"></i> Hasil Penilaian Saya</a>
+            <?php } ?>
             <?php if ((int)$this->session->userdata('role_id') == 1) { ?>
             <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kriteria"><i class="fas fa-sliders-h"></i> Kriteria &amp; Bobot</a>
             <!-- <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_kinerja/kepala_unit"><i class="fas fa-user-tie"></i> Kepala Unit</a> -->

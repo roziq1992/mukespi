@@ -271,11 +271,14 @@ class Penilaian_otk_model extends CI_Model
     {
         $this->db->select("
                 po.*, pkp.nama AS nama_periode, pkp.tahun,
-                p.nama AS nama_penilai, u.nm_unit
+                p.nama AS nama_penilai, p.jabatan AS jabatan_penilai,
+                d.id_unit AS id_unit_dinilai, d.jabatan AS jabatan_dinilai,
+                u.nm_unit
             ", FALSE);
         $this->db->from('pk_penilaian_otk po');
         $this->db->join('pk_periode pkp', 'pkp.id_periode = po.id_periode');
         $this->db->join('pegawai p', 'p.id_pegawai = po.id_penilai');
+        $this->db->join('pegawai d', 'd.id_pegawai = po.id_dinilai');
         $this->db->join('unit u', 'u.id_unit = p.id_unit', 'left');
         $this->db->where('po.id_dinilai', (int)$id_pegawai);
         $this->db->order_by('po.created_at', 'DESC');

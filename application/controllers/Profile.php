@@ -136,6 +136,13 @@ class Profile extends CI_Controller
             $this->db->where('id', $user_id);
             $this->db->update('users', ['password' => $new_hash]);
 
+            // jika masih "admin", tetap wajib diganti di sesi berjalan
+            if (strtolower(trim($this->input->post('password_baru', TRUE))) === 'admin') {
+                $this->session->set_userdata(['must_change_password' => TRUE, 'pw_target' => 'users']);
+            } else {
+                $this->session->unset_userdata(['must_change_password', 'pw_target']);
+            }
+
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Password berhasil diubah.</div>');
             redirect('profile');
         }

@@ -9,7 +9,8 @@ class Pegawai extends CI_Controller
     function __construct()
     {
         parent::__construct();
-        is_logged_in();
+        $skip_force = in_array($this->router->fetch_method(), ['ganti_password', 'ganti_password_action'], TRUE);
+        is_logged_in(FALSE, $skip_force);
         $this->load->model('Pegawai_model');
         $this->load->library('form_validation');
     }
@@ -28,6 +29,65 @@ class Pegawai extends CI_Controller
     {
         $s = $this->db->get_where('settings', array('nama' => 'pegawai_edit_mode'))->row_array();
         return $s && $s['nilai'] === 'aktif';
+    }
+
+    // ============ GANTI PASSWORD (wajib bila password masih "admin") ============
+
+    public function ganti_password()
+    {
+        $data = array(
+            'title' => 'Ganti Password',
+            'wajib' => (bool) $this->session->userdata('must_change_password'),
+        );
+        $this->load->view('template/header', $data);
+        $this->load->view('pegawai/ganti_password', $data);
+        $this->load->view('template/footer');
+    }
+
+    public function ganti_password_action()
+    {
+        $this->form_validation->set_rules('password_baru', 'Password Baru', 'trim|required|min_length[5]|callback_password_bukan_admin');
+        $this->form_validation->set_rules('password_konfirmasi', 'Konfirmasi Password', 'trim|required|matches[password_baru]');
+        $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->ganti_password();
+            return;
+        }
+
+        $baru = $this->input->post('password_baru', TRUE);
+        $target = $this->session->userdata('pw_target') === 'pegawai' ? 'pegawai' : 'users';
+
+        if ($target === 'pegawai') {
+            $id_pegawai = current_pegawai_id();
+            if (!$id_pegawai) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Akun pegawai Anda tidak ditemukan.</div>');
+                redirect('pegawai/ganti_password');
+                return;
+            }
+            $this->db->where('id_pegawai', $id_pegawai)->update('pegawai', array('password' => password_hash($baru, PASSWORD_DEFAULT)));
+        } else {
+            $id_user = (int) $this->session->userdata('id');
+            if (!$id_user) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Akun user Anda tidak ditemukan.</div>');
+                redirect('pegawai/ganti_password');
+                return;
+            }
+            $this->db->where('id', $id_user)->update('users', array('password' => password_hash($baru, PASSWORD_DEFAULT)));
+        }
+
+        $this->session->unset_userdata(array('must_change_password', 'pw_target'));
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Password berhasil diubah. Silakan gunakan password baru Anda untuk login berikutnya.</div>');
+        redirect('portal');
+    }
+
+    public function password_bukan_admin($str)
+    {
+        if (strtolower(trim($str)) === 'admin') {
+            $this->form_validation->set_message('password_bukan_admin', 'Password tidak boleh "admin". Silakan pilih password lain yang lebih aman.');
+            return FALSE;
+        }
+        return TRUE;
     }
 
     public function index()
@@ -304,6 +364,11 @@ class Pegawai extends CI_Controller
             $password = $this->input->post('password', TRUE);
             if ($password !== '') {
                 $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+                if (strtolower(trim($password)) === 'admin') {
+                    $this->session->set_userdata(['must_change_password' => TRUE, 'pw_target' => 'pegawai']);
+                } else {
+                    $this->session->unset_userdata(['must_change_password', 'pw_target']);
+                }
             }
 
             $data['updated_at'] = date('Y-m-d H:i:s');

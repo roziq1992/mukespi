@@ -1,7 +1,7 @@
 <?php
 
 
-function is_logged_in($role = false)
+function is_logged_in($role = false, $skip_force = false)
 {
     $ci = get_instance();
     if (!$ci->session->userdata('email') && !$ci->session->userdata('is_pegawai')) {
@@ -10,10 +10,14 @@ function is_logged_in($role = false)
 
     if ($role) {
         $role_id = $ci->session->userdata('role_id');
+        if ($role_id != $role) {
+            redirect('auth/blocked');
+        }
+    }
 
-		if($role_id != $role) {
-			redirect('auth/blocked');
-		}
+    // Password masih "admin" -> paksa ganti password (kecuali di halaman ganti password itu sendiri)
+    if (!$skip_force && $ci->session->userdata('must_change_password')) {
+        redirect('pegawai/ganti_password');
     }
 }
 
