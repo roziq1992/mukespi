@@ -30,11 +30,20 @@ class List_indikator extends CI_Controller
     public function index()
     {
         $q = urldecode($this->input->get('q', TRUE));
+        $status = $this->input->get('status', TRUE);
+        if ($status === NULL || $status === '') {
+            // Default: tampilkan indikator aktif saja
+            $status = 'aktif';
+        }
         $start = intval($this->input->get('start'));
         
-        if ($q <> '') {
-            $config['base_url'] = base_url() . 'index.php/list_indikator/?q=' . urlencode($q);
-            $config['first_url'] = base_url() . 'index.php/list_indikator/?q=' . urlencode($q);
+        // gabungkan q & status ke base_url supaya pagination tidak kehilangan filter
+        $params = array();
+        if ($q <> '') $params['q'] = $q;
+        if ($status && $status !== 'semua') $params['status'] = $status;
+        if (!empty($params)) {
+            $config['base_url'] = base_url() . 'index.php/list_indikator/?' . http_build_query($params);
+            $config['first_url'] = $config['base_url'];
         } else {
             $config['base_url'] = base_url() . 'index.php/list_indikator/';
             $config['first_url'] = base_url() . 'index.php/list_indikator/';
@@ -43,8 +52,8 @@ class List_indikator extends CI_Controller
         $config['per_page'] = 10;
         $config['page_query_string'] = TRUE;
         $allowed_units = $this->_allowed_indikators();
-        $config['total_rows'] = $this->List_indikator_model->total_rows($q, $allowed_units);
-        $list_indikator = $this->List_indikator_model->get_limit_data($config['per_page'], $start, $q, $allowed_units);
+        $config['total_rows'] = $this->List_indikator_model->total_rows($q, $allowed_units, $status);
+        $list_indikator = $this->List_indikator_model->get_limit_data($config['per_page'], $start, $q, $allowed_units, $status);
 
         $this->load->library('pagination');
         $this->pagination->initialize($config);
@@ -52,6 +61,9 @@ class List_indikator extends CI_Controller
         $data = array(
             'list_indikator_data' => $list_indikator,
             'q' => $q,
+            'status_filter' => $status,
+            'count_aktif' => $this->List_indikator_model->count_status('aktif'),
+            'count_nonaktif' => $this->List_indikator_model->count_status('nonaktif'),
             'pagination' => $this->pagination->create_links(),
             'total_rows' => $config['total_rows'],
             'start' => $start,
@@ -119,6 +131,7 @@ class List_indikator extends CI_Controller
 		'target' => $this->input->post('target',TRUE),
 		'ket_num' => $this->input->post('num',TRUE),
 		'ket_denum' => $this->input->post('denum',TRUE),
+		'ket_judul' => $this->input->post('ketjudul',TRUE),
 		'id_unit' => (int) $this->input->post('id_unit',TRUE),
 		'userid' => (int) $this->input->post('user',TRUE) ?: (int) $this->session->userdata('id'),
 	    );
@@ -197,6 +210,22 @@ class List_indikator extends CI_Controller
         }
     }
 
+    // aktifkan / nonaktifkan indikator (toggle status)
+    public function toggle_status($id)
+    {
+        $row = $this->List_indikator_model->get_by_id($id);
+
+        if ($row) {
+            $baru = ($row->status === 'nonaktif') ? 'aktif' : 'nonaktif';
+            $this->List_indikator_model->update($id, array('status' => $baru));
+            $label = ($baru === 'aktif') ? 'diaktifkan' : 'dinonaktifkan';
+            $this->session->set_flashdata('message', 'Indikator berhasil ' . $label . '.');
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+        }
+        redirect(site_url('list_indikator'));
+    }
+
     public function _rules() 
     {
 	$this->form_validation->set_rules('kelompok', 'kelompok', 'trim|required');
@@ -210,6 +239,11 @@ class List_indikator extends CI_Controller
 
     public function excel()
     {
+        $status = $this->input->get('status', TRUE);
+        if ($status === NULL || $status === '') {
+            $status = 'aktif';
+        }
+
         $this->load->helper('exportexcel');
         $namaFile = "list_indikator.xls";
         $judul = "list_indikator";
@@ -234,8 +268,10 @@ class List_indikator extends CI_Controller
 	xlsWriteLabel($tablehead, $kolomhead++, "Jenis");
 	xlsWriteLabel($tablehead, $kolomhead++, "Unit");
 	xlsWriteLabel($tablehead, $kolomhead++, "Judul");
+	xlsWriteLabel($tablehead, $kolomhead++, "Target");
+	xlsWriteLabel($tablehead, $kolomhead++, "Status");
 
-	foreach ($this->List_indikator_model->get_all($this->_allowed_indikators()) as $data) {
+	foreach ($this->List_indikator_model->get_all($this->_allowed_indikators(), $status) as $data) {
             $kolombody = 0;
 
             //ubah xlsWriteLabel menjadi xlsWriteNumber untuk kolom numeric
@@ -244,6 +280,9 @@ class List_indikator extends CI_Controller
 	    xlsWriteLabel($tablebody, $kolombody++, $data->jenis);
 	    xlsWriteLabel($tablebody, $kolombody++, $data->nm_unit);
 	    xlsWriteLabel($tablebody, $kolombody++, $data->judul);
+	    xlsWriteNumber($tablebody, $kolombody++, $data->target);
+	    $status_label = (!isset($data->status) || $data->status === 'aktif') ? 'Aktif' : 'Nonaktif';
+	    xlsWriteLabel($tablebody, $kolombody++, $status_label);
 
 	    $tablebody++;
             $nourut++;

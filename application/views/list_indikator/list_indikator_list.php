@@ -209,6 +209,25 @@
 		background: var(--mutu-primary-hover);
 	}
 
+	.btn-add {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 18px;
+		background: var(--mutu-primary);
+		color: #ffffff !important;
+		font-size: 0.85rem;
+		font-weight: 700;
+		border-radius: 10px;
+		text-decoration: none !important;
+		transition: all 0.15s;
+		box-shadow: 0 4px 12px -3px rgba(59, 130, 246, 0.4);
+	}
+	.btn-add:hover {
+		background: var(--mutu-primary-hover);
+		transform: translateY(-1px);
+	}
+
 	/* TABLE DATA */
 	.mutu-table-wrap {
 		padding: 24px 32px;
@@ -263,6 +282,70 @@
 		font-weight: 600;
 		font-size: 0.8rem;
 	}
+
+	.mutu-header-stats {
+		display: flex;
+		gap: 10px;
+		flex-wrap: wrap;
+	}
+
+	.stat-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 14px;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 20px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: #e2e8f0;
+	}
+	.stat-pill .count { font-family: var(--mutu-font-mono); font-weight: 700; color: #ffffff; }
+	.stat-pill.s-aktif .count { color: #6ee7b7; }
+	.stat-pill.s-nonaktif .count { color: #fca5a5; }
+
+	.filter-tabs {
+		display: flex;
+		gap: 8px;
+		flex-wrap: wrap;
+	}
+	.filter-tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 7px 14px;
+		border-radius: 20px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		text-decoration: none !important;
+		border: 1px solid var(--mutu-border);
+		color: var(--mutu-muted);
+		transition: all 0.15s;
+		background: #ffffff;
+	}
+	.filter-tab:hover { border-color: var(--mutu-primary); color: var(--mutu-primary); }
+	.filter-tab.active { background: var(--mutu-primary); border-color: var(--mutu-primary); color: #ffffff; }
+	.filter-tab.active:hover { color: #ffffff; }
+
+	.badge-st {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 4px 12px;
+		border-radius: 20px;
+		font-size: 0.75rem;
+		font-weight: 700;
+		white-space: nowrap;
+	}
+	.badge-st .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+	.badge-st-aktif { background: var(--mutu-success-light); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25); }
+	.badge-st-nonaktif { background: #fef2f2; color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.25); }
+
+	.btn-act-danger { background: #fef2f2; border-color: rgba(239, 68, 68, 0.25); color: #b91c1c; }
+	.btn-act-danger:hover { background: #fee2e2; }
+	.btn-act-success { background: var(--mutu-success-light); border-color: rgba(16, 185, 129, 0.3); color: #047857; }
+	.btn-act-success:hover { background: #d1fae5; }
 
 	.badge-kelompok {
 		display: inline-flex;
@@ -539,6 +622,11 @@
 						<p>Daftar Indikator Mutu Rumah Sakit</p>
 					</div>
 				</div>
+				<div class="mutu-header-stats">
+					<span class="stat-pill">Total <span class="count"><?php echo $total_rows ?></span></span>
+					<span class="stat-pill s-aktif">Aktif <span class="count"><?php echo $count_aktif ?></span></span>
+					<span class="stat-pill s-nonaktif">Nonaktif <span class="count"><?php echo $count_nonaktif ?></span></span>
+				</div>
 			</div>
 			<div class="mutu-header-wave">
 				<svg viewBox="0 0 600 34" preserveAspectRatio="none">
@@ -549,11 +637,26 @@
 
 		<!-- Toolbar -->
 		<div class="mutu-toolbar">
+			<div class="filter-tabs">
+				<a href="<?php echo site_url('list_indikator/?status=aktif') ?>" class="filter-tab <?php echo $status_filter === 'aktif' ? 'active' : '' ?>">
+					<i class="fa fa-check-circle"></i> Aktif
+				</a>
+				<a href="<?php echo site_url('list_indikator/?status=nonaktif') ?>" class="filter-tab <?php echo $status_filter === 'nonaktif' ? 'active' : '' ?>">
+					<i class="fa fa-user-slash"></i> Nonaktif
+				</a>
+				<a href="<?php echo site_url('list_indikator/?status=semua') ?>" class="filter-tab <?php echo $status_filter === 'semua' ? 'active' : '' ?>">
+					Semua
+				</a>
+			</div>
+
+			<a href="<?php echo site_url('list_indikator/create') ?>" class="btn-add"><i class="fa fa-plus"></i> Tambah Indikator</a>
+
 			<div class="mutu-flash" id="message">
 				<?php echo $this->session->userdata('message') <> '' ? $this->session->userdata('message') : ''; ?>
 			</div>
 
 			<form action="<?php echo site_url('List_indikator/index'); ?>" class="mutu-search" method="get">
+				<input type="hidden" name="status" value="<?php echo html_escape($status_filter) ?>">
 				<div class="mutu-search-box">
 					<input type="text" name="q" value="<?php echo $q; ?>" placeholder="Cari judul / unit...">
 					<?php if ($q <> '') { ?>
@@ -568,21 +671,23 @@
 		<div class="mutu-table-wrap">
 			<?php if (count($list_indikator_data) > 0) { ?>
 			<table class="mutu-table">
-				<thead>
-					<tr>
-						<th class="col-index">No</th>
-						<th>Kelompok</th>
-						<th>Jenis</th>
-						<th>Unit</th>
-						<th>Judul Indikator</th>
-						<th>Target</th>
-						<th style="text-align:center">Aksi</th>
-					</tr>
-				</thead>
-				<tbody>
+<thead>
+				<tr>
+					<th class="col-index">No</th>
+					<th>Kelompok</th>
+					<th>Jenis</th>
+					<th>Unit</th>
+					<th>Judul Indikator</th>
+					<th>Target</th>
+					<th>Status</th>
+					<th style="text-align:center">Aksi</th>
+				</tr>
+			</thead>
+			<tbody>
 				<?php
 				foreach ($list_indikator_data as $list_indikator)
 				{
+					$st_aktif = (!isset($list_indikator->status) || $list_indikator->status === 'aktif');
 					?>
 					<tr>
 						<td class="col-index"><?php echo ++$start ?></td>
@@ -607,6 +712,11 @@
 								<span class="gauge-text"><?php echo $list_indikator->target ?>%</span>
 							</div>
 						</td>
+						<td data-label="Status">
+							<span class="badge-st <?php echo $st_aktif ? 'badge-st-aktif' : 'badge-st-nonaktif' ?>">
+								<span class="dot"></span> <?php echo $st_aktif ? 'Aktif' : 'Nonaktif' ?>
+							</span>
+						</td>
 						<td data-label="Aksi">
 							<div class="action-flex">
 								<?php
@@ -615,13 +725,18 @@
 								<?php
 								echo anchor(site_url('Mutu_indikator?id='.$list_indikator->id_indikator.'&judul='.$list_indikator->judul), '<i class="fa fa-database"></i> Mutu', 'class="btn-act btn-act-data"');
 								?>
+								<?php if ($st_aktif): ?>
+									<a class="btn-act btn-act-danger" href="<?php echo site_url('List_indikator/toggle_status/'.$list_indikator->id_indikator) ?>" title="Nonaktifkan" onclick="return confirm('Nonaktifkan indikator ini?');"><i class="fa fa-user-slash"></i> Nonaktifkan</a>
+								<?php else: ?>
+									<a class="btn-act btn-act-success" href="<?php echo site_url('List_indikator/toggle_status/'.$list_indikator->id_indikator) ?>" title="Aktifkan Kembali" onclick="return confirm('Aktifkan kembali indikator ini?');"><i class="fa fa-user-check"></i> Aktifkan</a>
+								<?php endif; ?>
 							</div>
 						</td>
 					</tr>
 					<?php
 				}
 				?>
-				</tbody>
+			</tbody>
 			</table>
 			<?php } else { ?>
 			<div class="mutu-empty-state">
@@ -635,7 +750,7 @@
 		<div class="mutu-footer">
 			<div class="mutu-footer-info">
 				<div class="stat-chip">Total Record: <span class="count"><?php echo $total_rows ?></span></div>
-				<?php echo anchor(site_url('list_indikator/excel'), '<i class="fa fa-file-excel-o"></i> Export Excel', 'class="btn-export-excel"'); ?>
+				<?php echo anchor(site_url('list_indikator/excel?status=' . urlencode($status_filter)), '<i class="fa fa-file-excel-o"></i> Export Excel', 'class="btn-export-excel"'); ?>
 			</div>
 			<div class="mutu-pagination-container">
 				<?php echo $pagination ?>

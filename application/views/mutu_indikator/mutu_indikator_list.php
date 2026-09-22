@@ -4,7 +4,18 @@
 	
 FROM
 	list_indikator 
-where id_indikator = "'.$this->input->get('id').'"')->row();
+where id_indikator = "'.(int) $this->input->get('id').'"')->row();
+
+if (!$indikator) {
+    $indikator = (object) array(
+        'target'     => NULL,
+        'ket_num'    => '',
+        'ket_denum'  => '',
+        'ket_judul'  => '',
+        'jenis'      => '',
+        'judul'      => 'Data Indikator Tidak Ditemukan',
+    );
+}
                                     
 
 
@@ -461,6 +472,9 @@ $tanggal = date("Y-m-d");
 				<a class="btn-action btn-outline" href="<?php echo site_url('list_indikator') ?>"><i class="fa fa-backward"></i> Kembali</a>
 				<a class="btn-action btn-ghost-gold" href="<?php echo site_url('dashboard/mutugrafik?id='.$this->input->get('id').'&judul='.$this->input->get('judul').'&target='.$target) ?>" target="blank"><i class="fa fa-bar-chart"></i> Laporan Grafik</a>
 				<a class="btn-action btn-ghost-gold" href="<?php echo site_url('mutu_fmea?id='.$this->input->get('id').'&judul='.$this->input->get('judul').'&target='.$target) ?>" target="blank"><i class="fa fa-newspaper-o"></i> Laporan Analisa</a>
+				<button type="button" class="btn-action btn-ghost-gold" data-toggle="modal" data-target="#validasiModal"
+						data-id="<?php echo $this->input->get('id'); ?>"
+						data-judul="<?php echo html_escape($this->input->get('judul')); ?>"><i class="fa fa-check-circle"></i> Validasi</button>
 			</div>
 		</form>
 	</div>
@@ -551,4 +565,151 @@ $tanggal = date("Y-m-d");
 
 	</div>
 
+	<!-- ===== CARD: RIWAYAT VALIDASI ===== -->
+	<div class="mutu-card">
+		<div class="mutu-card-head">
+			<div class="mutu-head-row">
+				<p class="eyebrow">Validasi Mutu</p>
+				<h6>Riwayat Validasi Indikator</h6>
+			</div>
+			<div class="mutu-pulse">
+				<svg viewBox="0 0 600 34" preserveAspectRatio="none">
+					<polyline points="0,17 140,17 160,4 180,30 200,17 340,17 360,6 380,28 400,17 600,17"
+						fill="none" stroke="#C08A34" stroke-width="1.6" />
+				</svg>
+			</div>
+		</div>
+
+		<div class="mutu-table-wrap">
+			<?php if (count($validasi) > 0): ?>
+			<table class="mutu-table">
+				<thead>
+					<tr>
+						<th class="col-no">No</th>
+						<th>Periode</th>
+						<th>Numerator</th>
+						<th>Denumerator</th>
+						<th>Validator</th>
+						<th>Tanggal Validasi</th>
+						<th style="text-align:center">Aksi</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php $no = 0; foreach ($validasi as $v): $no++; ?>
+					<tr>
+						<td class="col-no"><?php echo $no ?></td>
+						<td data-label="Periode" class="txt-mono"><?php echo $v->tanggal_awal ?> &rarr; <?php echo $v->tanggal_akhir ?></td>
+						<td data-label="Numerator"><?php echo $v->num ?></td>
+						<td data-label="Denumerator"><?php echo $v->demu ?></td>
+						<td data-label="Validator"><?php echo html_escape($v->nama_validator ?: '-') ?></td>
+						<td data-label="Tanggal Validasi" class="txt-mono"><?php echo $v->created_at ? date('d M Y H:i', strtotime($v->created_at)) : '-' ?></td>
+						<td data-label="Aksi">
+							<div class="action-group">
+								<?php echo anchor(site_url('mutu_indikator/validasi_detail?idvalidasi='.$v->id_validasi.'&id='.$this->input->get('id').'&judul='.urlencode($this->input->get('judul'))), '<i class="fa fa-eye"></i> Lihat', 'class="link-update"'); ?>
+								<?php echo anchor(site_url('mutu_indikator/delete_validasi?idvalidasi='.$v->id_validasi.'&id='.$this->input->get('id').'&judul='.urlencode($this->input->get('judul'))), '<i class="fa fa-trash"></i> Hapus', 'class="link-delete" onclick="return confirm(\'Hapus catatan validasi ini?\')"'); ?>
+							</div>
+						</td>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			<?php else: ?>
+			<div style="text-align:center; color:var(--muted); padding:40px 20px;">
+				<i class="fa fa-check-circle" style="font-size:2rem; display:block; margin-bottom:10px; color:#CBD5E1;"></i>
+				Belum ada validasi untuk indikator ini.
+			</div>
+			<?php endif; ?>
+		</div>
+	</div>
+
 </div>
+
+<!-- ===== MODAL VALIDASI ===== -->
+<div class="modal fade" id="validasiModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<form method="POST" action="<?php echo site_url('mutu_indikator/validasi_action') ?>" class="modal-content border-0 shadow-lg" style="border-radius:14px; overflow:hidden;">
+			<div class="modal-header" style="background:#0F1B2A; color:#fff;">
+				<h5 class="modal-title font-weight-bold" style="font-size:1rem;">
+					<i class="fa fa-check-circle mr-2"></i>Validasi Data Mutu
+				</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body" style="font-size:14px;">
+				<div class="form-group">
+					<label class="font-weight-bold">Periode Validasi</label>
+					<div class="form-row">
+						<div class="col">
+							<input type="date" name="tanggal_awal" id="val_tanggal_awal" class="form-control" required>
+							<small class="text-muted">Tanggal awal</small>
+						</div>
+						<div class="col">
+							<input type="date" name="tanggal_akhir" id="val_tanggal_akhir" class="form-control" required>
+							<small class="text-muted">Tanggal akhir</small>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="font-weight-bold">Numerator (num)</label>
+					<input type="number" step="any" name="num" id="val_num" class="form-control" placeholder="0" required>
+					<small class="text-muted">Terisi otomatis dari jumlah data periode tersebut (dapat diubah).</small>
+				</div>
+				<div class="form-group">
+					<label class="font-weight-bold">Denumerator (denum)</label>
+					<input type="number" step="any" name="demu" id="val_demu" class="form-control" placeholder="0" required>
+					<small class="text-muted">Terisi otomatis dari jumlah data periode tersebut (dapat diubah).</small>
+				</div>
+				<div class="form-group mb-0">
+					<label class="font-weight-bold">Validator (yang memvalidasi)</label>
+					<select name="userid" class="form-control" required>
+						<option value="">— Pilih User —</option>
+						<?php foreach ($users as $u): ?>
+						<option value="<?php echo $u->id ?>" <?php echo ((int) $u->id === (int) $this->session->userdata('id')) ? 'selected' : '' ?>><?php echo html_escape($u->name) ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<input type="hidden" name="id_indikator" id="val_id_indikator">
+				<input type="hidden" name="judul" id="val_judul">
+			</div>
+			<div class="modal-footer justify-content-between">
+				<button type="button" class="btn btn-secondary px-3" data-dismiss="modal">Batal</button>
+				<button type="submit" class="btn px-4 font-weight-bold" style="background:#2F6F5E; color:#fff;"><i class="fa fa-check mr-1"></i> Simpan Validasi</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+(function () {
+	var $ = window.jQuery;
+	if (!$) return;
+
+	$('#validasiModal').on('show.bs.modal', function (e) {
+		var btn = $(e.relatedTarget);
+		$('#val_id_indikator').val(btn.data('id'));
+		$('#val_judul').val(btn.data('judul'));
+		$('#val_tanggal_awal').val('');
+		$('#val_tanggal_akhir').val('');
+		$('#val_num').val('');
+		$('#val_demu').val('');
+	});
+
+	function isiOtomatis() {
+		var id = $('#val_id_indikator').val();
+		var awal = $('#val_tanggal_awal').val();
+		var akhir = $('#val_tanggal_akhir').val();
+		if (!id || !awal || !akhir) return;
+		$.post('<?php echo site_url('mutu_indikator/sum_range') ?>', {
+			id_indikator: id,
+			tanggal_awal: awal,
+			tanggal_akhir: akhir
+		}, function (res) {
+			if (res && res.num !== undefined && res.demu !== undefined) {
+				$('#val_num').val(res.num);
+				$('#val_demu').val(res.demu);
+			}
+		}, 'json');
+	}
+	$('#val_tanggal_awal').on('change', isiOtomatis);
+	$('#val_tanggal_akhir').on('change', isiOtomatis);
+})();
+</script>

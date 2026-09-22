@@ -77,6 +77,72 @@ class Mutu_indikator_model extends CI_Model
         $this->db->delete($this->table);
     }
 
+    // ================= VALIDASI =================
+
+    // daftar user untuk pilihan validator
+    function users()
+    {
+        return $this->db->order_by('name', 'ASC')->get('users')->result();
+    }
+
+    // riwayat validasi per indikator (join nama validator)
+    function get_validasi($id_indikator)
+    {
+        $this->db->select('mv.*, u.name AS nama_validator');
+        $this->db->from('mutu_validasi mv');
+        $this->db->join('users u', 'u.id = mv.userid', 'left');
+        $this->db->where('mv.id_indikator', $id_indikator);
+        $this->db->order_by('mv.tanggal_awal', 'DESC');
+        $this->db->order_by('mv.id_validasi', 'DESC');
+        return $this->db->get()->result();
+    }
+
+    function get_validasi_by_id($id)
+    {
+        $this->db->where('id_validasi', $id);
+        return $this->db->get('mutu_validasi')->row();
+    }
+
+    function insert_validasi($data)
+    {
+        $this->db->insert('mutu_validasi', $data);
+        return $this->db->insert_id();
+    }
+
+    function delete_validasi($id)
+    {
+        $this->db->where('id_validasi', $id);
+        $this->db->delete('mutu_validasi');
+    }
+
+    // data mutu dalam rentang tanggal (untuk detail validasi)
+    function get_in_range($id_indikator, $awal, $akhir)
+    {
+        $this->db->where('id_indikator', (int) $id_indikator);
+        $this->db->where('tanggal >=', $awal);
+        $this->db->where('tanggal <=', $akhir);
+        $this->db->order_by('tanggal', 'ASC');
+        return $this->db->get($this->table)->result();
+    }
+
+    // jumlah num & denum dalam rentang tanggal (untuk isi otomatis form validasi)
+    function sum_range($id_indikator, $awal = NULL, $akhir = NULL)
+    {
+        $this->db->select('IFNULL(SUM(num),0) AS num, IFNULL(SUM(demu),0) AS demu', FALSE);
+        $this->db->where('id_indikator', (int) $id_indikator);
+        if ($awal !== NULL && $awal !== '') {
+            $this->db->where('tanggal >=', $awal);
+        }
+        if ($akhir !== NULL && $akhir !== '') {
+            $this->db->where('tanggal <=', $akhir);
+        }
+        $row = $this->db->get($this->table)->row();
+        return array(
+            'num'  => $row ? (float) $row->num : 0,
+            'demu' => $row ? (float) $row->demu : 0,
+        );
+    }
+
 }
 
 /* End of file Mutu_indikator_model.php */

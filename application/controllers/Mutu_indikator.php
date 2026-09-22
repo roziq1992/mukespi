@@ -8,6 +8,7 @@ class Mutu_indikator extends CI_Controller
     function __construct()
     {
         parent::__construct();
+        is_logged_in();
         $this->load->model('Mutu_indikator_model');
         $this->load->library('form_validation');
     }
@@ -17,6 +18,13 @@ class Mutu_indikator extends CI_Controller
         $q = urldecode($this->input->get('q', TRUE));
         $idindikator = urldecode($this->input->get('id', TRUE));
         $judul = urldecode($this->input->get('judul', TRUE));
+
+        if ($idindikator === '' || $idindikator === '0' || $idindikator === NULL) {
+            $this->session->set_flashdata('message', 'Pilih indikator terlebih dahulu.');
+            redirect(site_url('list_indikator'));
+            return;
+        }
+
         $start = intval($this->input->get('start'));
         
         if ($q <> '') {
@@ -48,6 +56,8 @@ class Mutu_indikator extends CI_Controller
     	    'id_indikator' => set_value('id_indikator'),
     	    'num' => set_value('num'),
     	    'demu' => set_value('demu'),
+            'validasi' => $idindikator ? $this->Mutu_indikator_model->get_validasi($idindikator) : array(),
+            'users' => $this->Mutu_indikator_model->users(),
         );
    
         
@@ -166,6 +176,101 @@ class Mutu_indikator extends CI_Controller
             $this->session->set_flashdata('message', 'Record Not Found');
             redirect(site_url('mutu_indikator?id='.$this->input->get('id',TRUE).'&judul='.$this->input->get('judul',TRUE).'&tanggal='.$this->input->get('tanggal',TRUE)));
         }
+    }
+
+    // ================= VALIDASI =================
+
+    // simpan hasil validasi dari modal
+    public function validasi_action()
+    {
+        $id_indikator = (int) $this->input->post('id_indikator', TRUE);
+        $judul = $this->input->post('judul', TRUE);
+
+        $this->form_validation->set_rules('id_indikator', 'Indikator', 'trim|required|integer');
+        $this->form_validation->set_rules('tanggal_awal', 'Tanggal Awal', 'trim|required');
+        $this->form_validation->set_rules('tanggal_akhir', 'Tanggal Akhir', 'trim|required');
+        $this->form_validation->set_rules('num', 'Numerator', 'trim|required|numeric');
+        $this->form_validation->set_rules('demu', 'Denumerator', 'trim|required|numeric');
+        $this->form_validation->set_rules('userid', 'Validator', 'trim|required|integer');
+        $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->session->set_flashdata('message', 'Form validasi belum lengkap. Periksa kembali isian Anda.');
+        } else {
+            $this->Mutu_indikator_model->insert_validasi(array(
+                'id_indikator' => $id_indikator,
+                'tanggal_awal' => $this->input->post('tanggal_awal', TRUE),
+                'tanggal_akhir' => $this->input->post('tanggal_akhir', TRUE),
+                'num' => (float) $this->input->post('num', TRUE),
+                'demu' => (float) $this->input->post('demu', TRUE),
+                'userid' => (int) $this->input->post('userid', TRUE),
+                'created_at' => date('Y-m-d H:i:s'),
+            ));
+            $this->session->set_flashdata('message', 'Validasi berhasil disimpan.');
+        }
+        redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+    }
+
+    // hapus catatan validasi
+    public function delete_validasi()
+    {
+        $id_validasi = (int) $this->input->get('idvalidasi', TRUE);
+        $id_indikator = (int) $this->input->get('id', TRUE);
+        $judul = $this->input->get('judul', TRUE);
+
+        $row = $this->Mutu_indikator_model->get_validasi_by_id($id_validasi);
+        if ($row) {
+            $this->Mutu_indikator_model->delete_validasi($id_validasi);
+            $this->session->set_flashdata('message', 'Catatan validasi berhasil dihapus.');
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+        }
+        redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+    }
+
+    // lihat detail hasil validasi + data mutu pada periode tsb
+    public function validasi_detail()
+    {
+        $id_validasi = (int) $this->input->get('idvalidasi', TRUE);
+        $id_indikator = (int) $this->input->get('id', TRUE);
+        $judul = $this->input->get('judul', TRUE);
+
+        $validasi = $this->Mutu_indikator_model->get_validasi_by_id($id_validasi);
+
+        if (!$validasi) {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+            return;
+        }
+
+        $indikator = $this->db->get_where('list_indikator', array('id_indikator' => $validasi->id_indikator))->row();
+        $validator = $this->db->select('id, name')->where('id', $validasi->userid)->get('users')->row();
+
+        $data = array(
+            'title' => 'Detail Validasi',
+            'validasi' => $validasi,
+            'indikator' => $indikator,
+            'validator' => $validator,
+            'mutu_data' => $this->Mutu_indikator_model->get_in_range($validasi->id_indikator, $validasi->tanggal_awal, $validasi->tanggal_akhir),
+            'target' => $indikator ? $indikator->target : NULL,
+            'jenis' => $indikator ? $indikator->jenis : '',
+            'judul' => $indikator ? $indikator->judul : $judul,
+        );
+
+        $this->load->view('template/header', $data);
+        $this->load->view('mutu_indikator/validasi_detail', $data);
+        $this->load->view('template/footer');
+    }
+
+    // total num & denum dalam rentang tanggal (AJAX untuk isi otomatis modal validasi)
+    public function sum_range()
+    {
+        $id_indikator = (int) $this->input->post('id_indikator', TRUE);
+        $awal = $this->input->post('tanggal_awal', TRUE);
+        $akhir = $this->input->post('tanggal_akhir', TRUE);
+        header('Content-Type: application/json');
+        echo json_encode($this->Mutu_indikator_model->sum_range($id_indikator, $awal, $akhir));
+        exit;
     }
 
     public function _rules() 

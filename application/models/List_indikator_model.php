@@ -17,12 +17,13 @@ class List_indikator_model extends CI_Model
 
     // get all
     // $allowed_indikators: NULL = tanpa batasan (admin/direktur); array id_indikator = hanya itu
-    function get_all($allowed_indikators = NULL)
+    function get_all($allowed_indikators = NULL, $status = NULL)
     {
         $this->db->select('list_indikator.*, unit.nm_unit');
         $this->db->from($this->table);
         $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
         $this->_apply_scope($allowed_indikators);
+        $this->_apply_status($status);
         $this->db->order_by('list_indikator.' . $this->id, $this->order);
         return $this->db->get()->result();
     }
@@ -70,21 +71,38 @@ class List_indikator_model extends CI_Model
         return $this->db->get()->row();
     }
     
+    // Filter status indikator: aktif / nonaktif / semua
+    private function _apply_status($status = NULL)
+    {
+        if ($status !== NULL && $status !== '' && $status !== 'semua') {
+            $this->db->where('list_indikator.status', $status);
+        }
+    }
+
+    // statistik ringkas untuk header
+    function count_status($status = 'aktif')
+    {
+        $this->db->where('list_indikator.status', $status);
+        return $this->db->count_all_results($this->table);
+    }
+
     // get total rows
-    function total_rows($q = NULL, $allowed_indikators = NULL) {
+    function total_rows($q = NULL, $allowed_indikators = NULL, $status = NULL) {
         $this->db->from($this->table);
         $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
         $this->_apply_scope($allowed_indikators);
+        $this->_apply_status($status);
         $this->_apply_search($q);
         return $this->db->count_all_results();
     }
 
     // get data with limit and search
-    function get_limit_data($limit, $start = 0, $q = NULL, $allowed_indikators = NULL) {
+    function get_limit_data($limit, $start = 0, $q = NULL, $allowed_indikators = NULL, $status = NULL) {
         $this->db->select('list_indikator.*, unit.nm_unit');
         $this->db->from($this->table);
         $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
         $this->_apply_scope($allowed_indikators);
+        $this->_apply_status($status);
         $this->_apply_search($q);
         $this->db->order_by('list_indikator.' . $this->id, $this->order);
         $this->db->limit($limit, $start);
