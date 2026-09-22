@@ -180,7 +180,7 @@ class Mutu_indikator extends CI_Controller
 
     // ================= VALIDASI =================
 
-    // simpan hasil validasi dari modal
+    // simpan hasil validasi suatu periode (range tanggal)
     public function validasi_action()
     {
         $id_indikator = (int) $this->input->post('id_indikator', TRUE);
@@ -199,6 +199,7 @@ class Mutu_indikator extends CI_Controller
         } else {
             $this->Mutu_indikator_model->insert_validasi(array(
                 'id_indikator' => $id_indikator,
+                'id_mutu' => NULL,
                 'tanggal_awal' => $this->input->post('tanggal_awal', TRUE),
                 'tanggal_akhir' => $this->input->post('tanggal_akhir', TRUE),
                 'num' => (float) $this->input->post('num', TRUE),
@@ -206,7 +207,7 @@ class Mutu_indikator extends CI_Controller
                 'userid' => (int) $this->input->post('userid', TRUE),
                 'created_at' => date('Y-m-d H:i:s'),
             ));
-            $this->session->set_flashdata('message', 'Validasi berhasil disimpan.');
+            $this->session->set_flashdata('message', 'Validasi periode berhasil disimpan.');
         }
         redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
     }

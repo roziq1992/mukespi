@@ -236,7 +236,7 @@
 		<span class="info-ket">Periode validasi:
 			<b class="txt-mono"><?php echo $validasi->tanggal_awal ?> &rarr; <?php echo $validasi->tanggal_akhir ?></b>
 			&nbsp;&middot;&nbsp; Validator: <b><?php echo html_escape($validator ? $validator->name : '-') ?></b>
-			&nbsp;&middot;&nbsp; Tanggal: <b class="txt-mono"><?php echo date('d M Y H:i', strtotime($validasi->created_at)) ?></b>
+			&nbsp;&middot;&nbsp; Tanggal validasi: <b class="txt-mono"><?php echo date('d M Y H:i', strtotime($validasi->created_at)) ?></b>
 		</span>
 	</div>
 

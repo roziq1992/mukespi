@@ -85,12 +85,13 @@ class Mutu_indikator_model extends CI_Model
         return $this->db->order_by('name', 'ASC')->get('users')->result();
     }
 
-    // riwayat validasi per indikator (join nama validator)
+    // riwayat validasi per indikator (join nama validator + data mutu)
     function get_validasi($id_indikator)
     {
-        $this->db->select('mv.*, u.name AS nama_validator');
+        $this->db->select('mv.*, u.name AS nama_validator, mu.tanggal AS mutu_tanggal, mu.num AS mutu_num, mu.demu AS mutu_demu, mu.id_mutu AS mutu_id');
         $this->db->from('mutu_validasi mv');
         $this->db->join('users u', 'u.id = mv.userid', 'left');
+        $this->db->join('mutu_indikator mu', 'mu.id_mutu = mv.id_mutu', 'left');
         $this->db->where('mv.id_indikator', $id_indikator);
         $this->db->order_by('mv.tanggal_awal', 'DESC');
         $this->db->order_by('mv.id_validasi', 'DESC');
@@ -99,8 +100,12 @@ class Mutu_indikator_model extends CI_Model
 
     function get_validasi_by_id($id)
     {
-        $this->db->where('id_validasi', $id);
-        return $this->db->get('mutu_validasi')->row();
+        $this->db->select('mv.*, u.name AS nama_validator, mu.tanggal AS mutu_tanggal, mu.num AS mutu_num, mu.demu AS mutu_demu');
+        $this->db->from('mutu_validasi mv');
+        $this->db->join('users u', 'u.id = mv.userid', 'left');
+        $this->db->join('mutu_indikator mu', 'mu.id_mutu = mv.id_mutu', 'left');
+        $this->db->where('mv.id_validasi', $id);
+        return $this->db->get()->row();
     }
 
     function insert_validasi($data)
@@ -115,7 +120,7 @@ class Mutu_indikator_model extends CI_Model
         $this->db->delete('mutu_validasi');
     }
 
-    // data mutu dalam rentang tanggal (untuk detail validasi)
+    // data mutu dalam rentang tanggal (untuk detail validasi per periode)
     function get_in_range($id_indikator, $awal, $akhir)
     {
         $this->db->where('id_indikator', (int) $id_indikator);

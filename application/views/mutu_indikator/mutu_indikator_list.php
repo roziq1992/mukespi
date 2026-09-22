@@ -651,12 +651,12 @@ $tanggal = date("Y-m-d");
 				<div class="form-group">
 					<label class="font-weight-bold">Numerator (num)</label>
 					<input type="number" step="any" name="num" id="val_num" class="form-control" placeholder="0" required>
-					<small class="text-muted">Terisi otomatis dari jumlah data periode tersebut (dapat diubah).</small>
+					<small class="text-muted">Terisi otomatis dari total data periode tersebut (dapat diubah).</small>
 				</div>
 				<div class="form-group">
 					<label class="font-weight-bold">Denumerator (denum)</label>
 					<input type="number" step="any" name="demu" id="val_demu" class="form-control" placeholder="0" required>
-					<small class="text-muted">Terisi otomatis dari jumlah data periode tersebut (dapat diubah).</small>
+					<small class="text-muted">Terisi otomatis dari total data periode tersebut (dapat diubah).</small>
 				</div>
 				<div class="form-group mb-0">
 					<label class="font-weight-bold">Validator (yang memvalidasi)</label>
@@ -667,8 +667,8 @@ $tanggal = date("Y-m-d");
 						<?php endforeach; ?>
 					</select>
 				</div>
-				<input type="hidden" name="id_indikator" id="val_id_indikator">
-				<input type="hidden" name="judul" id="val_judul">
+				<input type="hidden" name="id_indikator" id="val_id_indikator" value="<?php echo (int) $this->input->get('id'); ?>">
+				<input type="hidden" name="judul" value="<?php echo html_escape($this->input->get('judul')); ?>">
 			</div>
 			<div class="modal-footer justify-content-between">
 				<button type="button" class="btn btn-secondary px-3" data-dismiss="modal">Batal</button>
@@ -680,36 +680,34 @@ $tanggal = date("Y-m-d");
 
 <script>
 (function () {
-	var $ = window.jQuery;
-	if (!$) return;
-
-	$('#validasiModal').on('show.bs.modal', function (e) {
-		var btn = $(e.relatedTarget);
-		$('#val_id_indikator').val(btn.data('id'));
-		$('#val_judul').val(btn.data('judul'));
-		$('#val_tanggal_awal').val('');
-		$('#val_tanggal_akhir').val('');
-		$('#val_num').val('');
-		$('#val_demu').val('');
-	});
-
-	function isiOtomatis() {
-		var id = $('#val_id_indikator').val();
-		var awal = $('#val_tanggal_awal').val();
-		var akhir = $('#val_tanggal_akhir').val();
-		if (!id || !awal || !akhir) return;
-		$.post('<?php echo site_url('mutu_indikator/sum_range') ?>', {
-			id_indikator: id,
-			tanggal_awal: awal,
-			tanggal_akhir: akhir
-		}, function (res) {
-			if (res && res.num !== undefined && res.demu !== undefined) {
-				$('#val_num').val(res.num);
-				$('#val_demu').val(res.demu);
-			}
-		}, 'json');
+	function init() {
+		if (!window.jQuery) { setTimeout(init, 60); return; }
+		var $ = window.jQuery;
+		$('#validasiModal').on('show.bs.modal', function () {
+			$('#val_tanggal_awal').val('');
+			$('#val_tanggal_akhir').val('');
+			$('#val_num').val('');
+			$('#val_demu').val('');
+		});
+		function isiOtomatis() {
+			var id = $('#val_id_indikator').val();
+			var awal = $('#val_tanggal_awal').val();
+			var akhir = $('#val_tanggal_akhir').val();
+			if (!id || !awal || !akhir) return;
+			$.post('<?php echo site_url('mutu_indikator/sum_range') ?>', {
+				id_indikator: id,
+				tanggal_awal: awal,
+				tanggal_akhir: akhir
+			}, function (res) {
+				if (res && res.num !== undefined && res.demu !== undefined) {
+					$('#val_num').val(res.num);
+					$('#val_demu').val(res.demu);
+				}
+			}, 'json');
+		}
+		$('#val_tanggal_awal').on('change', isiOtomatis);
+		$('#val_tanggal_akhir').on('change', isiOtomatis);
 	}
-	$('#val_tanggal_awal').on('change', isiOtomatis);
-	$('#val_tanggal_akhir').on('change', isiOtomatis);
+	init();
 })();
 </script>
