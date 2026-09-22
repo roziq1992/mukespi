@@ -87,10 +87,16 @@ class Pegawai_model extends CI_Model
     }
 
     // get total rows (opsi filter status: aktif/nonaktif/semua)
-    function total_rows($q = NULL, $status = NULL)
+    function total_rows($q = NULL, $status = NULL, $no_nik = FALSE)
     {
         if ($status !== NULL && $status !== '' && $status !== 'semua') {
             $this->db->where('status', $status);
+        }
+        if (!empty($no_nik)) {
+            $this->db->group_start();
+            $this->db->where('nik', NULL);
+            $this->db->or_where('nik', '');
+            $this->db->group_end();
         }
         if ($q !== NULL && $q !== '') {
             $this->db->group_start();
@@ -108,10 +114,16 @@ class Pegawai_model extends CI_Model
     }
 
     // get data with limit and search
-    function get_limit_data($limit, $start = 0, $q = NULL, $status = NULL)
+    function get_limit_data($limit, $start = 0, $q = NULL, $status = NULL, $no_nik = FALSE)
     {
         if ($status !== NULL && $status !== '' && $status !== 'semua') {
             $this->db->where('status', $status);
+        }
+        if (!empty($no_nik)) {
+            $this->db->group_start();
+            $this->db->where('nik', NULL);
+            $this->db->or_where('nik', '');
+            $this->db->group_end();
         }
         if ($q !== NULL && $q !== '') {
             $this->db->group_start();

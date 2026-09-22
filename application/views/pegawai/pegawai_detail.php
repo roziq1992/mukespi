@@ -236,6 +236,7 @@
 				</div>
 			</div>
 			<div class="pgw-hero-actions">
+				<?= anchor($is_pegawai_view ? site_url('portal') : site_url('pegawai'), '<i class="fas fa-arrow-left"></i> Kembali', 'class="pgw-btn pgw-btn-ghost"') ?>
 				<?php if ($can_edit): ?>
 					<?= anchor(site_url('pegawai/update/' . $pegawai->id_pegawai), '<i class="fas fa-edit"></i> Edit', 'class="pgw-btn pgw-btn-light"') ?>
 				<?php endif; ?>

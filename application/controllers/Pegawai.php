@@ -103,23 +103,30 @@ class Pegawai extends CI_Controller
 
         $q = urldecode($this->input->get('q', TRUE));
         $status = $this->input->get('status', TRUE);
+        $no_nik = ($this->input->get('no_nik', TRUE) === '1');
+
+        // Filter tanpa NIK: tampilkan semua status; selain itu default hanya aktif
+        if ($status === NULL || $status === '') {
+            $status = $no_nik ? 'semua' : 'aktif';
+        }
         $start = intval($this->input->get('start'));
 
         $config['base_url'] = base_url() . 'index.php/pegawai/';
         $config['per_page'] = 10;
         $config['page_query_string'] = TRUE;
 
-        // gabungkan q & status ke base_url supaya pagination tidak kehilangan filter
+        // gabungkan semua filter ke base_url supaya pagination tidak kehilangan filter
         $params = array();
         if ($q <> '') $params['q'] = $q;
         if ($status && $status !== 'semua') $params['status'] = $status;
+        if ($no_nik) $params['no_nik'] = 1;
         if (!empty($params)) {
             $config['base_url'] .= '?' . http_build_query($params);
             $config['first_url'] = $config['base_url'];
         }
 
-        $config['total_rows'] = $this->Pegawai_model->total_rows($q, $status);
-        $pegawai_data = $this->Pegawai_model->get_limit_data($config['per_page'], $start, $q, $status);
+        $config['total_rows'] = $this->Pegawai_model->total_rows($q, $status, $no_nik);
+        $pegawai_data = $this->Pegawai_model->get_limit_data($config['per_page'], $start, $q, $status, $no_nik);
 
         $this->load->library('pagination');
         $this->pagination->initialize($config);
@@ -128,6 +135,7 @@ class Pegawai extends CI_Controller
             'pegawai_data' => $pegawai_data,
             'q' => $q,
             'status_filter' => $status,
+            'no_nik' => $no_nik,
             'pagination' => $this->pagination->create_links(),
             'total_rows' => $config['total_rows'],
             'start' => $start,

@@ -518,12 +518,14 @@ $prev_flash = $this->session->userdata('message');
 		<div class="mutu-toolbar">
 			<div>
 				<div class="filter-tabs">
-					<a href="<?= site_url('pegawai') ?>" class="filter-tab <?= ($status_filter === '' || $status_filter === 'semua') ? 'active' : '' ?>">Semua</a>
-					<a href="<?= site_url('pegawai/?status=aktif') ?>" class="filter-tab <?= $status_filter === 'aktif' ? 'active' : '' ?>">
+					<a href="<?= site_url('pegawai/?status=aktif') ?>" class="filter-tab <?= ($status_filter === 'aktif' && empty($no_nik)) ? 'active' : '' ?>">
 						<i class="fas fa-check-circle"></i> Aktif
 					</a>
-					<a href="<?= site_url('pegawai/?status=nonaktif') ?>" class="filter-tab <?= $status_filter === 'nonaktif' ? 'active' : '' ?>">
+					<a href="<?= site_url('pegawai/?status=nonaktif') ?>" class="filter-tab <?= ($status_filter === 'nonaktif' && empty($no_nik)) ? 'active' : '' ?>">
 						<i class="fas fa-user-slash"></i> Nonaktif
+					</a>
+					<a href="<?= site_url('pegawai/?no_nik=1') ?>" class="filter-tab <?= !empty($no_nik) ? 'active' : '' ?>">
+						<i class="fas fa-id-card"></i> Tanpa NIK
 					</a>
 				</div>
 			</div>
@@ -567,6 +569,7 @@ $prev_flash = $this->session->userdata('message');
 		<div class="mutu-toolbar">
 			<form action="<?= site_url('pegawai/index') ?>" class="mutu-search" method="get">
 				<input type="hidden" name="status" value="<?= html_escape($status_filter) ?>">
+				<input type="hidden" name="no_nik" value="<?= !empty($no_nik) ? '1' : '' ?>">
 				<div class="mutu-search-box">
 					<input type="text" name="q" value="<?= html_escape($q) ?>" placeholder="Cari nama / NIP / jabatan / unit...">
 					<?php if ($q <> ''): ?>
