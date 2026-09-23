@@ -99,6 +99,13 @@
 							</a>
 						</li>
 
+						<!-- Nav Item - User Manual -->
+						<li class="nav-item no-arrow mx-1">
+							<a class="nav-link" href="<?php echo base_url('docs/user-manual/index.html'); ?>" title="User Manual" target="_blank">
+								<i class="fas fa-book fa-fw"></i>
+							</a>
+						</li>
+
 						<div class="topbar-divider d-none d-sm-block"></div>
 
 						<!-- Nav Item - User Information -->

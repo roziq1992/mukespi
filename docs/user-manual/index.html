@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User Manual — Sistem Informasi Management RS Airlangga </title>
+<style>
+:root{
+  --ink:#1b263b; --muted:#5d6b82; --line:#dde4ee; --bg:#f4f7fb;
+  --p1:#0f9b8e; --p2:#2c5f8a; --p3:#6a3fa0; --p4:#c9971c;
+  --ph:#123456; --hl:#fff8e1;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Segoe UI',system-ui,Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.6}
+a{color:#1d5fae;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ===== Layout ===== */
+.wrap{display:flex;max-width:1480px;margin:0 auto}
+nav.toc{position:fixed;top:0;left:0;bottom:0;width:300px;background:#102a43;color:#dfe9f5;overflow-y:auto;padding:22px 0 40px;z-index:50}
+nav.toc .doc-title{padding:0 22px 14px;border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:12px}
+nav.toc .doc-title b{font-size:1.02rem;color:#fff;display:block;line-height:1.35}
+nav.toc .doc-title span{font-size:.72rem;color:#9fb4c9}
+nav.toc a{display:block;color:#c9d7e8;font-size:.85rem;padding:7px 22px;border-left:3px solid transparent}
+nav.toc a:hover{background:rgba(255,255,255,.06);color:#fff;text-decoration:none}
+nav.toc a.lv1{font-weight:700;color:#fff;margin-top:10px}
+nav.toc a.lv1:hover{background:none;border-left-color:#4fc3d8}
+nav.toc a.lv2{padding-left:38px;font-size:.8rem}
+nav.toc a.lv2:hover{border-left-color:#4fc3d8}
+main{flex:1;margin-left:300px;padding:0 46px 90px;max-width:1180px}
+
+/* ===== Cover ===== */
+.cover{background:linear-gradient(135deg,#102a43,#1f4e79 60%,#2c7a9d);color:#fff;border-radius:16px;padding:44px 46px;margin:34px 0 30px;box-shadow:0 10px 30px rgba(16,42,67,.25)}
+.cover .tag{display:inline-block;background:rgba(255,255,255,.15);padding:3px 12px;border-radius:20px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.cover h1{margin:0 0 8px;font-size:2rem;line-height:1.25}
+.cover p{margin:0;opacity:.9;max-width:760px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.meta div{background:rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;font-size:.78rem}
+.meta b{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;opacity:.75}
+
+/* ===== Section ===== */
+section.block{background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px 32px;margin:24px 0;box-shadow:0 2px 8px rgba(16,42,67,.04)}
+section.block h2{margin:0 0 6px;font-size:1.5rem;border-left:5px solid var(--p2);padding-left:12px}
+section.block h2 .no{color:var(--muted);font-weight:400;font-size:1rem;margin-right:8px}
+section.block h3{margin:26px 0 8px;font-size:1.08rem;color:var(--p2)}
+section.block h3:first-child{margin-top:4px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 22px;padding:0}
+li{margin:3px 0}
+small{color:var(--muted)}
+.muted{color:var(--muted)}
+code{background:#eef2f8;border:1px solid #dfe6f0;border-radius:5px;padding:1px 7px;font-size:.84em;font-family:Consolas,monospace;color:#204}
+.url{background:#f2f6fc;border:1px solid #d8e3f2;border-radius:6px;padding:2px 8px;font-size:.84em;font-family:Consolas,monospace;color:#13324f}
+
+/* ===== Figures ===== */
+figure{background:#fafcff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:18px 0;text-align:center}
+figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 14px rgba(16,42,67,.12);background:#fff}
+figcaption{margin-top:10px;font-size:.84rem;color:var(--muted)}
+figcaption b{color:var(--ink)}
+.legend{display:inline-block;text-align:left;background:#f1f5fb;border:1px solid #dbe5f1;border-radius:8px;padding:10px 16px;font-size:.82rem;margin-top:10px;color:#33475f}
+.legend span{display:block}
+.legend i{color:var(--p3);font-style:normal;font-weight:700}
+
+/* callout */
+.callout{border-radius:10px;padding:14px 18px;margin:16px 0;font-size:.9rem}
+.callout.info{background:#eaf4ff;border:1px solid #c9e2ff}
+.callout.warn{background:#fff7ea;border:1px solid #ffd9a8}
+.callout.bad{background:#ffeceb;border:1px solid #ffbfbd}
+.callout.good{background:#ecfbf3;border:1px solid #baf0d0}
+.callout b.t{display:inline-block;margin-bottom:4px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.87rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef3fa;font-weight:700;color:#1b3a5c}
+tr:nth-child(even) td{background:#fafcff}
+
+/* status chips */
+.chip{display:inline-block;border-radius:20px;padding:2px 11px;font-size:.74rem;font-weight:700}
+.chip.ok{background:#e3f8ec;color:#0a7d45}
+.chip.warn{background:#fff4dc;color:#a06a00}
+.chip.err{background:#ffe1df;color:#b3261e}
+
+.badge-mod{display:inline-block;background:linear-gradient(135deg,#2c5f8a,#1b3a5c);color:#fff;border-radius:8px;padding:2px 10px;font-size:.74rem;margin-left:8px;vertical-align:middle}
+
+/* ===== Toolbar Unduh / Cetak ===== */
+.toolbar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:12px;padding:10px 18px;margin:-10px 0 6px;display:flex;align-items:center;gap:10px;box-shadow:0 3px 12px rgba(16,42,67,.08)}
+.toolbar .tb-title{font-weight:800;font-size:.86rem;color:var(--p2);margin-right:auto}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:9px;padding:8px 16px;font-size:.84rem;font-weight:700;cursor:pointer;transition:.15s}
+.btn:hover{text-decoration:none;background:#f2f6fc}
+.btn.primary{background:linear-gradient(135deg,#2c5f8a,#1b3a5c);border-color:#1b3a5c;color:#fff}
+.btn.primary:hover{background:#1b3a5c}
+.btn.outline:hover{background:#f2f6fc}
+
+@media print{
+  nav.toc{display:none}
+  main{margin-left:0;max-width:none;padding:0}
+  .toolbar{display:none}
+  figure{break-inside:avoid}
+  table,tr{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+@media (max-width:900px){
+  nav.toc{display:none}
+  main{margin-left:0;padding:0 16px 60px}
+  .cover{padding:28px 24px}
+  section.block{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR / TOC ============ -->
+<nav class="toc">
+  <div class="doc-title"><b>User Manual Sistem Infomasi</b><span>RS AIRLANGGA </span></div>
+  <a class="lv1" href="#pendahuluan">1. Pendahuluan</a>
+  <a class="lv1" href="#login">2. Login &amp; Autentikasi</a>
+  <a class="lv2" href="#login-halaman">2.1 Halaman Login</a>
+  <a class="lv2" href="#login-nik">2.2 Login Email vs NIK</a>
+  <a class="lv2" href="#login-register">2.3 Halaman 403 / Registrasi</a>
+  <a class="lv1" href="#antarmuka">3. Antarmuka Utama</a>
+  <a class="lv2" href="#portal">3.1 Portal Sistem</a>
+  <a class="lv2" href="#komponen">3.2 Sidebar, Topbar &amp; Notifikasi</a>
+  <a class="lv2" href="#profil">3.3 Profil Pengguna</a>
+  <a class="lv1" href="#modul-pegawai">4. Modul PEGAWAI</a>
+  <a class="lv1" href="#modul-pelaporan">5. Modul PELAPORAN (SIRETA)</a>
+  <a class="lv1" href="#modul-surat">6. Modul E-OFFICE (Surat)</a>
+  <a class="lv1" href="#modul-mukespi">7. Modul MUKESPI</a>
+  <a class="lv1" href="#modul-sidokta">8. Modul SIDOKTA</a>
+  <a class="lv1" href="#modul-sipardi">9. Modul SIPARDI</a>
+  <a class="lv1" href="#modul-simonika">10. Modul SIMONIKA</a>
+  <a class="lv1" href="#modul-sipena">11. Modul PENILAIAN (SIPENA)</a>
+  <a class="lv1" href="#modul-sertifikat">12. Modul SERTIFIKAT</a>
+  <a class="lv1" href="#modul-operan-asper">13. Modul OPERAN &amp; ASPER</a>
+  <a class="lv1" href="#modul-siasset">14. Modul SIASSET (Inventaris)</a>
+  <a class="lv1" href="#modul-manajemen">15. Modul MANAJEMEN USER</a>
+  <a class="lv1" href="#temuan">16. Catatan QA &amp; Temuan</a>
+  <a class="lv1" href="#lampiran-mapping">Lampiran A — Peta Menu</a>
+  <a class="lv1" href="#lampiran-peran">Lampiran B — Peran &amp; Akses</a>
+</nav>
+
+<main>
+
+<!-- ============ TOOLBAR UNDUH / CETAK ============ -->
+<div class="toolbar">
+  <span class="tb-title">User Manual — RS Airlangga (MUKESPI V2)</span>
+  <a class="btn primary" href="user-manual.pdf" download="user-manual.pdf" title="Unduh versi PDF lengkap">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+    Download PDF
+  </a>
+  <button class="btn outline" type="button" onclick="window.print()" title="Cetak atau Simpan sebagai PDF via dialog browser">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+    Cetak
+  </button>
+</div>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="tag">Dokumen Resmi — Kefungsian Aplikasi</div>
+  <h1>User Manual Sistem Informasi RS Airlangga</h1>
+  <p>Panduan penggunaan lengkap aplikasi  — Dokumentasi ini disusun berdasarkan kondisi aplikasi yang benar-benar dijalankan dan diverifikasi langsung dari source code.</p>
+  <!-- <div class="meta">
+    <div><b>Aplikasi</b>MUKESPI V2 (RS Airlangga)</div>
+    <div><b>Teknologi</b>PHP CodeIgniter 3, MySQL, SB Admin 2</div>
+    <div><b>Jenis Dokumen</b>User Manual + Hasil QA</div>
+    <div><b>Lokasi Aplikasi</b>https://localhost/mukespi/</div>
+  </div> -->
+</div>
+
+<!-- ============ 1. PENDAHULUAN ============ -->
+<section class="block" id="pendahuluan">
+  <h2><span class="no">1.</span>Pendahuluan</h2>
+  <p><b></b> adalah sistem informasi rumah sakit yang menyatukan beberapa layanan digital dalam satu portal terpadu, antara lain:</p>
+  <ul>
+    <li><b>MUKESPI</b> — Mutu, Keselamatan Pasien &amp; PPI (indikator mutu, data mutu, FMEA, IKP, kepatuhan cuci tangan).</li>
+    <li><b>SIDOKTA</b> — Sistem Informasi Dokumen Terpadu &amp; pengelolaan dokumen per unit.</li>
+    <li><b>SIPARDI</b> — Penilaian Akreditasi (Elemen Penilaian).</li>
+    <li><b>SIMONIKA</b> — Monitoring penanggung jawab/tindak lanjut.</li>
+    <li><b>SIPENA</b> — Penilaian Kinerja pegawai.</li>
+    <li><b>E-OFFICE</b> — Pengajuan, penomoran, disposisi &amp; tanda tangan surat.</li>
+    <li><b>SIRETA</b> — Pelaporan &amp; aduan karyawan.</li>
+    <li><b>SIMPEG</b> — Data pegawai &amp; unit kerja.</li>
+    <li><b>SIASSET</b> — Inventaris aset, barcode &amp; perawatan.</li>
+    <li><b>SERTIFIKAT ONLINE</b> — Penerbitan sertifikat pelatihan.</li>
+  </ul>
+  <p class="muted">Dokumen ini memandu Anda mulai dari login, mengenal antarmuka, hingga setiap fitur pada setiap modul. Semua gambar berupa <i>screenshot asli</i> hasil menjalankan aplikasi secara lokal.</p>
+
+  <!-- <div class="callout info"><b class="t">Cara membuka aplikasi</b>
+    Jalankan layanan <b>XAMPP (Apache + MySQL)</b>, kemudian buka browser dan akses alamat
+    <span class="url">http://localhost/mukespi/</span>. Halaman pertama yang muncul adalah halaman <b>Login</b>.
+  </div> -->
+</section>
+
+<!-- ============ 2. LOGIN ============ -->
+<section class="block" id="login">
+  <h2><span class="no">2.</span>Login &amp; Autentikasi</h2>
+
+  <h3 id="login-halaman">2.1 Halaman Login</h3>
+  <figure>
+    <img src="assets/screenshots/original/login.png" alt="Halaman login MUKESPI V2">
+    <figcaption><b>Gambar 1.</b> Halaman login MUKESPI V2 (lengkap dengan latar animasi dan panel form).</figcaption>
+    <div class="legend">
+      <span><i>①</i> Kolom <b>Email</b> — isi <code>nama@rsairlangga.co.id</code> <i>atau NIK pegawai</i>.</span>
+      <span><i>②</i> Kolom <b>Password</b> — isi kata sandi akun Anda.</span>
+      <span><i>③</i> Tombol <b>Masuk</b> — kirim form login.</span>
+    </div>
+  </figure>
+
+  <h3 id="login-nik">2.2 Login Menggunakan Email atau NIK</h3>
+  <p>Halaman login menerima dua jenis identitas sekaligus (deteksi otomatis):</p>
+  <ul>
+    <li><b>Email</b> — akun yang terdaftar pada tabel <code>users</code> (contoh: admin, sekretaris, direktur, HRD).</li>
+    <li><b>NIK Pegawai</b> — pegawai yang datanya ada di <code>pegawai</code>; kata sandinya dikelola HRD. Setelah login via NIK, sistem menuju halaman <i>Data Saya</i> (<span class="url">pegawai/detail</span>).</li>
+    <li>Kode singkat <code>DIR01</code> juga dipetakan otomatis ke akun Direktur (<code>DIR01@dir.com</code>).</li>
+  </ul>
+  <ul>
+    <li>Akun admin yang mudah diket (misal password masih "admin") akan <b>dipaksa mengganti password</b> saat login (fitur wajib ganti kata sandi).</li>
+    <li>Jika email/NIK yang dimasukkan tidak terdaftar, muncul peringatan di halaman yang sama.</li>
+  </ul>
+  <div class="callout warn"><b class="t">Kategori akses per role</b>
+    Setelah login, sistem mengarahkan ke <b>Portal Sistem</b> kecuali login via NIK yang langsung ke halaman Data Saya. Portal kemudian menentukan modul yang boleh diakses sesuai hak akses akun (lihat Lampiran B).
+  </div>
+
+  <h3 id="login-register">2.3 Registrasi &amp; Halaman Terblokir (403)</h3>
+  <figure>
+    <img src="assets/screenshots/original/register.png" alt="Hasil akses halaman register">
+    <figcaption><b>Gambar 2a.</b> Hasil membuka alamat <span class="url">/register</span> — menampilkan halaman akses ditolak (lihat catatan di bawah).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/blocked.png" alt="Halaman 403 Access Forbidden">
+    <figcaption><b>Gambar 2b.</b> Halaman <b>403 — Access Forbidden</b> (ditampilkan untuk URL yang tidak tersedia / tanpa hak akses).</figcaption>
+  </figure>
+  <p class="muted">Halaman ini dipicu oleh <code>404_override = auth/blocked</code> maupun ketika akses role ditolak.</p>
+  <div class="callout bad"><b class="t">Temuan QA</b>
+    Alamat <span class="url">/register</span> saat ini menampilkan halaman 403 di atas karena route <code>register</code> diarahkan ke method <code>auth/register</code>, sedangkan controller <code>Auth</code> hanya memiliki method <code>registerx()</code>. Artinya <b>fitur registrasi mandiri belum aktif</b> di aplikasi ini (<i>diverifikasi 100% dari source code</i>).
+  </div>
+</section>
+
+<!-- ============ 3. ANTARMUKA ============ -->
+<section class="block" id="antarmuka">
+  <h2><span class="no">3.</span>Antarmuka Utama</h2>
+
+  <h3 id="portal">3.1 Portal Sistem (Landing Page)</h3>
+  <figure>
+    <img src="assets/screenshots/original/portal.png" alt="Portal Sistem RS Airlangga">
+    <figcaption><b>Gambar 3.</b> Portal Sistem — satu halaman untuk mengakses semua layanan sesuai kewenangan akun.</figcaption>
+    <div class="legend">
+      <span><i>①</i> Kartu <b>E-OFFICE RSA</b> → manajemen surat.</span>
+      <span><i>②</i> Kartu <b>MUKESPI</b> → indikator mutu &amp; PPI.</span>
+      <span><i>③</i> Kartu <b>SIASSET</b> → inventaris aset.</span>
+      <span><i>④</i> Kartu <b>SIDOKTA</b> → dokumen unit.</span>
+      <span><i>⑤</i> Kartu <b>SIPARDI</b> → penilaian akreditasi.</span>
+      <span><i>⑥</i> Kartu <b>SIMONIKA</b> → monitoring penanggung jawab.</span>
+      <span><i>⑦</i> Kartu <b>SIPENA</b> → penilaian pegawai.</span>
+      <span><i>⑧</i> Kartu <b>SIRETA</b> → pelaporan karyawan.</span>
+      <span><i>⑨</i> Kartu <b>DATA SAYA</b> → data diri pegawai.</span>
+    </div>
+  </figure>
+  <p>Kartu yang tampil mengikuti hak akses akun (fungsi <code>is_menu_accessible()</code>). Akun admin dapat melihat semua kartu termasuk <b>Monitoring Document Akreditasi</b> (tautan eksternal Google Sheets) dan <b>WEBSITE RSA</b>.</p>
+
+  <h3 id="komponen">3.2 Sidebar, Topbar &amp; Notifikasi</h3>
+  <p>Seluruh halaman internal memakai tema <b>SB Admin 2</b> yang terdiri atas:</p>
+  <ul>
+    <li><b>Sidebar kiri</b> — menu navigasi berkelompok (PEGAWAI, PELAPORAN, E-OFFICE, MUKESPI, SIDOKTA, SIPARDI, SIMONIKA, PENILAIAN KINERJA, SERTIFIKAT ONLINE, MANAJEMEN USER). Sidebar dapat diciutkan menjadi ikon saja.</li>
+    <li><b>Topbar</b> — tombol notifikasi (ikon lonceng dengan badge jumlah belum dibaca), plus menu <i>Profile</i> dan <i>Logout</i> pada dropdown avatar pengguna.</li>
+  </ul>
+  <figure>
+    <img src="assets/screenshots/original/notifikasi-list.png" alt="Halaman Notifikasi">
+    <figcaption><b>Gambar 4.</b> Halaman <b>Notifikasi</b> — daftar notifikasi sistem (laporan/sanggahan, surat, dll) beserta status dibaca.</figcaption>
+  </figure>
+  <p>Notifikasi dapat dibuka dari ikon lonceng di topbar. Baris notifikasi akan menandai&nbsp;<i>dibaca</i> dan mengarahkan ke halaman tujuan.</p>
+
+  <h3 id="profil">3.3 Profil Pengguna</h3>
+  <figure>
+    <img src="assets/screenshots/original/profile.png" alt="Halaman Profil Pengguna">
+    <figcaption><b>Gambar 5.</b> Halaman <b>Profile</b> — ubah nama, email, avatar, dan password akun yang sedang login.</figcaption>
+  </figure>
+  <p>Menu <b>Profile</b> tersedia dari dropdown nama pengguna di pojok kanan atas. Formulirnya memuat validasi email (harus unik) dan konfirmasi password saat mengganti kata sandi.</p>
+</section>
+
+<!-- ============ 4. PEGAWAI ============ -->
+<section class="block" id="modul-pegawai">
+  <h2><span class="no">4.</span>Modul PEGAWAI (SIMPEG)</h2>
+  <p><span class="chip ok">Akses: Admin &amp; HRD (role 1 &amp; 6)</span> <span class="chip warn">Pegawai: hanya Data Saya</span></p>
+  <p>Menu <b>PEGAWAI</b> (ikon <code>users</code>) pada sidebar berisi: <i>Data Pegawai</i>, <i>Tambah Pegawai</i>, <i>Pegawai Nonaktif</i>, dan <i>Unit Kerja</i>. Pegawai yang sudah login juga mendapat menu <b>DATA SAYA</b> (ikon <code>id-badge</code>).</p>
+
+  <h3>4.1 Daftar Data Pegawai</h3>
+  <figure>
+    <img src="assets/screenshots/original/pegawai-list.png" alt="Daftar data pegawai">
+    <figcaption><b>Gambar 6.</b> <b>Data Pegawai</b> (<span class="url">pegawai</span>) — daftar lengkap pegawai dengan kolom pencarian dan paginasi.</figcaption>
+    <div class="legend">
+      <span><i>①</i> Kolom <b>pencarian</b> (nama/NIK) dengan tombol Cari &amp; Reset.</span>
+      <span><i>②</i> Filter tambahan: <b>Unit</b> &amp; <b>Status</b> kepegawaian.</span>
+      <span><i>③</i> Tombol <b>Tambah Pegawai</b> baru.</span>
+      <span><i>④</i> <b>Tabel</b> data pegawai (NIK/NIP, nama, unit, jabatan, status).</span>
+      <span><i>⑤</i> Aksi per baris: <b>Detail, Edit, Hapus, Ganti Password</b>.</span>
+      <span><i>⑥</i> Tombol <b>Export Excel</b> &amp; <b>Import Excel</b> (berikut template unduhan).</span>
+    </div>
+  </figure>
+  <ul>
+    <li><b>Export Excel</b> → unduh seluruh/hasil filter data pegawai ke berkas <code>.xls</code>.</li>
+    <li><b>Import Excel</b> → unggah data pegawai secara massal menggunakan format sesuai <b>template Excel</b> yang disediakan.</li>
+    <li><b>Mutasi</b> → pindah unit kerja pegawai.</li>
+    <li><b>Nonaktifkan / Aktifkan</b> → ubah status kepegawaian.</li>
+  </ul>
+
+  <h3>4.2 Form Tambah / Edit Pegawai</h3>
+  <figure>
+    <img src="assets/screenshots/original/pegawai-form.png" alt="Form tambah pegawai">
+    <figcaption><b>Gambar 7.</b> <b>Tambah Pegawai</b> (<span class="url">pegawai/create</span>) — formulir data pribadi, kontak, keluarga, pendidikan, pengalaman &amp; pelatihan.</figcaption>
+  </figure>
+  <ul>
+    <li>Field wajib ditandai; validasi menggunakan <code>form_error()</code> (pesan merah di bawah input).</li>
+    <li>Terdapat pengaturan status aktif/nonaktif dan data akun (email &amp; password) untuk login pegawai via NIK/email.</li>
+  </ul>
+
+  <h3>4.3 Detail Pegawai</h3>
+  <figure>
+    <img src="assets/screenshots/original/pegawai-detail.png" alt="Detail pegawai">
+    <figcaption><b>Gambar 8.</b> <b>Detail Pegawai</b> (<span class="url">pegawai/detail/&lt;id&gt;</span>) — informasi lengkap pegawai.</figcaption>
+  </figure>
+
+  <h3>4.4 Pegawai Nonaktif</h3>
+  <figure>
+    <img src="assets/screenshots/original/pegawai-nonaktif-list.png" alt="Daftar pegawai nonaktif">
+    <figcaption><b>Gambar 9.</b> <b>Pegawai Nonaktif</b> (<span class="url">pegawai?status=nonaktif</span>) — daftar pegawai yang berstatus nonaktif untuk diaktifkan kembali.</figcaption>
+  </figure>
+
+  <h3>4.5 Unit Kerja</h3>
+  <figure>
+    <img src="assets/screenshots/original/unit-list.png" alt="Daftar unit kerja">
+    <figcaption><b>Gambar 10.</b> <b>Unit Kerja</b> (<span class="url">unit</span>) — master unit kerja dengan pencarian dan aksi edit/hapus.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/unit-form.png" alt="Form unit kerja">
+    <figcaption><b>Gambar 11.</b> Form tambah/ubah unit kerja (<span class="url">unit/create</span>).</figcaption>
+  </figure>
+
+  <h3>4.6 Penugasan User ke Unit (Pengelolaan)</h3>
+  <figure>
+    <img src="assets/screenshots/original/user-unit-manage.png" alt="Kelola akses unit user">
+    <figcaption><b>Gambar 12.</b> <b>Akses User Unit</b> (<span class="url">user_unit</span>) — menugaskan pengguna ke unit kerja (dipakai untuk filter dokumen &amp; mutu).</figcaption>
+  </figure>
+  <div class="callout info"><b class="t">Catatan teknis</b>
+    Alamat <span class="url">user_unit/create</span> tidak tersedia (menuju 403) karena controller menggunakan method <code>manage(&lt;id_user&gt;)</code>, bukan <code>create()</code>.
+  </div>
+
+  <h3>4.7 Ganti Password (Wajib)</h3>
+  <figure>
+    <img src="assets/screenshots/original/ganti-password.png" alt="Halaman ganti password">
+    <figcaption><b>Gambar 13.</b> <b>Ganti Password</b> (<span class="url">pegawai/ganti_password</span>) — halaman penggantian kata sandi (dipaksa bila password masih bawaan).</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 5. PELAPORAN ============ -->
+<section class="block" id="modul-pelaporan">
+  <h2><span class="no">5.</span>Modul PELAPORAN / Pengaduan Karyawan (SIRETA)</h2>
+  <p>Menu <b>PELAPORAN</b> pada sidebar berisi <i>Daftar Laporan</i> dan <i>Buat Laporan</i>. Modul ini menangani pelaporan/pengaduan antar-karyawan (rating &amp; aduan disiplin), lengkap dengan alur <b>sanggah</b>.</p>
+
+  <h3>5.1 Daftar Laporan</h3>
+  <figure>
+    <img src="assets/screenshots/original/pelaporan-list.png" alt="Daftar pelaporan karyawan">
+    <figcaption><b>Gambar 14.</b> <b>Daftar Laporan</b> (<span class="url">pelaporan</span>) — daftar laporan; konten disesuaikan peran (HRD melihat semua; pegawai melihat laporan yang dibuatnya / menyangkut dirinya).</figcaption>
+  </figure>
+
+  <h3>5.2 Form Buat Laporan</h3>
+  <figure>
+    <img src="assets/screenshots/original/pelaporan-form.png" alt="Form buat laporan">
+    <figcaption><b>Gambar 15.</b> <b>Buat Laporan</b> (<span class="url">pelaporan/create</span>) — formulir laporan/pengaduan beserta validasi dan kategori pelanggaran.</figcaption>
+  </figure>
+
+  <h3>5.3 Detail Laporan &amp; Sanggah</h3>
+  <figure>
+    <img src="assets/screenshots/original/pelaporan-detail.png" alt="Detail laporan">
+    <figcaption><b>Gambar 16.</b> <b>Detail Laporan</b> (<span class="url">pelaporan/detail</span>) — rincian laporan; terdapat aksi <i>sanggah</i>, lalu notifikasi dikirim ke pihak terkait secara otomatis.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 6. E-OFFICE ============ -->
+<section class="block" id="modul-surat">
+  <h2><span class="no">6.</span>Modul E-OFFICE (Manajemen Surat)</h2>
+  <p>Menu <b>E-OFFICE</b> (ikon amplop) mengelola surat internal &amp; eksternal dengan alur kerja (workflow):</p>
+  <p><b>Diajukan → Diproses Sekretaris (penomoran) → Diberi Nomor/Diteruskan Direktur → Ditandatangani / Disposisi → Selesai</b></p>
+  <p class="muted">Tampilan menu menyesuaikan peran: Admin mengelola semua surat; Sekretaris mendapat <i>Surat Masuk Sekretaris</i>; Direktur mendapat <i>TTD &amp; Disposisi</i>; selain itu <i>Surat Saya</i>.</p>
+
+  <h3>6.1 Daftar Surat</h3>
+  <figure>
+    <img src="assets/screenshots/original/surat-list.png" alt="Daftar surat">
+    <figcaption><b>Gambar 17.</b> <b>Surat Saya / Kelola Surat</b> (<span class="url">surat</span>) — filter pencarian, status (Diajukan → Diproses Sekretaris → Sudah Diberi Nomor → Diteruskan ke Direktur → Selesai), jenis (internal/eksternal) dan rentang tanggal.</figcaption>
+    <div class="legend">
+      <span><i>①</i> Kolom <b>Pencarian</b> &amp; dropdown <b>Status</b>.</span>
+      <span><i>②</i> Filter <b>Jenis</b> surat (internal/eksternal) dan <b>rentang tanggal</b>.</span>
+      <span><i>③</i> Tombol <b>Pengajuan Baru</b>.</span>
+      <span><i>④</i> Tabel surat dengan aksi <b>Detail</b> / unduh berkas.</span>
+    </div>
+  </figure>
+
+  <h3>6.2 Form Pengajuan Surat</h3>
+  <figure>
+    <img src="assets/screenshots/original/surat-form-pengajuan.png" alt="Form pengajuan surat">
+    <figcaption><b>Gambar 18.</b> <b>Pengajuan Surat</b> (<span class="url">surat/create</span>) — jenis surat, perihal, tujuan, keterangan, unggah <b>draft</b> dan <b>lampiran</b>.</figcaption>
+  </figure>
+  <ul>
+    <li>Unggah <b>draft surat</b> dan <b>lampiran</b> (berkas disimpan di sistem).</li>
+    <li>Pengajuan langsung mengirim <b>notifikasi email</b> ke Sekretaris/Direktur.</li>
+  </ul>
+  <div class="callout info"><b class="t">Halaman khusus peran</b>
+    <ul style="margin:4px 0 0 18px">
+      <li><b>Sekretaris</b> — <span class="url">surat_masuk</span>: verifikasi &amp; penomoran dengan format <code>NNN/RSA/INT|EXT/ROMAN/YEAR</code>.</li>
+      <li><b>Direktur</b> — <span class="url">surat_direktur</span>: aksi <b>tanda tangan</b> atau <b>disposisi</b> ke unit terkait, dan menyatakan selesai.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 7. MUKESPI ============ -->
+<section class="block" id="modul-mukespi">
+  <h2><span class="no">7.</span>Modul MUKESPI (Mutu, Keselamatan Pasien &amp; PPI)</h2>
+  <p>Menu <b>MUKESPI</b> (ikon denyut jantung) adalah inti aplikasi: <i>Indikator Mutu RS</i>, <i>Dashboard Mutu</i>, <i>Mutu RS</i>, <i>IKP</i>, dan <i>Cuci Tangan</i> (hanya admin).</p>
+
+  <h3>7.1 Indikator Mutu RS</h3>
+  <figure>
+    <img src="assets/screenshots/original/list-indikator-list.png" alt="Daftar indikator mutu">
+    <figcaption><b>Gambar 19.</b> <b>Indikator Mutu RS</b> (<span class="url">list_indikator</span>) — master indikator mutu rumah sakit (kelompok, jenis, unit, target, keterangan numerator/denumerator).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/list-indikator-form.png" alt="Form indikator mutu">
+    <figcaption><b>Gambar 20.</b> Form tambah/edit indikator mutu (<span class="url">list_indikator/create</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/list-indikator-detail.png" alt="Detail indikator mutu">
+    <figcaption><b>Gambar 21.</b> <b>Detail Indikator</b> (<span class="url">list_indikator/read/&lt;id&gt;</span>) — rincian indikator beserta target mutu.</figcaption>
+  </figure>
+  <ul>
+    <li>Fitur: cari, tambah, edit (detail), hapus, <b>toggle status</b> aktif/nonaktif, dan <b>export Excel</b> (<code>list_indikator/excel</code>).</li>
+    <li>Pengaturan PIC indikator tersedia lewat <b>Akses Indikator User</b> (halaman <span class="url">user_list_indikator</span>).</li>
+  </ul>
+  <figure>
+    <img src="assets/screenshots/original/user-list-indikator-manage.png" alt="Kelola akses indikator user">
+    <figcaption><b>Gambar 22.</b> <b>Akses Indikator User</b> (<span class="url">user_list_indikator/manage/&lt;id&gt;</span>) — menugaskan penanggung jawab validasi untuk tiap indikator.</figcaption>
+  </figure>
+
+  <h3>7.2 Dashboard &amp; Grafik Mutu</h3>
+  <figure>
+    <img src="assets/screenshots/original/dashboard-grafik-mutu.png" alt="Dashboard mutu per indikator">
+    <figcaption><b>Gambar 23.</b> <b>Dashboard Mutu</b> (<span class="url">dashboard/mutugrafik</span> serta <span class="url">dashboard/allmutugrafik</span>) — grafik pencapaian target mutu dengan filter tanggal.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/dashboard-grafik-allmutu.png" alt="Grafik semua mutu">
+    <figcaption><b>Gambar 24.</b> Grafik perbandingan seluruh indikator mutu (<span class="url">dashboard/allmutugrafik</span>).</figcaption>
+  </figure>
+
+  <h3>7.3 Data Mutu Indikator</h3>
+  <figure>
+    <img src="assets/screenshots/original/mutu-indikator-list.png" alt="Data mutu indikator">
+    <figcaption><b>Gambar 25.</b> <b>DATA MUTU INDIKATOR</b> (<span class="url">mutu_indikator?id=&amp;judul=...</span>) — entri hasil mutu per indikator: tanggal, numerator, denumerator &amp; target; dilengkapi pencarian bulan &amp; paginasi.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/mutu-indikator-form.png" alt="Form data mutu">
+    <figcaption><b>Gambar 26.</b> Form entri data mutu (<span class="url">mutu_indikator/create</span>) — otomatis menampilkan keterangan numerator/denumerator indikator yang dipilih.</figcaption>
+  </figure>
+  <ul>
+    <li>Tersedia tombol <b>validasi/export</b>, dan halaman rinci validasi per bulan (<code>mutu_indikator/validasi_detail</code>).</li>
+  </ul>
+
+  <h3>7.4 Analisa FMEA</h3>
+  <figure>
+    <img src="assets/screenshots/original/mutu-fmea-list.png" alt="Daftar FMEA">
+    <figcaption><b>Gambar 27.</b> <b>Analisa FMEA</b> (<span class="url">mutu_fmea?id=&amp;judul=...</span>) — daftar analisis Failure Mode and Effects Analysis per indikator; lengkap dengan form rekomendasi &amp; <b>print</b>.</figcaption>
+  </figure>
+
+  <h3>7.5 IKP (Insiden Keselamatan Pasien)</h3>
+  <figure>
+    <img src="assets/screenshots/original/ikp-list.png" alt="Daftar IKP">
+    <figcaption><b>Gambar 28.</b> <b>IKP</b> (<span class="url">ikp</span>) — daftar insiden keselamatan pasien/PPI beserta skor grading risiko.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/ikp-form.png" alt="Form IKP">
+    <figcaption><b>Gambar 29.</b> Form entri IKP (<span class="url">ikp/create</span>) — data pasien, kronologis, jenis insiden, tindakan, pelapor &amp; penerima.</figcaption>
+  </figure>
+
+  <h3>7.6 Kepatuhan Cuci Tangan &amp; Laporan</h3>
+  <p class="muted">Menu Cuci Tangan &amp; laporannya hanya tampil untuk akun <code>admin@mail.com</code> (hard-coded di sidebar).</p>
+  <figure>
+    <img src="assets/screenshots/original/cuci-tangan-list.png" alt="Daftar kepatuhan cuci tangan">
+    <figcaption><b>Gambar 30.</b> <b>Cuci Tangan</b> (<span class="url">cuci_tangan</span>) — entri kepatuhan hand hygiene per petugas (5 moment &amp; unit).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/cuci-tangan-form.png" alt="Form cuci tangan">
+    <figcaption><b>Gambar 31.</b> Form kepatuhan cuci tangan (<span class="url">cuci_tangan/create</span>).</figcaption>
+  </figure>
+  <p>Tiga bentuk laporan tersedia pada grup <i>Report Cuci Tangan</i>:</p>
+  <ul>
+    <li><b>By Profesi</b> (<span class="url">cuci_tangan/lprtunit</span>) — rekapitulasi per profesi.</li>
+    <li><b>By Moment</b> (<span class="url">cuci_tangan/lprmoment</span>) — per 5 moment kepatuhan.</li>
+    <li><b>By Tanggal</b> (<span class="url">cuci_tangan/lprtotal</span>) — rekap harian.</li>
+    <li><b>By Grafik</b> (<span class="url">dashboard</span>) — grafik kepatuhan.</li>
+  </ul>
+  <figure>
+    <img src="assets/screenshots/original/cuci-tangan-laporan-tanggal.png" alt="Laporan cuci tangan by tanggal">
+    <figcaption><b>Gambar 32.</b> Laporan <b>By Tanggal</b> (<span class="url">cuci_tangan/lprtotal</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/cuci-tangan-laporan-profesi.png" alt="Laporan cuci tangan by profesi">
+    <figcaption><b>Gambar 33.</b> Laporan <b>By Profesi</b> (<span class="url">cuci_tangan/lprtunit</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/cuci-tangan-laporan-moment.png" alt="Laporan cuci tangan by moment">
+    <figcaption><b>Gambar 34.</b> Laporan <b>By Moment</b> (<span class="url">cuci_tangan/lprmoment</span>).</figcaption>
+  </figure>
+
+  <h3>7.7 Dashboard Info (Halaman Dashboard)</h3>
+  <figure>
+    <img src="assets/screenshots/original/dashboard.png" alt="Dashboard utama">
+    <figcaption><b>Gambar 35.</b> <b>Dashboard</b> (<span class="url">dashboard</span>) — ringkasan data &amp; grafik kepatuhan cuci tangan.</figcaption>
+  </figure>
+
+  <h3>7.8 Laporan IKP Publik (Insiden)</h3>
+  <p>Selain menu internal, terdapat halaman publik laporan insiden di controller <code>Insiden</code>:</p>
+  <figure>
+    <img src="assets/screenshots/original/ikp-insiden-list.png" alt="Daftar IKP publik">
+    <figcaption><b>Gambar 36a.</b> Daftar laporan IKP publik (<span class="url">insiden</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/ikp-form-public.png" alt="Form IKP publik">
+    <figcaption><b>Gambar 36b.</b> <b>Laporan Insiden Keselamatan Pasien</b> (<span class="url">insiden/create</span>) — form publik ber-janji RS Airlangga (tanpa login).</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 8. SIDOKTA ============ -->
+<section class="block" id="modul-sidokta">
+  <h2><span class="no">8.</span>Modul SIDOKTA (Dokumen Terpadu)</h2>
+  <p>Menu <b>SIDOKTA</b> (ikon folder) berisi <i>Dokument Unit</i>, <i>Dashboard Laporan</i>, dan (khusus admin) <i>Akses Dokument Unit</i>. Dokumen dikelola per unit dengan sistem <b>versi</b> dan status (<i>draft/aktif/arsip/kadaluarsa</i>).</p>
+
+  <h3>8.1 Daftar Dokumen Unit</h3>
+  <figure>
+    <img src="assets/screenshots/original/dokumen-unit-list.png" alt="Daftar dokumen unit">
+    <figcaption><b>Gambar 37.</b> <b>Dokumen Unit</b> (<span class="url">dokumen_unit</span>) — daftar dokumen per unit dengan filter unit &amp; jenis dokumen, pencarian, dan unggah berkas.</figcaption>
+  </figure>
+
+  <h3>8.2 Form Dokumen</h3>
+  <figure>
+    <img src="assets/screenshots/original/dokumen-unit-form.png" alt="Form dokumen unit">
+    <figcaption><b>Gambar 38.</b> Form tambah dokumen unit (<span class="url">dokumen_unit/create</span>) — pilih unit, jenis dokumen, judul, versi, tanggal berlaku, dan berkas.</figcaption>
+  </figure>
+
+  <h3>8.3 Dashboard Laporan Dokumen</h3>
+  <figure>
+    <img src="assets/screenshots/original/dokumen-unit-dashboard.png" alt="Dashboard laporan dokumen">
+    <figcaption><b>Gambar 39.</b> <b>Dashboard Laporan Dokumen Unit</b> (<span class="url">dokumen_unit/dashboard</span>) — rekapitulasi dokumen per unit.</figcaption>
+  </figure>
+
+  <h3>8.4 Jenis Dokumen</h3>
+  <figure>
+    <img src="assets/screenshots/original/jenis-dokumen-list.png" alt="Daftar jenis dokumen">
+    <figcaption><b>Gambar 40.</b> <b>Jenis Dokumen</b> (<span class="url">jenis_dokumen</span>) — master jenis dokumen (publik).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/jenis-dokumen-form.png" alt="Form jenis dokumen">
+    <figcaption><b>Gambar 41.</b> Form tambah/ubah jenis dokumen (<span class="url">jenis_dokumen/create</span>).</figcaption>
+  </figure>
+  <div class="callout bad"><b class="t">Temuan QA</b>
+    Alamat <span class="url">jenis_dokumen/index.html</span> (dengan akhiran <code>.html</code>) menampilkan halaman 403 di lingkungan lokal; gunakan <span class="url">jenis_dokumen</span> tanpa akhiran <code>.html</code>.
+  </div>
+</section>
+
+<!-- ============ 9. SIPARDI ============ -->
+<section class="block" id="modul-sipardi">
+  <h2><span class="no">9.</span>Modul SIPARDI (Penilaian Akreditasi)</h2>
+  <p>Menu <b>SIPARDI</b> (ikon penghargaan) berisi <b>Penilaian Akreditasi</b> — input skor Elemen Penilaian (EP) per Pokja beserta unggah bukti (evidence).</p>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-ep-index.png" alt="Halaman penilaian EP">
+    <figcaption><b>Gambar 42.</b> <b>Penilaian Elemen (EP)</b> (<span class="url">penilaian_ep</span>) — pilih Pokja untuk mengisi penilaian; tersedia ringkasan dan rekap.</figcaption>
+  </figure>
+  <ul>
+    <li>Form penilaian per <b>Pokja/bab</b> (<span class="url">penilaian_ep/pokja</span>).</li>
+    <li>Fitur <b>unggah bukti</b> elemen penilaian (AJAX) ke folder <code>uploads/bukti_ep/</code> — data disimpan di tabel <code>upload_bukti_ep</code>.</li>
+    <li>Master Pokja, Standar, Elemen Penilaian &amp; Periode Akreditasi berasal dari migrasi SQL; minimal satu periode aktif diperlukan.</li>
+  </ul>
+</section>
+
+<!-- ============ 10. SIMONIKA ============ -->
+<section class="block" id="modul-simonika">
+  <h2><span class="no">10.</span>Modul SIMONIKA (Monitoring Penanggung Jawab)</h2>
+  <p>Menu <b>SIMONIKA</b> (ikon tugas) berisi <b>Data Monitoring</b> dan <b>Dashboard Progres PJ</b> — memantau progres aplikasi/penanggung jawab (Kemenkes) per bulan &amp; tahun.</p>
+
+  <h3>10.1 Daftar Monitoring</h3>
+  <figure>
+    <img src="assets/screenshots/original/monitoring-pj-list.png" alt="Daftar monitoring PJ">
+    <figcaption><b>Gambar 43.</b> <b>Data Monitoring</b> (<span class="url">monitoring_pj</span>) — daftar PIC, nama aplikasi, bulan/tahun, dan progres.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/monitoring-pj-form.png" alt="Form monitoring PJ">
+    <figcaption><b>Gambar 44.</b> Form entri monitoring (<span class="url">monitoring_pj/create</span>) — nama PJ, aplikasi, bulan, tahun, dan persentase progres.</figcaption>
+  </figure>
+
+  <h3>10.2 Dashboard Progres PJ</h3>
+  <figure>
+    <img src="assets/screenshots/original/monitoring-pj-dashboard.png" alt="Dashboard progres PJ">
+    <figcaption><b>Gambar 45.</b> <b>Dashboard Progres PJ</b> (<span class="url">monitoring_pj/dashboard</span>) — visualisasi progres tiap aplikasi.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 11. PENILAIAN ============ -->
+<section class="block" id="modul-sipena">
+  <h2><span class="no">11.</span>Modul PENILAIAN KINERJA (SIPENA / OTK)</h2>
+  <p>Menu <b>PENILAIAN KINERJA</b> (ikon clipboard) mengelola penilaian orientasi tugas kritis (OTK) dan penilaian kinerja pegawai dengan skala 1–5 serta pembobotan kriteria.</p>
+
+  <h3>11.1 Penilaian Kinerja (OTK)</h3>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-otk-list.png" alt="Daftar penilaian OTK">
+    <figcaption><b>Gambar 46.</b> <b>Penilaian Kinerja</b> (<span class="url">penilaian_otk</span>) — daftar penilaian pegawai.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-otk-form.png" alt="Form penilaian OTK">
+    <figcaption><b>Gambar 47.</b> Form penilaian OTK (<span class="url">penilaian_otk/form</span>) — skor 1–5 per kriteria.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-otk-kelola.png" alt="Kelola penilai">
+    <figcaption><b>Gambar 48.</b> <b>Kelola Penilai</b> (<span class="url">penilaian_otk/kelola</span>) — atur periode input penilaian (mulai–selesai) dan daftar penilai.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-otk-rekap.png" alt="Rekap penilaian">
+    <figcaption><b>Gambar 49.</b> <b>Rekap Penilai / Rekap Penilaian</b> (<span class="url">penilaian_otk/rekap</span>) — rekapitulasi hasil penilaian dengan tombol <b>Export Excel</b>.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-otk-hasil.png" alt="Hasil penilaian saya">
+    <figcaption><b>Gambar 50.</b> <b>Hasil Penilaian Saya</b> (<span class="url">penilaian_otk/hasil</span>) — ringkasan hasil penilaian untuk pegawai yang terdaftar.</figcaption>
+  </figure>
+  <div class="callout warn"><b class="t">Catatan QA</b>
+    Untuk akun yang <b>tidak terdaftar sebagai pegawai</b> (mis. akun admin murni), halaman menampilkan info &ldquo;Data pegawai Anda tidak ditemukan&rdquo; — ini perilaku yang benar.
+  </div>
+
+  <h3>11.2 Periode &amp; Kriteria Penilaian</h3>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-kinerja-periode.png" alt="Periode penilaian">
+    <figcaption><b>Gambar 51.</b> <b>Periode</b> (<span class="url">penilaian_kinerja/periode</span>) — kelola periode penilaian kinerja.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-kinerja-kriteria.png" alt="Kriteria dan bobot">
+    <figcaption><b>Gambar 52.</b> <b>Kriteria &amp; Bobot</b> (<span class="url">penilaian_kinerja/kriteria</span>) — atur kriteria dan bobot penilaian.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/penilaian-kinerja-list.png" alt="Daftar penilaian kinerja">
+    <figcaption><b>Gambar 53.</b> Halaman penilaian kinerja (<span class="url">penilaian_kinerja</span>).</figcaption>
+  </figure>
+  <p class="muted">Skor akhir dihitung dengan rumus <code>Σ((skor/5) × (bobot/total bobot unit)) × 100</code>.</p>
+</section>
+
+<!-- ============ 12. SERTIFIKAT ============ -->
+<section class="block" id="modul-sertifikat">
+  <h2><span class="no">12.</span>Modul SERTIFIKAT ONLINE</h2>
+  <p>Menu <b>SERTIFIKAT ONLINE</b> hanya tampil untuk admin. Master sertifikat dan peserta bersifat publik (dapat diakses tanpa login melalui <span class="url">sertifikat</span>).</p>
+
+  <h3>12.1 Master Sertifikat</h3>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-list.png" alt="Daftar sertifikat">
+    <figcaption><b>Gambar 54.</b> <b>Sertifikat</b> (<span class="url">sertifikat</span>) — daftar sertifikat pelatihan dengan tautan beranda/belakang.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-form.png" alt="Form sertifikat">
+    <figcaption><b>Gambar 55.</b> Form tambah/ubah master sertifikat (<span class="url">sertifikat/create</span>).</figcaption>
+  </figure>
+
+  <h3>12.2 Peserta Sertifikat</h3>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-peserta-list.png" alt="Daftar peserta sertifikat">
+    <figcaption><b>Gambar 56.</b> <b>Sertifikat Peserta</b> (<span class="url">sertifikat_peserta</span>) — daftar peserta (nomor peserta unik) untuk tiap sertifikat.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-peserta-form.png" alt="Form peserta sertifikat">
+    <figcaption><b>Gambar 57.</b> Form tambah peserta (<span class="url">sertifikat_peserta/create</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-peserta-detail.png" alt="Detail peserta sertifikat">
+    <figcaption><b>Gambar 58.</b> Detail peserta sertifikat (<span class="url">sertifikat_peserta/read/&lt;id&gt;</span>).</figcaption>
+  </figure>
+
+  <h3>12.3 Cetak &amp; Cek Keaslian</h3>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-certificate.png" alt="Halaman cetak sertifikat">
+    <figcaption><b>Gambar 59.</b> Halaman cetak sertifikat (<span class="url">sertifikat_peserta/certificate</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/sertifikat-cek.png" alt="Cek keaslian sertifikat">
+    <figcaption><b>Gambar 60.</b> <b>Cek Sertifikat</b> (<span class="url">sertifikat_peserta/cek_sertifikat</span>) — validasi keaslian sertifikat.</figcaption>
+  </figure>
+  <div class="callout bad"><b class="t">Temuan QA</b>
+    Halaman <span class="url">cek_sertifikat</span> memuat <b>kredensial database langsung pada view</b> (<code>cek_sertifikat.php</code>) sehingga di lingkungan lokal muncul error koneksi MySQL. Halaman <span class="url">certificate</span> (<b>Gambar 59</b>) tampil kosong tanpa param peserta. Keduanya perlu perbaikan kode.
+  </div>
+</section>
+
+<!-- ============ 13. OPERAN & ASPER ============ -->
+<section class="block" id="modul-operan-asper">
+  <h2><span class="no">13.</span>Modul OPERAN &amp; ASPER (Serah Terima)</h2>
+  <p>Dua modul serah terima pasien yang bersifat <b>publik</b> (tanpa login): <b>Operan Keperawatan</b> dan <b>Asper</b>.</p>
+
+  <h3>13.1 Serah Terima Pasien (Operan Keperawatan)</h3>
+  <figure>
+    <img src="assets/screenshots/original/operan-list.png" alt="Daftar operan">
+    <figcaption><b>Gambar 61.</b> <b>Serah Terima Pasien (Operan Keperawatan)</b> (<span class="url">operan</span>) — pencarian &amp; tombol Tambah/Dashboard.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/operan-form.png" alt="Form operan">
+    <figcaption><b>Gambar 62.</b> Form serah terima operan (<span class="url">operan/create</span>) — tanggal, shift, departemen, jumlah pasien, perawat.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/operan-dashboard.png" alt="Dashboard operan">
+    <figcaption><b>Gambar 63.</b> <b>Dashboard Operan Keperawatan</b> (<span class="url">operan/dashboard</span>) — statistik bulanan.</figcaption>
+  </figure>
+
+  <h3>13.2 Serah Terima ASPER</h3>
+  <figure>
+    <img src="assets/screenshots/original/asper-list.png" alt="Daftar asper">
+    <figcaption><b>Gambar 64.</b> <b>Serah Terima Asper</b> (<span class="url">asper</span>) — daftar serah terima pasien/aset per shift.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/asper-form.png" alt="Form asper">
+    <figcaption><b>Gambar 65.</b> Form serah terima asper dengan &ldquo;form kertas&rdquo; zona A–E dan jumlah pasien (<span class="url">asper/create</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/asper-dashboard.png" alt="Dashboard asper">
+    <figcaption><b>Gambar 66.</b> <b>Dashboard Serah Terima Asper</b> — rekap bulanan per shift (Pagi/Siang/Malam).</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 14. SIASSET ============ -->
+<section class="block" id="modul-siasset">
+  <h2><span class="no">14.</span>Modul SIASSET (Inventaris Aset)</h2>
+  <p>Kartu portal <b>SIASSET</b> menuju <span class="url">data_inventaris</span> — sistem informasi aset, inventaris, <b>barcode/QR code</b>, jadwal &amp; riwayat pemeliharaan, dan tracking.</p>
+
+  <h3>14.1 Daftar &amp; Form Inventaris</h3>
+  <figure>
+    <img src="assets/screenshots/original/siasset-list.png" alt="Daftar inventaris">
+    <figcaption><b>Gambar 67.</b> <b>Data Inventaris</b> (<span class="url">data_inventaris</span>) — daftar aset dengan pencarian &amp; paginasi.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/siasset-form.png" alt="Form inventaris">
+    <figcaption><b>Gambar 68.</b> Form inventaris aset (<span class="url">data_inventaris/create</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/siasset-detail.png" alt="Detail inventaris">
+    <figcaption><b>Gambar 69.</b> Detail inventaris (<span class="url">data_inventaris/read/&lt;id&gt;</span>).</figcaption>
+  </figure>
+
+  <h3>14.2 Pemeliharaan &amp; Maintenance</h3>
+  <figure>
+    <img src="assets/screenshots/original/siasset-pemeliharaan.png" alt="Pemeliharaan aset">
+    <figcaption><b>Gambar 70.</b> <b>Pemeliharaan</b> (<span class="url">data_inventaris/pemeliharaan</span>) — daftar kegiatan pemeliharaan aset.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/siasset-maintenance-schedule.png" alt="Jadwal maintenance">
+    <figcaption><b>Gambar 71.</b> <b>Jadwal Maintenance</b> (<span class="url">data_inventaris/maintenance_schedule</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/siasset-maintenance-history.png" alt="Riwayat maintenance">
+    <figcaption><b>Gambar 72.</b> <b>Riwayat Maintenance</b> (<span class="url">data_inventaris/maintenance_history</span>) termasuk sparepart.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/siasset-maintenance-dashboard.png" alt="Dashboard maintenance">
+    <figcaption><b>Gambar 73.</b> <b>Dashboard Maintenance</b> (<span class="url">data_inventaris/maintenance_dashboard</span>) — rekap &amp; tracking pemeliharaan.</figcaption>
+  </figure>
+  <p class="muted">Fitur lain pada modul ini: cetak <b>barcode</b>/QR (<code>print_barcode</code>), rekap cetak (<code>print_rekap_inven</code>), dan grafik.</p>
+</section>
+
+<!-- ============ 15. MANAJEMEN ============ -->
+<section class="block" id="modul-manajemen">
+  <h2><span class="no">15.</span>Modul MANAJEMEN USER (Administrator)</h2>
+  <p>Menu <b>MANAJEMEN USER</b> hanya untuk admin (role 1): <i>User Management</i>, <i>Akses User Unit</i>, <i>Akses Indikator User</i>, <i>Menu Management</i>, <i>Role Management</i>, dan <i>Role &amp; Hak Akses Menu</i>.</p>
+
+  <h3>15.1 User Management</h3>
+  <figure>
+    <img src="assets/screenshots/original/users-list.png" alt="Daftar user">
+    <figcaption><b>Gambar 74.</b> <b>User Management</b> (<span class="url">users</span>) — daftar akun pengguna; dapat diaktifkan/nonaktifkan akun.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/users-form.png" alt="Form tambah user">
+    <figcaption><b>Gambar 75.</b> Form tambah user (<span class="url">users/create</span>) — nama, email, role, &amp; password.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/users-edit.png" alt="Form edit user">
+    <figcaption><b>Gambar 76.</b> Form edit user (<span class="url">users/update/&lt;id&gt;</span>).</figcaption>
+  </figure>
+
+  <h3>15.2 Menu Management</h3>
+  <figure>
+    <img src="assets/screenshots/original/menu-list.png" alt="Daftar menu">
+    <figcaption><b>Gambar 77.</b> <b>Menu Management</b> (<span class="url">menu</span>) — daftar menu aplikasi yang dikontrol hak akses.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/menu-form.png" alt="Form menu">
+    <figcaption><b>Gambar 78.</b> Form tambah menu (<span class="url">menu/create</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/menu-edit.png" alt="Form edit menu">
+    <figcaption><b>Gambar 79.</b> Form edit menu (<span class="url">menu/edit/&lt;id&gt;</span>).</figcaption>
+  </figure>
+
+  <h3>15.3 Role Management</h3>
+  <figure>
+    <img src="assets/screenshots/original/role-list.png" alt="Daftar role">
+    <figcaption><b>Gambar 80.</b> <b>Role Management</b> (<span class="url">menu/roles</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/role-form.png" alt="Form role">
+    <figcaption><b>Gambar 81.</b> Form tambah/ubah role (<span class="url">menu/roles/create</span>).</figcaption>
+  </figure>
+
+  <h3>15.4 Role &amp; Hak Akses Menu</h3>
+  <figure>
+    <img src="assets/screenshots/original/role-access.png" alt="Hak akses menu per role">
+    <figcaption><b>Gambar 82.</b> <b>Role &amp; Hak Akses Menu</b> (<span class="url">menu/role_access/&lt;id_role&gt;</span>) — centang menu yang boleh diakses tiap role; disimpan ke tabel <code>user_access_menu</code>.</figcaption>
+  </figure>
+
+  <h3>15.5 Akses Unit &amp; Indikator</h3>
+  <figure>
+    <img src="assets/screenshots/original/user-unit-list.png" alt="Daftar akses unit user">
+    <figcaption><b>Gambar 83.</b> <b>Akses User Unit</b> (<span class="url">user_unit</span>).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/screenshots/original/user-list-indikator-list.png" alt="Daftar akses indikator user">
+    <figcaption><b>Gambar 84.</b> <b>Akses Indikator User</b> (<span class="url">user_list_indikator</span>).</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 16. TEMUAN ============ -->
+<section class="block" id="temuan">
+  <h2><span class="no">16.</span>Catatan QA &amp; Temuan Pemeriksaan</h2>
+  <p>Selama pengujian (<i>walkthrough</i> terhadap seluruh menu), ditemukan hal-hal berikut yang <b>diverifikasi langsung</b>:</p>
+  <table>
+    <tr><th>No</th><th>Temuan</th><th>Halaman / Lokasi</th><th>Keterangan</th><th>Status</th></tr>
+    <tr><td>1</td><td>Registrasi tidak dapat diakses via <span class="url">/register</span> — muncul halaman 403.</td><td><code>routes.php</code> → <code>auth/register</code></td><td>Method di controller adalah <code>registerx()</code>, bukan <code>register()</code>.</td><td><span class="chip warn">Bug/Perlu Perbaikan</span></td></tr>
+    <tr><td>2</td><td>URL berakhiran <code>.html</code> (mis. <span class="url">ikp/index.html</span>, <span class="url">jenis_dokumen/index.html</span>) menampilkan 403 di lokal.</td><td>Pagination <code>Insiden.php</code>, <code>Jenis_dokumen.php</code></td><td>Metode <code>index.html</code> tidak dikenali router lokal; direkomendasikan URL tanpa <code>.html</code>.</td><td><span class="chip warn">Perlu Perbaikan</span></td></tr>
+    <tr><td>3</td><td>Halaman <span class="url">sertifikat_peserta/cek_sertifikat</span> error koneksi MySQL.</td><td><code>views/sertifikat_peserta/cek_sertifikat.php</code> baris ±13</td><td>Ada kredensial database <b>production</b> ter-hard-code di dalam view.</td><td><span class="chip err">Bug</span></td></tr>
+    <tr><td>4</td><td>Halaman <span class="url">sertifikat_peserta/certificate</span> tampil kosong.</td><td>Method <code>certificate()</code></td><td>Tidak menerima parameter peserta (no_peserta) sehingga tidak ada data di-render.</td><td><span class="chip warn">Perlu Verifikasi</span></td></tr>
+    <tr><td>5</td><td><span class="url">user_unit/create</span> &amp; <span class="url">user_list_indikator/create</span> → 403.</td><td>Controller <code>User_unit</code>, <code>User_list_indikator</code></td><td>Method yang tersedia adalah <code>manage(&lt;id_user&gt;)</code>.</td><td><span class="chip warn">Informasi</span></td></tr>
+    <tr><td>6</td><td>Menu <b>Cuci Tangan</b> dan <b>SERTIFIKAT ONLINE</b> tampil hanya untuk email <code>admin@mail.com</code>.</td><td><code>template/menu.php</code></td><td>Batas akses berbasis email (hard-coded) — rentan terhadap penggantian akun.</td><td><span class="chip warn">Perlu Perbaikan</span></td></tr>
+    <tr><td>7</td><td>Menu <b>INVENTARIS</b> pada sidebar masih dalam bentuk komentar.</td><td><code>template/menu.php</code> ±baris 372</td><td>Akses inventaris lewat kartu portal SIASSET, bukan sidebar.</td><td><span class="chip ok">Informasi</span></td></tr>
+    <tr><td>8</td><td>Method <code>Auth::edit_passsword()</code> memakai variabel <code>$id</code> yang tidak didefinisikan.</td><td><code>Auth.php</code></td><td>Berpotensi error bila dipanggil.</td><td><span class="chip warn">Perlu Verifikasi</span></td></tr>
+    <tr><td>9</td><td>Data surat pada database lokal masih kosong (0 baris).</td><td>tabel <code>surat</code></td><td>Halaman daftar surat tampil kosong secara wajar.</td><td><span class="chip ok">Informasi</span></td></tr>
+    <tr><td>10</td><td>Modul <b>Dashboard mutu</b> memuat data real (7&nbsp;rb+ baris mutu, 2&nbsp;rb+ cuci tangan).</td><td>tabel <code>mutu_indikator</code>, <code>cuci_tangan</code></td><td>Kinerja halaman baik dengan paginasi.</td><td><span class="chip ok">OK</span></td></tr>
+  </table>
+
+  <div class="callout info"><b class="t">Catatan Metodologi</b>
+    Seluruh screenshot diambil dari aplikasi yang benar-benar dijalankan di <code>http://localhost/mukespi/</code> dengan akun ber-peran <b>admin</b>. Tidak ada screenshot buatan/palsu. Jika suatu halaman gagal dibuka, kondisi tersebut didokumentasikan polos beserta alasannya (bukan dibuat-buat).
+  </div>
+</section>
+
+<!-- ============ LAMPIRAN A ============ -->
+<section class="block" id="lampiran-mapping">
+  <h2><span class="no">A.</span>Lampiran — Peta Menu → URL → Controller → Method → View</h2>
+  <p>Pemetaan berikut disusun dari <code>application/config/routes.php</code>, <code>application/views/template/menu.php</code>, serta <code>application/controllers/*</code>.</p>
+  <table>
+    <tr><th>Menu / Halaman</th><th>URL (index.php/…)</th><th>Controller::Method</th><th>View Utama</th><th>Fitur</th></tr>
+    <tr><td colspan="5"><b>Autentikasi &amp; Umum</b></td></tr>
+    <tr><td>Login</td><td>auth</td><td>Auth::index</td><td>auth/login.php</td><td>Login email/NIK, redirect portal</td></tr>
+    <tr><td>Register<sup>1</sup></td><td>auth/register</td><td><i>tidak ada method</i></td><td>auth/register.php</td><td>— (403)</td></tr>
+    <tr><td>Logout</td><td>auth/logout</td><td>Auth::logout</td><td>—</td><td>Hancurkan session</td></tr>
+    <tr><td>Blokir Akses</td><td>auth/blocked</td><td>Auth::blocked</td><td>auth/blocked.php</td><td>Halaman 403</td></tr>
+    <tr><td>Portal Sistem</td><td>portal</td><td>Portal::index</td><td>portal/index.php</td><td>Kartu modul</td></tr>
+    <tr><td>Profil</td><td>profile</td><td>Profile::index / update_action</td><td>profile/profile_edit.php</td><td>Edit profil &amp; password</td></tr>
+    <tr><td>Notifikasi</td><td>notifikasi</td><td>Notifikasi::index / baca</td><td>notifikasi/index.php</td><td>Daftar &amp; tandai dibaca</td></tr>
+    <tr><td colspan="5"><b>PEGAWAI (Admin &amp; HRD)</b></td></tr>
+    <tr><td>Data Pegawai</td><td>pegawai</td><td>Pegawai::index</td><td>pegawai/pegawai_list.php</td><td>Cari, filter, paginasi, export/import excel</td></tr>
+    <tr><td>Tambah Pegawai</td><td>pegawai/create</td><td>Pegawai::create</td><td>pegawai/pegawai_form.php</td><td>Input profiling lengkap</td></tr>
+    <tr><td>Detail Pegawai</td><td>pegawai/detail/&lt;id&gt;</td><td>Pegawai::detail</td><td>pegawai/pegawai_detail.php</td><td>Lihat profil pegawai</td></tr>
+    <tr><td>Pegawai Nonaktif</td><td>pegawai?status=nonaktif</td><td>Pegawai::index</td><td>pegawai/pegawai_list.php</td><td>Filter status</td></tr>
+    <tr><td>Unit Kerja</td><td>unit</td><td>Unit::index / create / update / delete</td><td>unit/unit_list.php, unit_form.php</td><td>CRUD unit &amp; status</td></tr>
+    <tr><td>Akses User Unit</td><td>user_unit</td><td>User_unit::index / manage</td><td>user_unit/user_unit_list.php</td><td>Assign user ke unit</td></tr>
+    <tr><td>Ganti Password</td><td>pegawai/ganti_password</td><td>Pegawai::ganti_password</td><td>pegawai/ganti_password.php</td><td>Wajib ganti password</td></tr>
+    <tr><td colspan="5"><b>PELAPORAN / SIRETA</b></td></tr>
+    <tr><td>Daftar Laporan</td><td>pelaporan</td><td>Pelaporan::index</td><td>pelaporan/pelaporan_list.php</td><td>List sesuai role</td></tr>
+    <tr><td>Buat Laporan</td><td>pelaporan/create</td><td>Pelaporan::create</td><td>pelaporan/pelaporan_form.php</td><td>Input laporan + validasi</td></tr>
+    <tr><td>Detail Laporan</td><td>pelaporan/detail</td><td>Pelaporan::detail</td><td>pelaporan/pelaporan_detail.php</td><td>Lihat &amp; sanggah</td></tr>
+    <tr><td colspan="5"><b>E-OFFICE (Surat)</b></td></tr>
+    <tr><td>Surat Saya/Kelola</td><td>surat</td><td>Surat::index</td><td>surat/list_user.php</td><td>Filter q/status/jenis/tanggal</td></tr>
+    <tr><td>Pengajuan Surat</td><td>surat/create</td><td>Surat::create / store</td><td>surat/form_pengajuan.php</td><td>Upload draft &amp; lampiran</td></tr>
+    <tr><td>Detail Surat</td><td>surat/detail/&lt;id&gt;</td><td>Surat::detail</td><td>surat/detail.php</td><td>Tracking disposisi</td></tr>
+    <tr><td>Surat Masuk Sekretaris</td><td>surat_masuk</td><td>Surat_sekretaris::index / proses / simpan</td><td>surat/list_sekretaris.php, proses_nomor.php</td><td>Verifikasi &amp; penomoran</td></tr>
+    <tr><td>TTD &amp; Disposisi Direktur</td><td>surat_direktur</td><td>Surat_direktur::proses / simpan</td><td>surat/list_direktur.php, proses_direktur.php</td><td>TTD / disposisi / upload final</td></tr>
+    <tr><td colspan="5"><b>MUKESPI</b></td></tr>
+    <tr><td>Indikator Mutu RS</td><td>list_indikator</td><td>List_indikator::index / create / update / delete / toggle_status / excel</td><td>list_indikator/list_indikator_list.php …</td><td>CRUD master + export</td></tr>
+    <tr><td>Akses Indikator User</td><td>user_list_indikator</td><td>User_list_indikator::index / manage</td><td>user_list_indikator/user_list_indikator_list.php</td><td>Assign PIC indikator</td></tr>
+    <tr><td>Data Mutu Indikator</td><td>mutu_indikator?id=&amp;judul=</td><td>Mutu_indikator::index / create / validasi_detail / excel</td><td>mutu_indikator/mutu_indikator_list.php …</td><td>Entri numerator/denumerator, validasi, export</td></tr>
+    <tr><td>Analisa FMEA</td><td>mutu_fmea?id=&amp;judul=</td><td>Mutu_fmea::index / print_fmea</td><td>mutu_fmea/mutu_fmea_list.php, print_fmea.php</td><td>CRUD + rekom + cetak</td></tr>
+    <tr><td>IKP</td><td>ikp</td><td>Ikp::index / create / update / delete</td><td>ikp/ikp_list.php, ikp_form.php</td><td>CRUD insiden + grading</td></tr>
+    <tr><td>Laporan IKP Publik</td><td>insiden/create</td><td>Insiden::create</td><td>ikp/ikp_form_public.php</td><td>Input IKP tanpa login</td></tr>
+    <tr><td>Cuci Tangan</td><td>cuci_tangan</td><td>Cuci_tangan::index / create / excel</td><td>cuci_tangan/cuci_tangan_list.php …</td><td>CRUD kepatuhan</td></tr>
+    <tr><td>Lap. By Profesi</td><td>cuci_tangan/lprtunit</td><td>Cuci_tangan::lprtunit</td><td>cuci_tangan/lprunit.php</td><td>Laporan per profesi</td></tr>
+    <tr><td>Lap. By Moment</td><td>cuci_tangan/lprmoment</td><td>Cuci_tangan::lprmoment</td><td>cuci_tangan/lprmoment.php</td><td>Laporan 5 moment</td></tr>
+    <tr><td>Lap. By Tanggal</td><td>cuci_tangan/lprtotal</td><td>Cuci_tangan::lprtotal</td><td>cuci_tangan/lprall.php</td><td>Laporan harian</td></tr>
+    <tr><td>Dashboard / Grafik</td><td>dashboard, dashboard/mutugrafik, dashboard/allmutugrafik</td><td>Dashboard::index / mutugrafik / allmutugrafik</td><td>template/Dasboard.php, grafikmutu*.php</td><td>Grafik &amp; filter</td></tr>
+    <tr><td colspan="5"><b>SIDOKTA</b></td></tr>
+    <tr><td>Dokumen Unit</td><td>dokumen_unit</td><td>Dokumen_unit::index / create / update / delete / read</td><td>dokumen_unit/dokumen_unit_list.php …</td><td>Versi, upload, filter unit</td></tr>
+    <tr><td>Dashboard Laporan</td><td>dokumen_unit/dashboard</td><td>Dokumen_unit::dashboard</td><td>dokumen_unit/dokumen_unit_dashboard.php</td><td>Rekap dokumen</td></tr>
+    <tr><td>Jenis Dokumen</td><td>jenis_dokumen</td><td>Jenis_dokumen::index / create / update / delete</td><td>jenis_dokumen/jenis_dokumen_list.php …</td><td>CRUD master (publik)</td></tr>
+    <tr><td colspan="5"><b>SIPARDI</b></td></tr>
+    <tr><td>Penilaian EP</td><td>penilaian_ep</td><td>Penilaian_ep::index / pokja / summary / save_skor / upload_bukti</td><td>penilaian_ep/index.php …</td><td>Skor EP + evidence</td></tr>
+    <tr><td colspan="5"><b>SIMONIKA</b></td></tr>
+    <tr><td>Data Monitoring</td><td>monitoring_pj</td><td>Monitoring_pj::index / create / update / delete / excel</td><td>monitoring_pj/monitoring_pj_list.php …</td><td>CRUD + export</td></tr>
+    <tr><td>Dashboard Progres</td><td>monitoring_pj/dashboard</td><td>Monitoring_pj::dashboard</td><td>monitoring_pj/monitoring_pj_dashboard.php</td><td>Visualisasi progres</td></tr>
+    <tr><td colspan="5"><b>PENILAIAN KINERJA / SIPENA</b></td></tr>
+    <tr><td>Penilaian OTK</td><td>penilaian_otk</td><td>Penilaian_otk::index / form / hasil / detail / rekap / kelola</td><td>penilaian_otk/index.php …</td><td>Skor 1–5, rekap, export</td></tr>
+    <tr><td>Periode</td><td>penilaian_kinerja/periode</td><td>Penilaian_kinerja::periode</td><td>penilaian_kinerja/periode.php</td><td>Kelola periode</td></tr>
+    <tr><td>Kriteria &amp; Bobot</td><td>penilaian_kinerja/kriteria</td><td>Penilaian_kinerja::kriteria</td><td>penilaian_kinerja/kriteria.php</td><td>Atur kriteria/bobot</td></tr>
+    <tr><td>Kelola Penilai</td><td>penilaian_otk/kelola</td><td>Penilaian_otk::kelola</td><td>penilaian_otk/kelola.php</td><td>Periode input</td></tr>
+    <tr><td colspan="5"><b>SERTIFIKAT ONLINE (publik)</b></td></tr>
+    <tr><td>Master Sertifikat</td><td>sertifikat</td><td>Sertifikat::index / create / update / delete</td><td>sertifikat/sertifikat_list.php …</td><td>CRUD sertifikat</td></tr>
+    <tr><td>Peserta Sertifikat</td><td>sertifikat_peserta</td><td>Sertifikat_peserta::index / create / update / delete / excel</td><td>sertifikat_peserta/sertifikat_peserta_list.php …</td><td>CRUD + export</td></tr>
+    <tr><td>Cetak</td><td>sertifikat_peserta/certificate</td><td>Sertifikat_peserta::certificate</td><td>sertifikat_peserta/certificate.php</td><td>Cetak sertifikat<sup>4</sup></td></tr>
+    <tr><td>Cek Keaslian</td><td>sertifikat_peserta/cek_sertifikat</td><td>Sertifikat_peserta::cek_sertifikat</td><td>sertifikat_peserta/cek_sertifikat.php</td><td>Validasi nominal<sup>3</sup></td></tr>
+    <tr><td colspan="5"><b>OPERAN &amp; ASPER (publik)</b></td></tr>
+    <tr><td>Operan Keperawatan</td><td>operan</td><td>Operan::index / create / update / delete / dashboard</td><td>operan/operan_list.php …</td><td>CRUD serah terima pasien</td></tr>
+    <tr><td>Serah Terima Asper</td><td>asper</td><td>Asper::index / create / update / delete / excel / dashboard</td><td>asper/asper_list.php …</td><td>CRUD + form kertas zona A–E + export</td></tr>
+    <tr><td colspan="5"><b>SIASSET (Inventaris)</b></td></tr>
+    <tr><td>Data Inventaris</td><td>data_inventaris</td><td>Data_inventaris::index / create / update / delete / read</td><td>data_inventaris/data_inventaris_list.php …</td><td>CRUD aset</td></tr>
+    <tr><td>Pemeliharaan</td><td>data_inventaris/pemeliharaan</td><td>Data_inventaris::pemeliharaan / pemeliharaan_form</td><td>data_inventaris/pemeliharaan_list.php …</td><td>CRUD pemeliharaan</td></tr>
+    <tr><td>Jadwal Maintenance</td><td>data_inventaris/maintenance_schedule</td><td>Data_inventaris::maintenance_schedule</td><td>data_inventaris/maintenance_schedule_list.php</td><td>Jadwal perawatan</td></tr>
+    <tr><td>Riwayat Maintenance</td><td>data_inventaris/maintenance_history</td><td>Data_inventaris::maintenance_history</td><td>data_inventaris/maintenance_history_list.php</td><td>Riwayat &amp; sparepart</td></tr>
+    <tr><td>Dashboard Maintenance</td><td>data_inventaris/maintenance_dashboard</td><td>Data_inventaris::maintenance_dashboard</td><td>data_inventaris/maintenance_dashboard.php</td><td>Tracking &amp; rekap</td></tr>
+    <tr><td colspan="5"><b>MANAJEMEN USER (admin)</b></td></tr>
+    <tr><td>User Management</td><td>users</td><td>Users::index / create / update / delete / toggle_active</td><td>users/user_list.php, user_form.php</td><td>CRUD user + aktif/nonaktif</td></tr>
+    <tr><td>Menu Management</td><td>menu</td><td>Menu::index / create / update / delete</td><td>menu/menu_list.php, menu_form.php</td><td>CRUD menu</td></tr>
+    <tr><td>Role Management</td><td>menu/roles</td><td>Menu::role_list / role_create / role_edit / role_delete</td><td>menu/role_list.php, role_form.php</td><td>CRUD role</td></tr>
+    <tr><td>Role &amp; Hak Akses</td><td>menu/role_access/&lt;id&gt;</td><td>Menu::role_access / role_access_save</td><td>menu/role_access.php</td><td>Cheklist akses menu per role</td></tr>
+  </table>
+  <p class="muted">
+    <sup>1</sup> Route terdaftar namun method tidak tersedia → 403. &nbsp;
+    <sup>3</sup> View memuat kredensial DB production → error lokal. &nbsp;
+    <sup>4</sup> Tampil kosong tanpa parameter. &nbsp;
+    Detail lebih lanjut di Bab 16 (Catatan QA).
+  </p>
+</section>
+
+<!-- ============ LAMPIRAN B ============ -->
+<section class="block" id="lampiran-peran">
+  <h2><span class="no">B.</span>Lampiran — Peran (Role) &amp; Hak Akses</h2>
+  <p>Tabel <code>roles</code> pada basis data <code>mukespi</code> mendefinisikan peran berikut:</p>
+  <table>
+    <tr><th>ID</th><th>Nama Role</th><th>Akses Ringkas (berdasarkan kode)</th></tr>
+    <tr><td>1</td><td>admin</td><td>Akses penuh — semua modul, manajemen user/menu/role, cuci tangan, sertifikat.</td></tr>
+    <tr><td>2</td><td>User KA Unit</td><td>User unit — menu sesuai <code>user_access_menu</code>; tanpa manajemen.</td></tr>
+    <tr><td>3</td><td>Surveior</td><td>Berperan pada penilaian EP / akreditasi.</td></tr>
+    <tr><td>4</td><td>direktur</td><td>TTD &amp; disposisi surat; akses penuh indikator mutu.</td></tr>
+    <tr><td>5</td><td>sekretaris</td><td>Surat masuk, verifikasi &amp; penomoran surat.</td></tr>
+    <tr><td>6</td><td>HRD</td><td>Kelola data pegawai (dengan admin), user_unit, penilaian.</td></tr>
+    <tr><td>7</td><td>pegawai</td><td>Login via NIK (data pegawai); Data Saya &amp; penilaian diri.</td></tr>
+  </table>
+  <p class="muted">Mekanisme kontrol: fungsi helper <code>is_logged_in($role)</code>, <code>is_menu_accessible($url)</code> (tabel <code>menus</code> + <code>user_access_menu</code>), dan beberapa pengecualian hard-coded berdasarkan email (<code>admin@mail.com</code>) untuk modul Cuci Tangan, Sertifikat, dan beberapa link admin.</p>
+</section>
+
+<p class="muted" style="text-align:center;margin:30px 0">
+  — Akhir dokumen —<br>
+  <small>Dokumen dibuat otomatis dari aplikasi yang sedang berjalan &amp; source code. Seluruh screenshot: <code>docs/user-manual/assets/screenshots/original/</code></small>
+</p>
+
+</main>
+</body>
+</html>
