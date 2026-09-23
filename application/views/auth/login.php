@@ -206,6 +206,30 @@
 		font-weight: 500;
 	}
 
+	.brand-tagline {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		margin: 18px 0 0;
+		background: rgba(255, 255, 255, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		padding: 6px 14px;
+		border-radius: 999px;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: #C7D2FE;
+		position: relative;
+		z-index: 1;
+	}
+	.brand-tagline .tag-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: linear-gradient(135deg, var(--accent), #A78BFA);
+	}
+
 	.system-intro {
 		position: relative;
 		z-index: 1;
@@ -684,9 +708,10 @@
 						<p>Jombang, Jawa Timur</p>
 					</div>
 				</div>
-			</div>
 
-			<div class="system-intro">
+				<span class="brand-tagline"><span class="tag-dot"></span> Full Digital &middot; Tanpa Kertas</span>
+
+				<div class="system-intro">
 				<h2 class="system-name">Mutu, PPI &amp; <em>Dokumen</em></h2>
 				<p class="system-sub">Portal terpadu untuk pengelolaan indikator mutu, pencegahan infeksi, serta integrasi dokumen akreditasi rumah sakit.</p>
 

@@ -3,6 +3,8 @@
 .portal-hero { background:linear-gradient(135deg,#102a43 0%,#1f4e79 62%,#2c7a9d 100%); color:#fff; border-radius:14px; padding:18px 22px; margin-bottom:16px; position:relative; overflow:hidden; }
 .portal-hero:after { content:''; position:absolute; width:160px; height:160px; border:20px solid rgba(255,255,255,.08); border-radius:50%; right:-50px; top:-65px; }
 .portal-eyebrow { font-size:.6rem; text-transform:uppercase; letter-spacing:.12em; font-weight:800; opacity:.72; margin-bottom:5px; }
+.portal-tagline { display:inline-flex; align-items:center; gap:7px; margin-top:10px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); padding:4px 12px; border-radius:999px; font-size:.64rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#fff; }
+.portal-tagline i { font-style:normal; width:7px; height:7px; border-radius:50%; background:linear-gradient(135deg,#34d399,#a78bfa); }
 .portal-hero h1 { font-size:1.15rem; font-weight:800; margin:0 0 5px; }
 .portal-hero p { font-size:.74rem; opacity:.86; margin:0; max-width:650px; }
 .portal-section-title { display:flex; align-items:end; justify-content:space-between; margin:0 0 10px; }
@@ -36,6 +38,7 @@
         <div class="portal-eyebrow">RS Airlangga / Portal Terpadu</div>
         <h1>Selamat datang di Portal Sistem RS Airlangga</h1>
         <p>Satu halaman untuk mengakses seluruh layanan digital mutu, dokumen, penilaian, monitoring, dan manajemen surat.</p>
+        <span class="portal-tagline"><i></i> Full Digital &middot; Tanpa Kertas</span>
     </div>
     
     <div class="portal-section-title">
