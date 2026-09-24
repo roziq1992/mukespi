@@ -242,7 +242,7 @@
                         </div>
                         <?php endif; ?>
                         <button type="submit" name="status" value="draft" class="btn btn-secondary btn-submit-penilaian"><i class="fas fa-save"></i> Simpan Draft</button>
-                        <button type="submit" name="status" value="selesai" class="btn btn-success btn-submit-penilaian" onclick="return confirm('Selesaikan penilaian ini? Semua kriteria harus terisi dan nilai akhir akan dikunci.')"><i class="fas fa-check-circle"></i> Simpan &amp; Selesaikan</button>
+                        <button type="submit" name="status" value="selesai" class="btn btn-success btn-submit-penilaian" onclick="return finalizeCheck();"><i class="fas fa-check-circle"></i> Simpan &amp; Selesaikan</button>
                     </div>
                 </div>
             </div>
@@ -363,4 +363,38 @@
         toggleBypass();
     }
 })();
+
+function finalizeCheck() {
+    var sels = document.querySelectorAll('.pk-skor');
+    var missing = [];
+    for (var i = 0; i < sels.length; i++) {
+        var sel = sels[i];
+        var v = (sel.value === '' || sel.value === null) ? 0 : parseInt(sel.value, 10);
+        if (v <= 0) {
+            var row = sel.closest('tr');
+            var tds = row.querySelectorAll('td');
+            var name = tds.length > 1 ? tds[1].textContent.trim() : 'Kriteria';
+            var card = sel.closest('.card');
+            var grp = '';
+            if (card) {
+                var h6 = card.querySelector('.card-header h6');
+                grp = h6 ? h6.textContent.trim() : '';
+            }
+            missing.push(grp ? '• [' + grp + '] ' + name : '• ' + name);
+        }
+    }
+    if (missing.length > 0) {
+        var msg = 'Masih ada ' + missing.length + ' kriteria yang belum dinilai:\n\n'
+            + missing.join('\n')
+            + '\n\nSilakan lengkapi terlebih dahulu sebelum menyelesaikan penilaian.';
+        alert(msg);
+        var firstEmpty = null;
+        for (var j = 0; j < sels.length; j++) {
+            if ((sels[j].value === '' || sels[j].value === null) || parseInt(sels[j].value, 10) <= 0) { firstEmpty = sels[j]; break; }
+        }
+        if (firstEmpty) firstEmpty.focus();
+        return false;
+    }
+    return confirm('Semua kriteria sudah terisi. Selesaikan dan kunci penilaian ini?');
+}
 </script>

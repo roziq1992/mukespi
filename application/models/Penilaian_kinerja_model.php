@@ -316,7 +316,7 @@ class Penilaian_kinerja_model extends CI_Model
 
     public function get_penilaian_by_id($id_penilaian)
     {
-        $this->db->select('pk_penilaian.*, unit.nm_unit, p.name AS nama_penilai, p.email AS email_penilai, d.nama AS nama_dinilai, d.email AS email_dinilai, d.jabatan AS jabatan_dinilai, d.is_kepala AS is_kepala_dinilai, pkp.nama AS nama_periode');
+        $this->db->select('pk_penilaian.*, unit.nm_unit, p.name AS nama_penilai, p.email AS email_penilai, d.nama AS nama_dinilai, d.email AS email_dinilai, d.jabatan AS jabatan_dinilai, d.is_kepala AS is_kepala_dinilai, pkp.nama AS nama_periode, pkp.tahun');
         $this->db->from('pk_penilaian');
         $this->db->join('unit', 'unit.id_unit = pk_penilaian.id_unit');
         $this->db->join('users p', 'p.id = pk_penilaian.id_penilai');
@@ -589,6 +589,46 @@ class Penilaian_kinerja_model extends CI_Model
     public function get_role_id()
     {
         return (int)$this->session->userdata('role_id');
+    }
+
+    // ================= RIWAYAT BINTANG (PELAPORAN) =================
+
+    /**
+     * Riwayat penilaian bintang milik pegawai (dari pelaporan_karyawan).
+     * Hanya laporan berstatus DIVALIDASI yang dihitung.
+     */
+    public function get_bintang_history($id_pegawai = 0, $tahun = NULL)
+    {
+        $id_pegawai = (int) $id_pegawai;
+        if (!$id_pegawai) {
+            return array();
+        }
+        $this->db->select('id_laporan, bintang, alasan, status, created_at');
+        $this->db->where('id_terlapor', $id_pegawai);
+        $this->db->where('status', 'divalidasi');
+        if ($tahun !== NULL && (int) $tahun > 0) {
+            $this->db->where('YEAR(created_at)', (int) $tahun, FALSE);
+        }
+        $this->db->order_by('created_at', 'DESC');
+        return $this->db->get('pelaporan_karyawan')->result();
+    }
+
+    /**
+     * Ringkasan bintang dari daftar laporan: jumlah, akumulasi, rata-rata.
+     */
+    public function summarize_bintang(array $rows)
+    {
+        $total = 0;
+        $n = 0;
+        foreach ($rows as $r) {
+            $total += (int) $r->bintang;
+            $n++;
+        }
+        return array(
+            'count' => $n,
+            'total' => $total,
+            'avg'   => $n ? round($total / $n, 2) : 0,
+        );
     }
 }
 /* End of file Penilaian_kinerja_model.php */

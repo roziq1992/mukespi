@@ -4,6 +4,9 @@
 .pk-total-box { background:linear-gradient(135deg,#102a43,#1f4e79); color:#fff; border-radius:12px; padding:18px 24px; }
 .pk-total-box .pk-big { font-size:2rem; font-weight:800; line-height:1; }
 .pk-predikat { font-size:1rem; font-weight:800; }
+.pk-bintang { background:#fffbe6; border:1px solid #f0d78c; border-radius:12px; }
+.pk-bintang-sum { font-size:1.5rem; font-weight:800; line-height:1.1; color:#172b4d; }
+.pk-bintang-label { font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#a15c07; }
 @media print {
     body * { visibility:hidden; }
     #printArea, #printArea * { visibility:visible; }
@@ -11,6 +14,35 @@
     .pk-no-print { display:none !important; }
 }
 </style>
+
+<?php if (!function_exists('pkd_stars')): ?>
+<?php function pkd_stars($n)
+{
+    $n = (int) $n;
+    $s = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $s .= $i <= $n
+            ? '<i class="fas fa-star text-warning"></i>'
+            : '<i class="far fa-star text-muted"></i>';
+    }
+    return $s;
+} ?>
+<?php endif; ?>
+
+<?php if (!function_exists('pkd_badge')): ?>
+<?php function pkd_badge($st)
+{
+    $st = (string) $st;
+    $map = array(
+        'menunggu'   => array('#fef3c7', '#b45309'),
+        'divalidasi' => array('#d1fae5', '#065f46'),
+        'ditolak'    => array('#fee2e2', '#991b1b'),
+    );
+    $m = isset($map[$st]) ? $map[$st] : array('#f1f5f9', '#334155');
+    $label = $st === '' ? 'menunggu' : $st;
+    return '<span style="display:inline-block; padding:2px 9px; border-radius:20px; font-size:.68rem; font-weight:700; background:' . $m[0] . '; color:' . $m[1] . ';">' . ucfirst($label) . '</span>';
+} ?>
+<?php endif; ?>
 
 <div class="container-fluid">
     <?php $flash = $this->session->flashdata('message'); ?>
@@ -126,6 +158,64 @@
                         </div>
                         <?php endif; ?>
                     </div>
+                </div>
+
+                <!-- Penilaian bintang (pelaporan karyawan) -->
+                <div class="pk-bintang p-3 mt-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="font-weight-bold small text-uppercase" style="letter-spacing:.08em; color:#a15c07;">
+                            <i class="fas fa-star mr-1"></i> Nilai Bintang (Laporan / Pengaduan Karyawan)
+                        </div>
+                        <div class="ml-auto small text-muted">Hanya bintang berstatus <strong>tervalidasi</strong></div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col">
+                            <div class="pk-bintang-label">Rata-rata Tahun <?php echo (int) $bintang_tahun; ?></div>
+                            <div class="pk-bintang-sum"><?php echo number_format((float) $bintang_summary_thn['avg'], 2, ',', '.'); ?></div>
+                            <div style="font-size:.95rem;"><?php echo pkd_stars($bintang_summary_thn['avg']); ?></div>
+                            <small class="text-muted"><?php echo (int) $bintang_summary_thn['count']; ?> laporan</small>
+                        </div>
+                        <div class="col">
+                            <div class="pk-bintang-label">Akumulasi Semua Bintang</div>
+                            <div class="pk-bintang-sum"><?php echo (int) $bintang_summary_all['total']; ?></div>
+                            <div style="font-size:.9rem;">Rata-rata <?php echo number_format((float) $bintang_summary_all['avg'], 2, ',', '.'); ?></div>
+                            <small class="text-muted"><?php echo (int) $bintang_summary_all['count']; ?> total laporan</small>
+                        </div>
+                        <div class="col">
+                            <div class="pk-bintang-label">Predikat Bintang</div>
+                            <div class="pk-bintang-sum" style="font-size:1.25rem; padding-top:.35rem;"><?php echo $bintang_summary_all['avg'] >= 4 ? 'Sangat Baik' : ($bintang_summary_all['avg'] >= 3 ? 'Baik' : ($bintang_summary_all['avg'] > 0 ? 'Cukup' : '-')); ?></div>
+                            <small class="text-muted">dari 5 bintang</small>
+                        </div>
+                    </div>
+                    <?php if (count($bintang_history) > 0): ?>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width:40px;">No</th>
+                                    <th>Tanggal</th>
+                                    <th class="text-center">Bintang</th>
+                                    <th class="text-center">Status</th>
+                                    <th>Alasan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $no_b = 1; foreach ($bintang_history as $bh): ?>
+                                <tr>
+                                    <td class="text-muted"><?php echo $no_b++; ?></td>
+                                    <td><?php echo date('d M Y', strtotime($bh->created_at)); ?></td>
+                                    <td class="text-center"><?php echo pkd_stars($bh->bintang); ?><br><small class="text-muted"><?php echo (int) $bh->bintang; ?>/5</small></td>
+                                    <td class="text-center"><?php echo pkd_badge($bh->status); ?></td>
+                                    <td class="small"><?php echo html_escape($bh->alasan ?: '-'); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php else: ?>
+                    <div class="text-muted small text-center py-2"><i class="fas fa-inbox mr-1"></i> Belum ada penilaian bintang tervalidasi untuk pegawai ini.</div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Tanda tangan -->

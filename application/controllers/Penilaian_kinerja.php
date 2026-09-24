@@ -453,6 +453,11 @@ class Penilaian_kinerja extends CI_Controller
         }
         $total = round($total, 2);
 
+        // riwayat penilaian bintang (pelaporan) untuk pegawai yang dinilai
+        $tahun_p = (int) ($penilaian->tahun ?: date('Y'));
+        $bintang_history_all = $this->Penilaian_kinerja_model->get_bintang_history($penilaian->id_dinilai, NULL);
+        $bintang_history_thn = $this->Penilaian_kinerja_model->get_bintang_history($penilaian->id_dinilai, $tahun_p);
+
         $data = array(
             'title'      => 'Detail Penilaian Kinerja',
             'penilaian'  => $penilaian,
@@ -466,6 +471,10 @@ class Penilaian_kinerja extends CI_Controller
             'penilai_label' => !empty($penilaian->is_kepala_dinilai)
                 ? 'Pejabat Penilai (Direktur / Kabid)'
                 : 'Penilai (Kepala Unit)',
+            'bintang_history'     => $bintang_history_all,
+            'bintang_tahun'       => $tahun_p,
+            'bintang_summary_all' => $this->Penilaian_kinerja_model->summarize_bintang($bintang_history_all),
+            'bintang_summary_thn' => $this->Penilaian_kinerja_model->summarize_bintang($bintang_history_thn),
         );
 
         $this->load->view('template/header', $data);

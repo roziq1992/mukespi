@@ -362,14 +362,37 @@ class Penilaian_otk extends CI_Controller
         // status selesai: semua kriteria unit harus terisi
         if ($status === 'selesai' && $id_unit) {
             $rows = $this->Penilaian_kinerja_model->get_kriteria_by_unit($id_unit, TRUE);
-            $lengkap = !empty($rows);
+            $missing = array();
+            $total_bobot_kurang = 0;
             foreach ($rows as $r) {
-                if (empty($skor_map[$r->id_kriteria]) || (int) $skor_map[$r->id_kriteria] <= 0) {
-                    $lengkap = FALSE; break;
+                $skor_cek = isset($skor_map[$r->id_kriteria]) ? (int) $skor_map[$r->id_kriteria] : 0;
+                if ($skor_cek <= 0) {
+                    $missing[] = $r;
+                    $total_bobot_kurang += (float) $r->bobot;
                 }
             }
-            if (!$lengkap) {
-                $this->session->set_flashdata('message', '<div class="alert alert-warning">Semua kriteria wajib diisi untuk menyelesaikan penilaian.</div>');
+
+            if (!empty($missing)) {
+                // simpan sebagai draft dulu supaya isian yang sudah diketik tidak hilang
+                $this->Penilaian_otk_model->save_penilaian($id_periode, $id_unit, $id_penilai, $id_dinilai, $skor_map, $catatan, 'draft');
+
+                $items = '';
+                foreach ($missing as $m) {
+                    $items .= '<li class="py-1">'
+                        . '<span class="badge badge-light border mr-1">' . html_escape($m->kelompok) . '</span>'
+                        . html_escape($m->kriteria)
+                        . ' <span class="badge badge-warning">Bobot ' . number_format((float) $m->bobot, 2, ',', '.') . '%</span>'
+                        . '</li>';
+                }
+
+                $msg = '<div class="alert alert-warning border-left-warning">'
+                    . '<div class="font-weight-bold"><i class="fas fa-info-circle mr-1"></i> Penilaian belum dapat diselesaikan</div>'
+                    . '<div class="small">Masih ada <strong>' . count($missing) . ' kriteria</strong> yang belum dinilai (total bobot terbuka <strong>' . number_format($total_bobot_kurang, 2, ',', '.') . '%</strong>). '
+                    . 'Isian Anda sudah otomatis disimpan sebagai <strong>Draft</strong> agar tidak hilang. Lengkapi kriteria berikut:</div>'
+                    . '<ul class="small mt-2 mb-0" style="padding-left:18px;">' . $items . '</ul>'
+                    . '</div>';
+
+                $this->session->set_flashdata('message', $msg);
                 redirect(site_url('penilaian_otk/form/' . $id_penilai . '/' . $id_dinilai . '/' . $id_periode));
                 return;
             }
@@ -425,6 +448,11 @@ class Penilaian_otk extends CI_Controller
         }
         $total = round($total, 2);
 
+        // riwayat penilaian bintang (pelaporan) untuk pegawai yang dinilai
+        $tahun_p = (int) ($penilaian->tahun ?: date('Y'));
+        $bintang_history_all = $this->Penilaian_otk_model->get_bintang_history($penilaian->id_dinilai, NULL);
+        $bintang_history_thn = $this->Penilaian_otk_model->get_bintang_history($penilaian->id_dinilai, $tahun_p);
+
         $data = array(
             'title'      => 'Detail Penilaian OTK',
             'penilaian'  => $penilaian,
@@ -433,6 +461,10 @@ class Penilaian_otk extends CI_Controller
             'predikat'   => $this->Penilaian_kinerja_model->get_predikat((int)$penilaian->id_unit_dinilai, $total),
             'gradings'   => $this->Penilaian_kinerja_model->get_gradings((int)$penilaian->id_unit_dinilai),
             'is_manager' => $this->_is_manager(),
+            'bintang_history'     => $bintang_history_all,
+            'bintang_tahun'       => $tahun_p,
+            'bintang_summary_all' => $this->Penilaian_otk_model->summarize_bintang($bintang_history_all),
+            'bintang_summary_thn' => $this->Penilaian_otk_model->summarize_bintang($bintang_history_thn),
         );
 
         $this->load->view('template/header', $data);
