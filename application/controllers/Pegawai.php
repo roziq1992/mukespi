@@ -6,6 +6,10 @@ class Pegawai extends CI_Controller
     // id pegawai yang diabaikan saat cek keunikan email (0 = tanpa kecuali, untuk insert)
     private $_email_ignore_id = 0;
 
+    // nilai kualifikasi_pendidikan yang sudah tersimpan di database (data lama)
+    // dipakai agar data lama yang tidak diubah tidak memblokir simpan saat melengkapi data wajib
+    private $_existing_pendidikan = NULL;
+
     function __construct()
     {
         parent::__construct();
@@ -184,6 +188,7 @@ class Pegawai extends CI_Controller
             'password' => set_value('password'),
             'units' => $this->Pegawai_model->units(),
             'is_pegawai_view' => FALSE,
+            'missing_wajib' => array(),
         );
 
         $this->load->view('template/header', $data);
@@ -258,14 +263,17 @@ class Pegawai extends CI_Controller
         $row = $this->Pegawai_model->get_by_id($id);
 
         if ($row) {
-            // Admin/HRD boleh edit semua; pegawai hanya datanya sendiri & saat mode edit aktif
+            // Admin/HRD boleh edit semua; pegawai hanya datanya sendiri & saat mode edit aktif.
+            // Jika data wajib masih kosong, pegawai "dipaksa" melengkapi dulu meski mode edit nonaktif.
             $is_pegawai_view = FALSE;
+            $missing_wajib = array();
             if (!$this->is_admin()) {
                 if (current_pegawai_id() !== (int) $id) {
                     $this->session->set_flashdata('message', 'Anda tidak berhak mengubah data ini.');
                     redirect('portal');
                 }
-                if (!$this->edit_mode()) {
+                $missing_wajib = pegawai_missing_wajib($row);
+                if (empty($missing_wajib) && !$this->edit_mode()) {
                     $this->session->set_flashdata('message', 'Mode edit data pegawai sedang nonaktif. Hubungi HRD/Admin.');
                     redirect('pegawai/detail/' . $id);
                 }
@@ -300,6 +308,7 @@ class Pegawai extends CI_Controller
                 'password' => '',
                 'units' => $this->Pegawai_model->units(),
                 'is_pegawai_view' => $is_pegawai_view,
+                'missing_wajib' => $missing_wajib,
             );
 
             $this->load->view('template/header', $data);
@@ -316,8 +325,17 @@ class Pegawai extends CI_Controller
         $id = $this->input->post('id_pegawai', TRUE);
         $is_pegawai_view = FALSE;
 
+        // data lama sebagai pembanding saat validasi (mis. data pendidikan lama yang tetap tidak diubah)
+        $cur = $this->Pegawai_model->get_by_id($id);
+        $this->_existing_pendidikan = ($cur && trim((string) $cur->kualifikasi_pendidikan) !== '')
+            ? trim((string) $cur->kualifikasi_pendidikan)
+            : NULL;
+
         if (!$this->is_admin()) {
-            if (!$this->is_pegawai_login() || current_pegawai_id() !== (int) $id || !$this->edit_mode()) {
+            // pegawai (akun apa pun yang mewakili data peegawai ini) boleh mengubah datanya saat
+            // mode edit aktif, atau dipaksa melengkapi selama masih ada data wajib yang kosong
+            if (current_pegawai_id() !== (int) $id
+                || (!$this->edit_mode() && !($cur && !empty(pegawai_missing_wajib($cur))))) {
                 $this->session->set_flashdata('message', 'Anda tidak berhak mengubah data ini.');
                 redirect('portal');
             }
@@ -326,15 +344,7 @@ class Pegawai extends CI_Controller
 
         $this->_email_ignore_id = (int) $id;
 
-        if ($is_pegawai_view) {
-            $this->form_validation->set_rules('nama', 'Nama', 'trim|required');
-            $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'trim|required');
-            $this->form_validation->set_rules('email', 'Email', 'trim|valid_email|callback_email_available');
-            $this->form_validation->set_rules('password', 'Password', 'trim|min_length[5]');
-            $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
-        } else {
-            $this->_rules();
-        }
+        $this->_rules();
 
         if ($this->form_validation->run() == FALSE) {
             $this->update($id);
@@ -358,8 +368,8 @@ class Pegawai extends CI_Controller
                 'organisasi' => $this->input->post('organisasi', TRUE),
             );
 
-            // hanya admin/HRD yang boleh mengubah identitas kepegawaian
             if (!$is_pegawai_view) {
+                // hanya admin/HRD yang boleh mengubah identitas kepegawaian
                 $data['nik'] = $this->input->post('nik', TRUE);
                 $data['nip'] = $this->input->post('nip', TRUE);
                 $data['jabatan'] = $this->input->post('jabatan', TRUE);
@@ -367,6 +377,19 @@ class Pegawai extends CI_Controller
                 $data['id_unit'] = $this->Pegawai_model->unit_id_by_name($this->input->post('unit_kerja', TRUE));
                 $data['status_kepegawaian'] = $this->input->post('status_kepegawaian', TRUE);
                 $data['tanggal_masuk'] = $this->input->post('tanggal_masuk', TRUE);
+            } else {
+                // pegawai hanya boleh "mengisi" kolom kepegawaian/identitas yang MASIH KOSONG
+                if ($cur) {
+                    if (trim((string) $cur->nik) === '') $data['nik'] = $this->input->post('nik', TRUE);
+                    if (trim((string) $cur->nip) === '') $data['nip'] = $this->input->post('nip', TRUE);
+                    if (trim((string) $cur->jabatan) === '') $data['jabatan'] = $this->input->post('jabatan', TRUE);
+                    if (trim((string) $cur->unit_kerja) === '') {
+                        $data['unit_kerja'] = $this->input->post('unit_kerja', TRUE);
+                        $data['id_unit'] = $this->Pegawai_model->unit_id_by_name($this->input->post('unit_kerja', TRUE));
+                    }
+                    if (trim((string) $cur->status_kepegawaian) === '') $data['status_kepegawaian'] = $this->input->post('status_kepegawaian', TRUE);
+                    if (trim((string) $cur->tanggal_masuk) === '') $data['tanggal_masuk'] = $this->input->post('tanggal_masuk', TRUE);
+                }
             }
 
             $password = $this->input->post('password', TRUE);
@@ -382,6 +405,15 @@ class Pegawai extends CI_Controller
             $data['updated_at'] = date('Y-m-d H:i:s');
 
             $this->Pegawai_model->update($id, $data);
+
+            // perbarui penanda kelengkapan data (pola seperti setelah ganti password "admin")
+            $after = $this->Pegawai_model->get_by_id($id);
+            if ($after && empty(pegawai_missing_wajib($after))) {
+                $this->session->unset_userdata('must_complete_data');
+            } else {
+                $this->session->set_userdata('must_complete_data', (int) $id);
+            }
+
             $this->session->set_flashdata('message', 'Data pegawai berhasil diperbarui.');
             redirect($is_pegawai_view ? site_url('pegawai/detail/' . $id) : site_url('pegawai'));
         }
@@ -394,12 +426,14 @@ class Pegawai extends CI_Controller
 
         if ($row) {
             $is_pegawai_view = FALSE;
+            $missing_wajib = array();
             if (!$this->is_admin()) {
                 if (current_pegawai_id() !== (int) $id) {
                     $this->session->set_flashdata('message', 'Anda tidak berhak melihat data ini.');
                     redirect('portal');
                 }
                 $is_pegawai_view = TRUE;
+                $missing_wajib = pegawai_missing_wajib($row);
             }
 
             $data = array(
@@ -407,7 +441,8 @@ class Pegawai extends CI_Controller
                 'history' => $this->Pegawai_model->get_history($id),
                 'units' => $this->Pegawai_model->units(),
                 'is_pegawai_view' => $is_pegawai_view,
-                'can_edit' => $this->is_admin() || ($is_pegawai_view && $this->edit_mode()),
+                'missing_wajib' => $missing_wajib,
+                'can_edit' => $this->is_admin() || ($is_pegawai_view && ($this->edit_mode() || !empty($missing_wajib))),
                 'edit_mode' => $this->edit_mode(),
             );
             $this->load->view('template/header', $data);
@@ -559,16 +594,63 @@ class Pegawai extends CI_Controller
 
     public function _rules()
     {
+        $this->form_validation->set_rules('nik', 'NIK', 'trim|required');
+        $this->form_validation->set_rules('nip', 'NIP', 'trim|required');
         $this->form_validation->set_rules('nama', 'Nama', 'trim|required');
         $this->form_validation->set_rules('jenis_kelamin', 'Jenis Kelamin', 'trim|required');
+        $this->form_validation->set_rules('tempat_lahir', 'Tempat Lahir', 'trim|required');
+        $this->form_validation->set_rules('tanggal_lahir', 'Tanggal Lahir', 'trim|required');
+        $this->form_validation->set_rules('alamat', 'Alamat', 'trim|required');
+        $this->form_validation->set_rules('no_hp', 'No. HP', 'trim|required');
+        $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email|callback_email_available');
+        $this->form_validation->set_rules('nama_keluarga', 'Nama Suami/Istri/Orang Tua', 'trim|required');
+        $this->form_validation->set_rules('no_hp_keluarga', 'No. HP Suami/Istri/Orang Tua', 'trim|required');
+        $this->form_validation->set_rules('nama_anak', 'Nama Anak', 'trim|required');
+        $this->form_validation->set_rules('kualifikasi_pendidikan', 'Kualifikasi Pendidikan', 'trim|required|callback_pendidikan_format_ok');
+        $this->form_validation->set_rules('pengalaman_kerja', 'Pengalaman Kerja', 'trim');
+        $this->form_validation->set_rules('pelatihan', 'Pelatihan', 'trim');
+        $this->form_validation->set_rules('organisasi', 'Organisasi', 'trim');
         $this->form_validation->set_rules('jabatan', 'Jabatan', 'trim|required');
         $this->form_validation->set_rules('unit_kerja', 'Unit Kerja', 'trim|required');
+        $this->form_validation->set_rules('status_kepegawaian', 'Status Kepegawaian', 'trim|required');
         $this->form_validation->set_rules('tanggal_masuk', 'Tanggal Masuk', 'trim|required');
-        $this->form_validation->set_rules('email', 'Email', 'trim|valid_email|callback_email_available');
         $this->form_validation->set_rules('password', 'Password', 'trim|min_length[5]');
 
         $this->form_validation->set_rules('id_pegawai', 'id_pegawai', 'trim');
         $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+    // callback: kualifikasi pendidikan harus diisi berurutan dari SD - SMP sampai jenjang tertinggi
+    public function pendidikan_format_ok($str)
+    {
+        $s = strtoupper(trim((string) $str));
+        if ($s === '') {
+            return TRUE;
+        }
+
+        // Data pendidikan lama yang sudah terisi dan TIDAK diubah tidak dipaksa ulang
+        // formatnya, agar pegawai tetap bisa menyimpan field wajib lain yang baru dilengkapi
+        // (data lama umumnya belum memakai format SD - SMP - jenjang tertinggi).
+        if ($this->_existing_pendidikan !== NULL
+            && strtoupper(trim((string) $this->_existing_pendidikan)) === $s) {
+            return TRUE;
+        }
+
+        $has_sd     = (bool) preg_match('/\b(SEKOLAH\s*DASAR|SD[A-Z0-9]*|MI[A-Z0-9]*)\b/', $s);
+        $has_smp    = (bool) preg_match('/\b(SEKOLAH\s*MENENGAH\s*PERTAMA|SLTP[A-Z0-9]*|SMP[A-Z0-9]*|MTS[A-Z0-9]*)\b/', $s);
+        $has_tinggi = (bool) preg_match('/\b(SLTA[A-Z0-9]*|SMA[A-Z0-9]*|SMK[A-Z0-9]*|MA[A-Z0-9]?|MADRASAH\s*ALIYAH|'
+            . 'DIPLOMA|D[0-9]|D[[:space:]]*I{1,3}|S[0-9]|STRATA|SARJANA|MAGISTER|MASTER|DOKTOR|DOCTOR|'
+            . 'NERS|PROFESI|SPESIALIS|PPDS)\b/', $s);
+
+        if (!$has_sd || !$has_smp || !$has_tinggi) {
+            $this->form_validation->set_message(
+                'pendidikan_format_ok',
+                'Kualifikasi Pendidikan wajib diisi berurutan dari <strong>SD - SMP</strong> sampai jenjang tertinggi '
+                    . '(SMA/SMK/D3/D4/S1/S2/S3). Contoh: SDN 1 Surabaya - SMPN 5 Surabaya - SMAN 1 Surabaya - S1 Keperawatan.'
+            );
+            return FALSE;
+        }
+        return TRUE;
     }
 
     // callback: pastikan email pegawai belum dipakai pegawai lain (unik)

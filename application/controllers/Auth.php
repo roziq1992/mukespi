@@ -19,6 +19,7 @@ class Auth extends CI_Controller
     {
         parent::__construct();
         $this->load->library('form_validation');
+        $this->load->model('Pegawai_model');
     }
 
     public function index()
@@ -97,6 +98,26 @@ class Auth extends CI_Controller
                     $this->session->set_userdata(['must_change_password' => TRUE, 'pw_target' => 'users']);
                 } else {
                     $this->session->unset_userdata(['must_change_password', 'pw_target']);
+                }
+
+                // Akun yang mewakili pegawai (email/NIK terhubung ke data pegawai) dengan data
+                // wajib belum lengkap ditandai untuk dipaksa melengkapi. Admin & HRD tidak dipaksa.
+                $role_login = (int) $user['role_id'];
+                if (!in_array($role_login, array(1, 6), true)) {
+                    $peg_id_now = current_pegawai_id();
+                    if ($peg_id_now > 0) {
+                        $pr = $this->Pegawai_model->get_by_id($peg_id_now);
+                        $missingD = $pr ? pegawai_missing_wajib($pr) : array();
+                        if (!empty($missingD)) {
+                            $this->session->set_userdata('must_complete_data', $peg_id_now);
+                        } else {
+                            $this->session->unset_userdata('must_complete_data');
+                        }
+                    } else {
+                        $this->session->unset_userdata('must_complete_data');
+                    }
+                } else {
+                    $this->session->unset_userdata('must_complete_data');
                 }
 
                 // --- Cek apakah user datang dari portal dengan tujuan tertentu ---
@@ -184,6 +205,15 @@ class Auth extends CI_Controller
             $this->session->set_userdata(['must_change_password' => TRUE, 'pw_target' => 'pegawai']);
         } else {
             $this->session->unset_userdata(['must_change_password', 'pw_target']);
+        }
+
+        // Data wajib belum lengkap -> tandai agar dipaksa melengkapi dulu (pola seperti ganti password)
+        $pegRow = $this->Pegawai_model->get_by_id((int) $pegawai['id_pegawai']);
+        $missingData = $pegRow ? pegawai_missing_wajib($pegRow) : array();
+        if (!empty($missingData)) {
+            $this->session->set_userdata('must_complete_data', (int) $pegawai['id_pegawai']);
+        } else {
+            $this->session->unset_userdata('must_complete_data');
         }
 
         $this->session->set_flashdata('message', '<div class="alert alert-success"

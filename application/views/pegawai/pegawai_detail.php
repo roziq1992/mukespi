@@ -252,12 +252,21 @@
 		</div>
 
 		<?php if ($is_pegawai_view): ?>
+		<?php if (!empty($missing_wajib)): ?>
+		<div style="margin-bottom:20px; padding:12px 16px; border-radius:10px; font-size:.82rem; font-weight:600;
+			background:#fffbeb; border:1px solid #fcd34d; color:#92400e; border-left:4px solid #f59e0b;">
+			<i class="fas fa-exclamation-triangle mr-1"></i>
+			Data wajib Anda belum lengkap. Sebelum dapat menggunakan sistem, lengkapi melalui tombol <strong>Edit</strong>:
+			<strong><?= html_escape(implode(', ', $missing_wajib)) ?></strong>
+		</div>
+		<?php else: ?>
 		<div style="margin-bottom:20px; padding:12px 16px; border-radius:10px; font-size:.82rem; font-weight:600;
 			<?= $edit_mode ? 'background:#ecfdf5; border:1px solid #a7f3d0; color:#047857;' : 'background:#f8fafc; border:1px solid #e2e8f0; color:#64748b;' ?>">
 			<i class="fas <?= $edit_mode ? 'fa-lock-open' : 'fa-lock' ?> mr-1"></i>
 			Mode edit data pegawai saat ini: <strong><?= $edit_mode ? 'AKTIF' : 'NONAKTIF' ?></strong>.
 			<?= $edit_mode ? 'Anda dapat mengubah data diri Anda melalui tombol Edit.' : 'Anda belum dapat mengubah data diri. Hubungi HRD/Admin jika ingin memperbaiki data.' ?>
 		</div>
+		<?php endif; ?>
 		<?php endif; ?>
 
 		<div class="pgw-grid">

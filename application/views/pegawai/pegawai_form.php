@@ -86,16 +86,38 @@
 		<form method="POST" action="<?= $action ?>" class="pgw-form">
 			<div class="pgw-card-body">
 
+				<?php
+				$missing_wajib = isset($missing_wajib) ? $missing_wajib : array();
+				$lock_field = function ($val) use ($is_pegawai_view) {
+					return !empty($is_pegawai_view) && trim((string) $val) !== '';
+				};
+				$flash = $this->session->flashdata('message');
+				?>
+
+				<?php if ($flash): ?>
+					<div class="mb-3"><?= $flash ?></div>
+				<?php endif; ?>
+
+				<?php if (!empty($is_pegawai_view) && !empty($missing_wajib)): ?>
+					<div class="alert alert-warning d-flex align-items-start mb-4" style="font-size:.85rem; border-left:4px solid #f59e0b;">
+						<i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+						<div>
+							<strong>Data wajib Anda belum lengkap.</strong> Sebelum dapat menggunakan sistem, lengkapi isian yang masih kosong di bawah ini lalu tekan <strong><?= $button ?></strong>:<br>
+							<strong><?= html_escape(implode(', ', $missing_wajib)) ?></strong>
+						</div>
+					</div>
+				<?php endif; ?>
+
 				<h6 class="pgw-section-tag"><i class="fas fa-id-card mr-1"></i> Identitas</h6>
 				<div class="row">
 					<div class="col-md-3 mb-3">
-						<label for="nik">NIK</label>
-						<input type="text" class="form-control" id="nik" name="nik" value="<?= set_value('nik', isset($nik) ? $nik : '') ?>" placeholder="Nomor Induk Kependudukan" <?= (!empty($is_pegawai_view)) ? 'readonly' : '' ?>>
+						<label for="nik">NIK <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="nik" name="nik" value="<?= set_value('nik', isset($nik) ? $nik : '') ?>" placeholder="Nomor Induk Kependudukan" <?= $lock_field($nik) ? 'readonly' : 'required' ?>>
 						<?= form_error('nik') ?>
 					</div>
 					<div class="col-md-3 mb-3">
-						<label for="nip">NIP</label>
-						<input type="text" class="form-control" id="nip" name="nip" value="<?= set_value('nip', isset($nip) ? $nip : '') ?>" placeholder="Nomor Induk Pegawai" <?= (!empty($is_pegawai_view)) ? 'readonly' : '' ?>>
+						<label for="nip">NIP <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="nip" name="nip" value="<?= set_value('nip', isset($nip) ? $nip : '') ?>" placeholder="Nomor Induk Pegawai" <?= $lock_field($nip) ? 'readonly' : 'required' ?>>
 						<?= form_error('nip') ?>
 					</div>
 					<div class="col-md-6 mb-3">
@@ -108,34 +130,39 @@
 				<div class="row">
 					<div class="col-md-3 mb-3">
 						<label for="jenis_kelamin">Jenis Kelamin <span class="text-danger">*</span></label>
-						<select class="form-control" id="jenis_kelamin" name="jenis_kelamin">
+						<select class="form-control" id="jenis_kelamin" name="jenis_kelamin" required>
 							<option value="Laki-laki" <?= set_select('jenis_kelamin', 'Laki-laki', (isset($jenis_kelamin) && $jenis_kelamin === 'Laki-laki')) ?>>Laki-laki</option>
 							<option value="Perempuan" <?= set_select('jenis_kelamin', 'Perempuan', (isset($jenis_kelamin) && $jenis_kelamin === 'Perempuan')) ?>>Perempuan</option>
 						</select>
+						<?= form_error('jenis_kelamin') ?>
 					</div>
 					<div class="col-md-3 mb-3">
-						<label for="tempat_lahir">Tempat Lahir</label>
-						<input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir" value="<?= set_value('tempat_lahir', isset($tempat_lahir) ? $tempat_lahir : '') ?>" placeholder="Kota lahir">
+						<label for="tempat_lahir">Tempat Lahir <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir" value="<?= set_value('tempat_lahir', isset($tempat_lahir) ? $tempat_lahir : '') ?>" placeholder="Kota lahir" required>
+						<?= form_error('tempat_lahir') ?>
 					</div>
 					<div class="col-md-3 mb-3">
-						<label for="tanggal_lahir">Tanggal Lahir</label>
-						<input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" value="<?= set_value('tanggal_lahir', isset($tanggal_lahir) ? $tanggal_lahir : '') ?>">
+						<label for="tanggal_lahir">Tanggal Lahir <span class="text-danger">*</span></label>
+						<input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" value="<?= set_value('tanggal_lahir', isset($tanggal_lahir) ? $tanggal_lahir : '') ?>" required>
+						<?= form_error('tanggal_lahir') ?>
 					</div>
 					<div class="col-md-3 mb-3">
-						<label for="no_hp">No. HP</label>
-						<input type="text" class="form-control" id="no_hp" name="no_hp" value="<?= set_value('no_hp', isset($no_hp) ? $no_hp : '') ?>" placeholder="08xxxxxxxxxx">
+						<label for="no_hp">No. HP <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="no_hp" name="no_hp" value="<?= set_value('no_hp', isset($no_hp) ? $no_hp : '') ?>" placeholder="08xxxxxxxxxx" required>
+						<?= form_error('no_hp') ?>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="col-md-6 mb-3">
-						<label for="email">Email</label>
-						<input type="email" class="form-control" id="email" name="email" value="<?= set_value('email', isset($email) ? $email : '') ?>" placeholder="nama@rsairlangga.co.id">
+						<label for="email">Email <span class="text-danger">*</span></label>
+						<input type="email" class="form-control" id="email" name="email" value="<?= set_value('email', isset($email) ? $email : '') ?>" placeholder="nama@rsairlangga.co.id" required>
 						<?= form_error('email') ?>
 					</div>
 					<div class="col-md-6 mb-3">
-						<label for="alamat">Alamat</label>
-						<input type="text" class="form-control" id="alamat" name="alamat" value="<?= set_value('alamat', isset($alamat) ? $alamat : '') ?>" placeholder="Alamat lengkap">
+						<label for="alamat">Alamat <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="alamat" name="alamat" value="<?= set_value('alamat', isset($alamat) ? $alamat : '') ?>" placeholder="Alamat lengkap" required>
+						<?= form_error('alamat') ?>
 					</div>
 				</div>
 
@@ -149,24 +176,34 @@
 				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-users mr-1"></i> Data Keluarga</h6>
 				<div class="row">
 					<div class="col-md-4 mb-3">
-						<label for="nama_keluarga">Nama Suami / Istri / Orang Tua</label>
-						<input type="text" class="form-control" id="nama_keluarga" name="nama_keluarga" value="<?= set_value('nama_keluarga', isset($nama_keluarga) ? $nama_keluarga : '') ?>" placeholder="Nama pasangan / orang tua">
+						<label for="nama_keluarga">Nama Suami / Istri / Orang Tua <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="nama_keluarga" name="nama_keluarga" value="<?= set_value('nama_keluarga', isset($nama_keluarga) ? $nama_keluarga : '') ?>" placeholder="Nama pasangan / orang tua" required>
+						<?= form_error('nama_keluarga') ?>
 					</div>
 					<div class="col-md-4 mb-3">
-						<label for="no_hp_keluarga">No. HP Suami / Istri / Orang Tua</label>
-						<input type="text" class="form-control" id="no_hp_keluarga" name="no_hp_keluarga" value="<?= set_value('no_hp_keluarga', isset($no_hp_keluarga) ? $no_hp_keluarga : '') ?>" placeholder="08xxxxxxxxxx">
+						<label for="no_hp_keluarga">No. HP Suami / Istri / Orang Tua <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="no_hp_keluarga" name="no_hp_keluarga" value="<?= set_value('no_hp_keluarga', isset($no_hp_keluarga) ? $no_hp_keluarga : '') ?>" placeholder="08xxxxxxxxxx" required>
+						<?= form_error('no_hp_keluarga') ?>
 					</div>
 					<div class="col-md-4 mb-3">
-						<label for="nama_anak">Nama Anak</label>
-						<textarea class="form-control" id="nama_anak" name="nama_anak" rows="3" placeholder="Satu nama per baris"><?= set_value('nama_anak', isset($nama_anak) ? $nama_anak : '') ?></textarea>
+						<label for="nama_anak">Nama Anak <span class="text-danger">*</span></label>
+						<textarea class="form-control" id="nama_anak" name="nama_anak" rows="3" placeholder="Satu nama per baris" required><?= set_value('nama_anak', isset($nama_anak) ? $nama_anak : '') ?></textarea>
+						<?= form_error('nama_anak') ?>
 					</div>
 				</div>
 
 				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-graduation-cap mr-1"></i> Pendidikan &amp; Pengalaman</h6>
 				<div class="row">
 					<div class="col-md-6 mb-3">
-						<label for="kualifikasi_pendidikan">Kualifikasi Pendidikan</label>
-						<textarea class="form-control" id="kualifikasi_pendidikan" name="kualifikasi_pendidikan" rows="3" placeholder="Riwayat pendidikan"><?= set_value('kualifikasi_pendidikan', isset($kualifikasi_pendidikan) ? $kualifikasi_pendidikan : '') ?></textarea>
+						<label for="kualifikasi_pendidikan">Kualifikasi Pendidikan <span class="text-danger">*</span></label>
+						<textarea class="form-control" id="kualifikasi_pendidikan" name="kualifikasi_pendidikan" rows="3" placeholder="SDN 1 Surabaya - SMPN 5 Surabaya - SMAN 1 Surabaya - S1 Keperawatan" required><?= set_value('kualifikasi_pendidikan', isset($kualifikasi_pendidikan) ? $kualifikasi_pendidikan : '') ?></textarea>
+						<div class="mt-2" style="font-size:.76rem; padding:8px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; color:#1e40af;">
+							<i class="fas fa-info-circle mr-1"></i>
+							<strong>Format wajib:</strong> riwayat pendidikan ditulis <strong>berurutan dari SD - SMP</strong> sampai jenjang tertinggi
+							<strong>(SMA/SMK/D3/D4/S1/S2/S3)</strong>, tiap jenjang dipisah tanda hubung (-).
+							Sertakan jenjang yang dimulai dari SD agar data dianggap lengkap.
+						</div>
+						<?= form_error('kualifikasi_pendidikan') ?>
 					</div>
 					<div class="col-md-6 mb-3">
 						<label for="pengalaman_kerja">Pengalaman Kerja</label>
@@ -186,39 +223,45 @@
 
 				<h6 class="pgw-section-tag" style="margin-top:18px;"><i class="fas fa-briefcase mr-1"></i> Kepegawaian</h6>
 				<div class="row">
+					<?php $jabatan_lock = $lock_field($jabatan); ?>
 					<div class="col-md-3 mb-3">
 						<label for="jabatan">Jabatan <span class="text-danger">*</span></label>
-						<input type="text" class="form-control" id="jabatan" name="jabatan" value="<?= set_value('jabatan', isset($jabatan) ? $jabatan : '') ?>" placeholder="Contoh: Perawat, Bidan, Staf TU" <?= (!empty($is_pegawai_view)) ? 'readonly' : 'required' ?>>
+						<input type="text" class="form-control" id="jabatan" name="jabatan" value="<?= set_value('jabatan', isset($jabatan) ? $jabatan : '') ?>" placeholder="Contoh: Perawat, Bidan, Staf TU" <?= $jabatan_lock ? 'readonly' : 'required' ?>>
 						<?= form_error('jabatan') ?>
 					</div>
 					<div class="col-md-3 mb-3">
+						<?php $unit_lock = $lock_field($unit_kerja); ?>
 						<label for="unit_kerja">Unit Kerja <span class="text-danger">*</span></label>
-						<select class="form-control" id="unit_kerja" name="unit_kerja" <?= (!empty($is_pegawai_view)) ? 'disabled' : 'required' ?>>
-							<option value="">— Pilih Unit —</option>
-							<?php foreach ($units as $u): ?>
-								<option value="<?= html_escape($u->nm_unit) ?>" <?= set_select('unit_kerja', $u->nm_unit, (isset($unit_kerja) && $unit_kerja === $u->nm_unit)) ?>>
-									<?= html_escape($u->nm_unit) ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-						<?php if (!empty($is_pegawai_view) && !empty($unit_kerja)): ?>
-							<input type="hidden" name="unit_kerja_pegawai_tampil" value="<?= html_escape($unit_kerja) ?>">
+						<?php if ($unit_lock): ?>
+							<input type="text" class="form-control" id="unit_kerja" name="unit_kerja" value="<?= set_value('unit_kerja', isset($unit_kerja) ? $unit_kerja : '') ?>" readonly>
+						<?php else: ?>
+							<select class="form-control" id="unit_kerja" name="unit_kerja" required>
+								<option value="">— Pilih Unit —</option>
+								<?php foreach ($units as $u): ?>
+									<option value="<?= html_escape($u->nm_unit) ?>" <?= set_select('unit_kerja', $u->nm_unit, (isset($unit_kerja) && $unit_kerja === $u->nm_unit)) ?>>
+										<?= html_escape($u->nm_unit) ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
 						<?php endif; ?>
 						<?= form_error('unit_kerja') ?>
 					</div>
+					<?php $status_lock = $lock_field($status_kepegawaian); ?>
 					<div class="col-md-3 mb-3">
-						<label for="status_kepegawaian">Status Kepegawaian</label>
-						<input type="text" class="form-control" id="status_kepegawaian" name="status_kepegawaian" list="status_kepegawaian_list" value="<?= set_value('status_kepegawaian', isset($status_kepegawaian) ? $status_kepegawaian : '') ?>" placeholder="Tetap / Kontrak / OJT" <?= (!empty($is_pegawai_view)) ? 'readonly' : '' ?>>
+						<label for="status_kepegawaian">Status Kepegawaian <span class="text-danger">*</span></label>
+						<input type="text" class="form-control" id="status_kepegawaian" name="status_kepegawaian" list="status_kepegawaian_list" value="<?= set_value('status_kepegawaian', isset($status_kepegawaian) ? $status_kepegawaian : '') ?>" placeholder="Tetap / Kontrak / OJT" <?= $status_lock ? 'readonly' : 'required' ?>>
 						<datalist id="status_kepegawaian_list">
 							<option value="Tetap"></option>
 							<option value="Kontrak"></option>
 							<option value="OJT"></option>
 							<option value="Orientasi"></option>
 						</datalist>
+						<?= form_error('status_kepegawaian') ?>
 					</div>
+					<?php $tgl_lock = $lock_field($tanggal_masuk); ?>
 					<div class="col-md-3 mb-3">
 						<label for="tanggal_masuk">Tanggal Masuk <span class="text-danger">*</span></label>
-						<input type="date" class="form-control" id="tanggal_masuk" name="tanggal_masuk" value="<?= set_value('tanggal_masuk', isset($tanggal_masuk) ? $tanggal_masuk : '') ?>" <?= (!empty($is_pegawai_view)) ? 'readonly' : 'required' ?>>
+						<input type="date" class="form-control" id="tanggal_masuk" name="tanggal_masuk" value="<?= set_value('tanggal_masuk', isset($tanggal_masuk) ? $tanggal_masuk : '') ?>" <?= $tgl_lock ? 'readonly' : 'required' ?>>
 						<?= form_error('tanggal_masuk') ?>
 					</div>
 				</div>
