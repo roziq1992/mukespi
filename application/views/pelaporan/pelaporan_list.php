@@ -14,6 +14,22 @@
 } ?>
 <?php endif; ?>
 
+<?php if (!function_exists('plr_badge')): ?>
+<?php function plr_badge($st)
+{
+    $st = (string) $st;
+    $map = array(
+        'menunggu'   => array('#fef3c7', '#b45309', 'fas fa-hourglass-half'),
+        'divalidasi' => array('#d1fae5', '#065f46', 'fas fa-check-circle'),
+        'ditolak'    => array('#fee2e2', '#991b1b', 'fas fa-times-circle'),
+    );
+    $m = isset($map[$st]) ? $map[$st] : array('#f1f5f9', '#334155', 'fas fa-question');
+    $label = $st === '' ? 'menunggu' : $st;
+    return '<span class="plr-badge" style="background:' . $m[0] . '; color:' . $m[1] . ';">'
+        . '<i class="' . $m[2] . '"></i> ' . ucfirst($label) . '</span>';
+} ?>
+<?php endif; ?>
+
 <style>
 	.plr-page { font-family: 'Inter', system-ui, sans-serif; }
 	.plr-page * { box-sizing: border-box; }
@@ -95,6 +111,19 @@
 		background: #ecfdf5; border: 1px solid #a7f3d0; color: #064e3b;
 	}
 
+	.plr-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+	.plr-filter .plr-filter-title {
+		font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-right: 4px;
+	}
+	.plr-filter a {
+		padding: 7px 14px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff;
+		font-size: 0.78rem; font-weight: 600; color: #475569; text-decoration: none !important; transition: all .15s;
+	}
+	.plr-filter a:hover { background: #f8fafc; color: #0f172a; }
+	.plr-filter a.on { background: #312e81; border-color: #312e81; color: #fff; box-shadow: 0 4px 10px -3px rgba(49,46,129,.5); }
+
+	.plr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+
 	@media (max-width: 768px) {
 		.plr-header { padding: 20px; }
 		.plr-body { padding: 16px 18px; }
@@ -122,6 +151,19 @@
 			</div>
 
 			<div class="plr-body">
+				<div class="plr-filter">
+					<span class="plr-filter-title"><i class="fas fa-filter mr-1"></i> Status:</span>
+					<?php $filters = array(
+						'semua' => '<i class="fas fa-layer-group mr-1"></i> Semua',
+						'menunggu' => '<i class="fas fa-hourglass-half mr-1"></i> Menunggu',
+						'divalidasi' => '<i class="fas fa-check-circle mr-1"></i> Divalidasi',
+						'ditolak' => '<i class="fas fa-times-circle mr-1"></i> Ditolak',
+					);
+					foreach ($filters as $key => $label): ?>
+						<a href="<?= site_url('pelaporan?status=' . $key) ?>" class="<?= $status_filter === $key ? 'on' : '' ?>"><?= $label ?></a>
+					<?php endforeach; ?>
+				</div>
+
 				<?php if (count($laporan) > 0): ?>
 				<table class="plr-table">
 					<thead>
@@ -130,7 +172,8 @@
 							<th>Karyawan Dinilai</th>
 							<th>Bintang</th>
 							<th>Alasan</th>
-							<th>Tanggal</th>
+							<th>Tanggal / Jam</th>
+							<th>Status</th>
 							<?php if ($is_hrd): ?><th>Pelapor</th><?php endif; ?>
 							<th style="text-align:center">Aksi</th>
 						</tr>
@@ -146,7 +189,8 @@
 							<td><span style="white-space:nowrap;"><?= plr_stars($l->bintang) ?></span></td>
 							<td><span class="plr-alasan" title="<?= html_escape($l->alasan) ?>"><?= html_escape($l->alasan) ?></span>
 								<?php if (!empty($l->sanggahan)): ?><span class="plr-sub" style="color:#047857;"><i class="fas fa-reply mr-1"></i> Sudah ada sanggahan</span><?php endif; ?></td>
-							<td><span class="plr-date"><?= date('d M Y', strtotime($l->created_at)) ?></span></td>
+							<td><span class="plr-date"><?= date('d M Y', strtotime($l->created_at)) ?><?= !empty($l->jam) ? '<br><small style="font-size:.68rem;"><i class="far fa-clock mr-1"></i>' . date('H:i', strtotime($l->jam)) . '</small>' : '' ?></span></td>
+							<td><?= plr_badge($l->status) ?></td>
 							<?php if ($is_hrd): ?>
 							<td><span class="plr-pelapor"><?= html_escape($l->nama_pelapor ?: '—') ?></span></td>
 							<?php endif; ?>

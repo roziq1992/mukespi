@@ -27,16 +27,20 @@ class Pelaporan extends CI_Controller
     {
         $my_pid = current_pegawai_id();
         $my_uid = (int) $this->session->userdata('id');
+        $status = trim((string) $this->input->get('status', TRUE));
+        if (!in_array($status, array('menunggu', 'divalidasi', 'ditolak'), true)) {
+            $status = 'semua';
+        }
 
         if ($this->is_hrd()) {
-            $raw = $this->Pelaporan_model->list_all();
+            $raw = $this->Pelaporan_model->list_all($status);
         } elseif ($this->is_pegawai_login()) {
             $raw = array_merge(
-                $this->Pelaporan_model->list_by_pegawai($my_pid),
-                $my_pid ? $this->Pelaporan_model->list_by_terlapor($my_pid) : array()
+                $this->Pelaporan_model->list_by_pegawai($my_pid, $status),
+                $my_pid ? $this->Pelaporan_model->list_by_terlapor($my_pid, $status) : array()
             );
         } else {
-            $raw = $this->Pelaporan_model->list_by_user($my_uid);
+            $raw = $this->Pelaporan_model->list_by_user($my_uid, $status);
         }
 
         // dedupe + tambah flag per baris untuk view
@@ -59,6 +63,7 @@ class Pelaporan extends CI_Controller
             'laporan' => $list,
             'is_hrd' => $this->is_hrd(),
             'my_pegawai_id' => $my_pid,
+            'status_filter' => $status,
         );
 
         $this->load->view('template/header', $data);
@@ -108,6 +113,7 @@ class Pelaporan extends CI_Controller
                 'id_terlapor' => $id_terlapor,
                 'bintang' => (int) $this->input->post('bintang', TRUE),
                 'alasan' => htmlspecialchars($this->input->post('alasan', TRUE)),
+                'jam' => date('H:i:s'),
                 'created_at' => date('Y-m-d H:i:s'),
             );
 
@@ -131,6 +137,12 @@ class Pelaporan extends CI_Controller
                 foreach ($users as $u) {
                     $this->Notifikasi_model->add($u->id, $pesan, 'pelaporan/detail/' . $id_laporan);
                 }
+
+                // kirim email pemberitahuan ke karyawan yang dilaporkan
+                $this->_kirim_email_terlapor($peg->email, trim($peg->nama), $id_laporan, array(
+                    'bintang' => (int) $data['bintang'],
+                    'alasan'  => $data['alasan'],
+                ));
             }
 
             $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Laporan / penilaian berhasil dikirim.</div>');
@@ -151,12 +163,19 @@ class Pelaporan extends CI_Controller
             show_error('Anda tidak memiliki akses ke laporan ini.', 403);
         }
 
+        $is_hrd_oleh = $this->is_hrd() && !$this->is_pegawai_login();
+        $is_terlapor = current_pegawai_id() && (int) $row->id_terlapor === (int) current_pegawai_id() && !$this->is_hrd();
+
         $data = array(
             'row' => $row,
             'is_hrd' => $this->is_hrd(),
+            'can_validasi' => $is_hrd_oleh,
             'is_pelapor' => $this->_is_pelapor($row),
-            'show_pelapor_identitas' => ($this->is_hrd() && !$this->is_pegawai_login()) || $this->_is_pelapor($row),
-            'is_terlapor' => current_pegawai_id() && (int) $row->id_terlapor === (int) current_pegawai_id() && !$this->is_hrd(),
+            // identitas pelapor HANYA untuk Admin/HRD; baik terlapor maupun pelapor sendiri tidak melihatnya
+            'show_pelapor_identitas' => $this->is_hrd(),
+            'is_terlapor' => $is_terlapor,
+            // sanggahan hanya bisa dikirim 1x oleh terlapor; Admin/HRD dapat ubah atas nama terlapor
+            'can_sanggah' => $is_hrd_oleh || ($is_terlapor && empty(trim((string) $row->sanggahan))),
         );
 
         $this->load->view('template/header', $data);
@@ -185,6 +204,37 @@ class Pelaporan extends CI_Controller
         redirect('pelaporan');
     }
 
+    // kirim email pemberitahuan ke karyawan yang dilaporkan
+    private function _kirim_email_terlapor($email_tujuan, $nama_tujuan, $id_laporan, $data)
+    {
+        if (!filter_var($email_tujuan, FILTER_VALIDATE_EMAIL)) {
+            log_message('error', 'Email pelaporan tidak dikirim: alamat email terlapor tidak valid (' . $email_tujuan . ').');
+            return FALSE;
+        }
+
+        $this->load->library('email');
+        $this->email->clear(TRUE);
+        $this->email->from(config_item('email_from_address'), config_item('email_from_name'));
+        $this->email->to($email_tujuan, $nama_tujuan);
+        $this->email->subject('Pemberitahuan Laporan / Penilaian Karyawan — RS Airlangga');
+
+        $link = rtrim((string) config_item('email_app_url'), '/') . '/index.php/pelaporan/detail/' . (int) $id_laporan;
+        $pesan = '<p>Yth. ' . htmlspecialchars($nama_tujuan, ENT_QUOTES, 'UTF-8') . ',</p>'
+            . '<p>Ada laporan / penilaian baru atas nama Anda pada Sistem PPI RS Airlangga:</p>'
+            . '<p>Bintang: <strong>' . str_repeat('&#9733;', (int) $data['bintang']) . '</strong></p>'
+            . '<p>Alasan: ' . nl2br($data['alasan']) . '</p>'
+            . '<p>Silakan buka detail laporan untuk menjelaskan / menyanggah (sanggahan hanya dapat dikirim satu kali).</p>'
+            . '<p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Lihat Detail Laporan</a></p>';
+
+        $this->email->message($pesan);
+
+        if (!$this->email->send()) {
+            log_message('error', 'Email pelaporan gagal dikirim ke ' . $email_tujuan . ': ' . $this->email->print_debugger(array('headers')));
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     // simpan sanggahan (terlapor) — identitas pelapor tetap disembunyikan
     public function sanggah_action()
     {
@@ -202,6 +252,12 @@ class Pelaporan extends CI_Controller
             show_error('Anda tidak berhak menyanggah laporan ini.', 403);
         }
 
+        // sanggahan hanya boleh dikirim SATU kali oleh terlapor
+        if (!$is_hrd_oleh && !empty(trim((string) $row->sanggahan))) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Sanggahan hanya dapat dikirim satu kali dan sudah pernah dikirim sebelumnya. Anda tidak dapat menyanggah lagi.</div>');
+            redirect('pelaporan/detail/' . $id_laporan);
+        }
+
         $sanggahan = trim($this->input->post('sanggahan', TRUE));
         if ($sanggahan === '') {
             $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Sanggahan tidak boleh kosong.</div>');
@@ -215,6 +271,59 @@ class Pelaporan extends CI_Controller
         ));
 
         $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Sanggahan berhasil disimpan.</div>');
+        redirect('pelaporan/detail/' . $id_laporan);
+    }
+
+    // penentuan status oleh Admin/HRD: divalidasi atau ditolak (wajib alasan)
+    public function validasi_action()
+    {
+        if (!$this->is_hrd() || $this->is_pegawai_login()) {
+            show_error('Anda tidak berhak menentukan validasi laporan ini.', 403);
+        }
+
+        $id_laporan = (int) $this->input->post('id_laporan', TRUE);
+        $row = $this->Pelaporan_model->data($id_laporan);
+
+        if (!$row) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Laporan tidak ditemukan.</div>');
+            redirect('pelaporan');
+        }
+
+        $keputusan = $this->input->post('keputusan', TRUE);
+        if (!in_array($keputusan, array('divalidasi', 'ditolak'), true)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Keputusan tidak valid.</div>');
+            redirect('pelaporan/detail/' . $id_laporan);
+        }
+
+        $alasan = trim($this->input->post('alasan_validasi', TRUE));
+        if ($alasan === '') {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Alasan wajib diisi untuk ' . ($keputusan === 'divalidasi' ? 'memvalidasi' : 'menolak') . ' laporan.</div>');
+            redirect('pelaporan/detail/' . $id_laporan);
+        }
+
+        $label = ($keputusan === 'divalidasi') ? 'divalidasi' : 'ditolak';
+        $nama_oleh = trim($this->session->userdata('name'));
+        $this->Pelaporan_model->validasi($id_laporan, array(
+            'status'          => $keputusan,
+            'validasi_alasan' => htmlspecialchars($alasan),
+            'validasi_oleh'   => $nama_oleh,
+            'validasi_at'     => date('Y-m-d H:i:s'),
+        ));
+
+        // notifikasi status baru ke terlapor & pelapor (jika ada akun users)
+        $this->load->model('Notifikasi_model');
+        $pesan = 'Laporan / penilaian Anda ' . $label . ' oleh HRD/Admin. Lihat alasan pada detail laporan.';
+        if (!empty($row->id_terlapor)) {
+            $peg_t = $this->Pegawai_model->get_by_id($row->id_terlapor);
+            if ($peg_t && !empty($peg_t->email)) {
+                $users_t = $this->db->select('id')->where('email', $peg_t->email)->get('users')->result();
+                foreach ($users_t as $u) {
+                    $this->Notifikasi_model->add($u->id, $pesan, 'pelaporan/detail/' . $id_laporan);
+                }
+            }
+        }
+
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Laporan berhasil <strong>' . $label . '</strong>.</div>');
         redirect('pelaporan/detail/' . $id_laporan);
     }
 

@@ -22,39 +22,51 @@ class Pelaporan_model extends CI_Model
         $this->db->join('users u', 'u.id = l.id_user_pelapor', 'left');
     }
 
-    // semua laporan (HRD/Admin)
-    function list_all()
+    // semua laporan (HRD/Admin), opsional filter status
+    function list_all($status = NULL)
     {
         $this->_base_query();
+        $this->_filter_status($status);
         $this->db->order_by('l.id_laporan', 'DESC');
         return $this->db->get()->result();
     }
 
     // laporan milik pelapor yang login via NIK (id_pegawai)
-    function list_by_pegawai($id_pegawai)
+    function list_by_pegawai($id_pegawai, $status = NULL)
     {
         $this->_base_query();
         $this->db->where('l.id_pelapor', (int) $id_pegawai);
+        $this->_filter_status($status);
         $this->db->order_by('l.id_laporan', 'DESC');
         return $this->db->get()->result();
     }
 
     // laporan milik pelapor yang login via email (id users)
-    function list_by_user($id_user)
+    function list_by_user($id_user, $status = NULL)
     {
         $this->_base_query();
         $this->db->where('l.id_user_pelapor', (int) $id_user);
+        $this->_filter_status($status);
         $this->db->order_by('l.id_laporan', 'DESC');
         return $this->db->get()->result();
     }
 
     // laporan milik pegawai yang dinilai (terlapor)
-    function list_by_terlapor($id_pegawai)
+    function list_by_terlapor($id_pegawai, $status = NULL)
     {
         $this->_base_query();
         $this->db->where('l.id_terlapor', (int) $id_pegawai);
+        $this->_filter_status($status);
         $this->db->order_by('l.id_laporan', 'DESC');
         return $this->db->get()->result();
+    }
+
+    private function _filter_status($status)
+    {
+        $status = trim((string) $status);
+        if ($status !== '' && $status !== 'semua' && in_array($status, array('menunggu', 'divalidasi', 'ditolak'), true)) {
+            $this->db->where('l.status', $status);
+        }
     }
 
     function data($id)
@@ -72,6 +84,13 @@ class Pelaporan_model extends CI_Model
 
     // simpan / ubah sanggahan terlapor
     function sanggah($id, $data)
+    {
+        $this->db->where('id_laporan', (int) $id);
+        return $this->db->update('pelaporan_karyawan', $data);
+    }
+
+    // set status validasi / tolak oleh Admin/HRD (dengan alasan)
+    function validasi($id, $data)
     {
         $this->db->where('id_laporan', (int) $id);
         return $this->db->update('pelaporan_karyawan', $data);

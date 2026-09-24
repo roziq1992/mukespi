@@ -6,7 +6,42 @@
 .pk-grand-total { font-size:1.6rem; font-weight:800; color:#172b4d; }
 .pk-grand-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:#718096; font-weight:800; }
 .pk-progress-sub { color:#6b7280; font-size:.8rem; }
+.pb-intro { font-size:.78rem; color:#6b7280; }
+.pb-tile { background:#fffaf0; border:1px solid #fde68a; border-radius:10px; padding:14px 16px; height:100%; }
+.pb-tile-label { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#b45309; }
+.pb-tile-num { font-size:1.7rem; font-weight:800; color:#172b4d; line-height:1.2; }
+.pb-tile-sub { font-size:.75rem; color:#927238; }
+.pb-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:20px; font-size:.68rem; font-weight:700; }
 </style>
+
+<?php if (!function_exists('potk_stars')): ?>
+<?php function potk_stars($n)
+{
+    $n = (int) $n;
+    $s = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $s .= $i <= $n
+            ? '<i class="fas fa-star text-warning"></i>'
+            : '<i class="far fa-star text-muted"></i>';
+    }
+    return $s;
+} ?>
+<?php endif; ?>
+
+<?php if (!function_exists('potk_badge')): ?>
+<?php function potk_badge($st)
+{
+    $st = (string) $st;
+    $map = array(
+        'menunggu'   => array('#fef3c7', '#b45309', 'fas fa-hourglass-half'),
+        'divalidasi' => array('#d1fae5', '#065f46', 'fas fa-check-circle'),
+        'ditolak'    => array('#fee2e2', '#991b1b', 'fas fa-times-circle'),
+    );
+    $m = isset($map[$st]) ? $map[$st] : array('#f1f5f9', '#334155', 'fas fa-question');
+    $label = $st === '' ? 'menunggu' : $st;
+    return '<span class="pb-badge" style="background:' . $m[0] . ';color:' . $m[1] . ';"><i class="' . $m[2] . '"></i> ' . ucfirst($label) . '</span>';
+} ?>
+<?php endif; ?>
 
 <div class="container-fluid">
     <?php $flash = $this->session->flashdata('message'); ?>
@@ -76,6 +111,51 @@
                     <span class="badge badge-info">3 = Cukup</span>
                     <span class="badge badge-warning">2 = Kurang</span>
                     <span class="badge badge-danger">1 = Sangat Kurang</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Riwayat penilaian bintang (pelaporan) -->
+        <div class="card shadow mb-4 border-left-warning">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-star mr-1"></i> Penilaian Bintang (Laporan / Pengaduan Karyawan)</h6>
+                <?php if ($bintang_summary_all['count'] > 0): ?>
+                <button type="button" class="btn btn-sm btn-outline-warning font-weight-bold" data-toggle="modal" data-target="#riwayatBintangModal">
+                    <i class="fas fa-eye mr-1"></i> Lihat Riwayat
+                </button>
+                <?php endif; ?>
+            </div>
+            <div class="card-body">
+                <div class="pb-intro mb-3">
+                    <i class="fas fa-info-circle mr-1"></i> Rekapitulasi bintang dari laporan / pengaduan atas <strong><?php echo html_escape($target->nama); ?></strong>.
+                    Yang dihitung hanya bintang dengan status <strong>tervalidasi</strong> oleh Admin/HRD.
+                    Klik <strong>Lihat Riwayat</strong> untuk menampilkan seluruh penilaian bintang tervalidasi.
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="pb-tile">
+                            <div class="pb-tile-label">Rata-rata — Tahun <?php echo (int) $bintang_tahun; ?></div>
+                            <div class="pb-tile-num"><?php echo number_format((float) $bintang_summary_thn['avg'], 2, ',', '.'); ?> <small class="text-muted">/ 5</small></div>
+                            <div style="font-size:1rem; margin:4px 0;"><?php echo potk_stars($bintang_summary_thn['avg']); ?></div>
+                            <div class="pb-tile-sub">Dari <?php echo (int) $bintang_summary_thn['count']; ?> laporan pada tahun <?php echo (int) $bintang_tahun; ?></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="pb-tile">
+                            <div class="pb-tile-label">Akumulasi Semua Bintang</div>
+                            <div class="pb-tile-num"><?php echo (int) $bintang_summary_all['total']; ?> <small class="text-muted">bintang</small></div>
+                            <div style="font-size:.9rem; margin:4px 0;">Rata-rata <?php echo number_format((float) $bintang_summary_all['avg'], 2, ',', '.'); ?> dari <?php echo (int) $bintang_summary_all['count']; ?> laporan</div>
+                            <div class="pb-tile-sub">Akumulasi seluruh tahun penilaian</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="pb-tile">
+                            <div class="pb-tile-label">Jumlah Laporan</div>
+                            <div class="pb-tile-num"><?php echo (int) $bintang_summary_all['count']; ?> <small class="text-muted">laporan</small></div>
+                            <div style="font-size:.9rem; margin:4px 0;"><?php echo $bintang_summary_thn['count']; ?> laporan pada tahun <?php echo (int) $bintang_tahun; ?></div>
+                            <div class="pb-tile-sub">Total masuknya penilaian bintang tentang karyawan ini</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -168,6 +248,62 @@
             </div>
         </div>
     </form>
+
+    <!-- Modal riwayat bintang -->
+    <div class="modal fade" id="riwayatBintangModal" tabindex="-1" role="dialog" aria-labelledby="riwayatBintangLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:14px; overflow:hidden;">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title font-weight-bold" id="riwayatBintangLabel">
+                        <i class="fas fa-star mr-2"></i> Riwayat Penilaian Bintang
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity:.9;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="px-4 py-3 bg-light border-bottom" style="font-size:.85rem; color:#6b7280;">
+                        Pegawai dinilai: <strong class="text-dark"><?php echo html_escape($target->nama); ?></strong> &mdash; <?php echo html_escape($target->jabatan ?: '-'); ?>
+                        &nbsp;•&nbsp; Total <?php echo (int) $bintang_summary_all['count']; ?> laporan tervalidasi (akumulasi <?php echo (int) $bintang_summary_all['total']; ?> bintang)
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width:60px;">No</th>
+                                    <th style="width:130px;">Tanggal</th>
+                                    <th style="width:150px;">Bintang</th>
+                                    <th style="width:110px;">Status</th>
+                                    <th>Alasan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($bintang_history) > 0): $no_b = 1; ?>
+                                <?php foreach ($bintang_history as $bh): ?>
+                                <tr>
+                                    <td class="text-muted font-weight-bold"><?php echo $no_b++; ?></td>
+                                    <td><?php echo date('d M Y H:i', strtotime($bh->created_at)); ?></td>
+                                    <td>
+                                        <span style="white-space:nowrap;"><?php echo potk_stars($bh->bintang); ?></span>
+                                        <small class="text-muted d-block"><?php echo (int) $bh->bintang; ?>/5</small>
+                                    </td>
+                                    <td><?php echo potk_badge($bh->status); ?></td>
+                                    <td class="text-muted small" style="max-width:260px;"><?php echo html_escape($bh->alasan ?: '-'); ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                                <?php else: ?>
+                                <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-inbox mr-1"></i> Belum ada penilaian bintang.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary px-4" style="border-radius:8px;" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

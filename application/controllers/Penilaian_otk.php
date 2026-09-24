@@ -277,6 +277,11 @@ class Penilaian_otk extends CI_Controller
 
         $unit = $id_unit ? $this->Penilaian_kinerja_model->get_unit($id_unit) : NULL;
 
+        // riwayat penilaian bintang (pelaporan) untuk pegawai yang dinilai
+        $tahun_pr = (int) ($periode->tahun ?: date('Y'));
+        $bintang_history_all = $this->Penilaian_otk_model->get_bintang_history($target->id_pegawai, NULL);
+        $bintang_history_thn = $this->Penilaian_otk_model->get_bintang_history($target->id_pegawai, $tahun_pr);
+
         $data = array(
             'title'      => 'Form Penilaian OTK - ' . $target->nama,
             'periode'    => $periode,
@@ -291,6 +296,10 @@ class Penilaian_otk extends CI_Controller
             'back_url'   => site_url('penilaian_otk'),
             'has_kriteria' => $id_unit ? $this->Penilaian_kinerja_model->has_kriteria($id_unit) : FALSE,
             'dalam_jadwal' => $this->_periode_terbuka($periode),
+            'bintang_history'     => $bintang_history_all,
+            'bintang_tahun'       => $tahun_pr,
+            'bintang_summary_all' => $this->Penilaian_otk_model->summarize_bintang($bintang_history_all),
+            'bintang_summary_thn' => $this->Penilaian_otk_model->summarize_bintang($bintang_history_thn),
         );
 
         $this->load->view('template/header', $data);

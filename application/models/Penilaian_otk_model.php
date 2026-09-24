@@ -285,6 +285,47 @@ class Penilaian_otk_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    // ================= RIWAYAT BINTANG (PELAPORAN) =================
+
+    /**
+     * Riwayat penilaian bintang milik pegawai (dari pelaporan_karyawan).
+     * Hanya laporan berstatus DIVALIDASI yang dihitung.
+     * $tahun: filter tahun pembuatan laporan (periode OTK). NULL = semua tahun.
+     */
+    public function get_bintang_history($id_pegawai = 0, $tahun = NULL)
+    {
+        $id_pegawai = (int) $id_pegawai;
+        if (!$id_pegawai) {
+            return array();
+        }
+        $this->db->select('id_laporan, bintang, alasan, status, created_at');
+        $this->db->where('id_terlapor', $id_pegawai);
+        $this->db->where('status', 'divalidasi');
+        if ($tahun !== NULL && (int) $tahun > 0) {
+            $this->db->where('YEAR(created_at)', (int) $tahun, FALSE);
+        }
+        $this->db->order_by('created_at', 'DESC');
+        return $this->db->get('pelaporan_karyawan')->result();
+    }
+
+    /**
+     * Ringkasan bintang dari daftar laporan: jumlah, akumulasi, rata-rata.
+     */
+    public function summarize_bintang(array $rows)
+    {
+        $total = 0;
+        $n = 0;
+        foreach ($rows as $r) {
+            $total += (int) $r->bintang;
+            $n++;
+        }
+        return array(
+            'count' => $n,
+            'total' => $total,
+            'avg'   => $n ? round($total / $n, 2) : 0,
+        );
+    }
+
     // ================= REKAP =================
 
     /**

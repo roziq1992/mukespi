@@ -116,6 +116,11 @@
 						<?= form_error('alasan') ?>
 					</div>
 
+					<h6 class="plrf-section-tag" style="margin-top:20px;"><i class="fas fa-clock mr-1"></i> Waktu Kejadian</h6>
+					<div class="form-group">
+						<div class="plrf-note" style="margin:0;"><i class="fas fa-info-circle mr-1" style="color:#6366f1;"></i> Waktu (jam) pelaporan/penilaian diambil otomatis dari sistem saat laporan dikirim.</div>
+					</div>
+
 					<div class="d-flex align-items-center" style="gap:10px; margin-top:22px; padding-top:20px; border-top:1px solid #f1f5f9;">
 						<button type="submit" class="plrf-btn plrf-btn-primary"><i class="fas fa-paper-plane mr-1"></i> Kirim Laporan</button>
 						<a href="<?= site_url('pelaporan') ?>" class="plrf-btn plrf-btn-cancel"><i class="fas fa-arrow-left mr-1"></i> Batal</a>
