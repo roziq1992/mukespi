@@ -1,7 +1,7 @@
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 gjk-page">
 
-<?php if (!function_exists('plrd_stars')): ?>
-<?php function plrd_stars($n)
+<?php if (!function_exists('gjk_stars')): ?>
+<?php function gjk_stars($n)
 {
     $n = (int) $n;
     $s = '';
@@ -14,216 +14,203 @@
 } ?>
 <?php endif; ?>
 
-<?php if (!function_exists('plrd_status_meta')): ?>
-<?php function plrd_status_meta($st)
+<?php if (!function_exists('gjk_status')): ?>
+<?php function gjk_status($st)
 {
     $st = (string) $st;
     $map = array(
-        'menunggu'   => array('Menunggu Validasi', 'Laporan belum diputuskan oleh Admin / HRD', '#fef3c7', '#b45309', '#fbbf24', 'fas fa-hourglass-half'),
-        'divalidasi' => array('Divalidasi', 'Laporan dinyatakan valid oleh Admin / HRD', '#d1fae5', '#065f46', '#34d399', 'fas fa-check-circle'),
-        'ditolak'    => array('Ditolak', 'Laporan ditolak oleh Admin / HRD', '#fee2e2', '#991b1b', '#f87171', 'fas fa-times-circle'),
+        'menunggu'   => array('Menunggu Validasi', 'Laporan menunggu keputusan Admin / HRD', '#f59e0b', '#fff7ed', 'fas fa-hourglass-half'),
+        'divalidasi' => array('Divalidasi', 'Laporan dinyatakan valid oleh Admin / HRD', '#00aa13', '#f0fdf4', 'fas fa-check-circle'),
+        'ditolak'    => array('Ditolak', 'Laporan ditolak oleh Admin / HRD', '#dc2626', '#fef2f2', 'fas fa-times-circle'),
     );
-    return isset($map[$st]) ? $map[$st] : $map['menunggu'];
+    $m = isset($map[$st]) ? $map[$st] : $map['menunggu'];
+    return '<span class="gjk-pill" style="color:' . $m[2] . '; background:' . $m[3] . '; border:1px solid ' . $m[2] . '33;"><i class="' . $m[4] . ' mr-1"></i>' . $m[0] . '</span>';
 } ?>
 <?php endif; ?>
 
 <style>
-	.plrd-page { font-family: 'Inter', system-ui, sans-serif; max-width: 860px; }
-	.plrd-page * { box-sizing: border-box; }
+	.gjk-page { font-family: 'Inter', system-ui, sans-serif; max-width: 760px; }
+	.gjk-page * { box-sizing: border-box; }
 
-	.plrd-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:0 2px 18px; }
-	.plrd-title { font-size:1.15rem; font-weight:800; color:#0f172a; margin:0; }
-	.plrd-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; border-radius:9px; font-size:.82rem; font-weight:700; border:1px solid transparent; text-decoration:none!important; transition:all .15s; }
-	.plrd-btn-soft { background:#fff; color:#334155!important; border-color:#e2e8f0; }
-	.plrd-btn-soft:hover { background:#f8fafc; }
-	.plrd-btn-danger { background:#fef2f2; border-color:rgba(239,68,68,.25); color:#b91c1c; }
-	.plrd-btn-danger:hover { background:#fee2e2; }
-	.plrd-btn-success { background:#ecfdf5; border-color:rgba(16,185,129,.3); color:#065f46; }
-	.plrd-btn-success:hover { background:#d1fae5; }
-	.plrd-btn-primary { background:linear-gradient(135deg,#4f46e5,#4338ca); color:#fff!important; border-color:#4338ca; box-shadow:0 4px 12px -3px rgba(79,70,229,.4); }
-	.plrd-btn-primary:hover { background:linear-gradient(135deg,#4338ca,#3730a3); }
+	.gjk-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:0 0 16px; }
+	.gjk-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:999px; font-size:.82rem; font-weight:700; border:1px solid transparent; text-decoration:none!important; transition:all .15s; }
+	.gjk-btn-soft { background:#fff; color:#334155!important; border-color:#e2e8f0; }
+	.gjk-btn-soft:hover { background:#f8fafc; }
+	.gjk-btn-danger { background:#fef2f2; border-color:rgba(239,68,68,.25); color:#b91c1c; }
+	.gjk-btn-danger:hover { background:#fee2e2; }
+	.gjk-btn-green { background:#00aa13; color:#fff!important; border-color:#00aa13; box-shadow:0 4px 12px -3px rgba(0,170,19,.4); }
+	.gjk-btn-green:hover { background:#009411; }
+	.gjk-btn-outline-green { background:#fff; color:#00aa13!important; border:1px solid #86d88f; }
+	.gjk-btn-outline-green:hover { background:#f0fdf4; }
+	.gjk-btn-red { background:#dc2626; color:#fff!important; border-color:#dc2626; }
+	.gjk-btn-red:hover { background:#b91c1c; }
 
-	.plrd-card { background:#fff; border:1px solid #edf1f7; border-radius:14px; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 8px 24px -12px rgba(15,23,42,.08); margin-top:16px; overflow:hidden; }
-	.plrd-card:first-of-type { margin-top:0; }
-	.plrd-body { padding:22px 26px; }
-	.plrd-card-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#8b9cb4; padding:16px 26px 0; }
-	.plrd-empty { color:#94a3b8; font-style:italic; font-size:.85rem; }
+	.gjk-card { background:#fff; border:1px solid #eef1f5; border-radius:18px; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 12px 30px -18px rgba(15,23,42,.12); margin-top:14px; overflow:hidden; }
+	.gjk-card:first-of-type { margin-top:0; }
 
-	.plrd-status { display:flex; align-items:center; gap:14px; padding:20px 26px; border-bottom:1px solid rgba(15,23,42,.05); }
-	.plrd-status-ic { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; }
-	.plrd-status-title { font-size:1.02rem; font-weight:800; color:#0f172a; }
-	.plrd-status-sub { font-size:.8rem; margin-top:2px; }
-	.plrd-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
-	.plrd-info-item { background:#f8fafc; border:1px solid #edf1f7; border-radius:10px; padding:11px 14px; }
-	.plrd-info-item label { display:block; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; margin-bottom:3px; }
-	.plrd-info-item span { font-size:.85rem; font-weight:600; color:#0f172a; }
-	.plrd-alasan-box { background:#fafbfc; border:1px solid #edf1f7; border-radius:10px; padding:14px 16px; }
-	.plrd-alasan-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#7c8aa0; margin-bottom:7px; }
-	.plrd-alasan-text { font-size:.9rem; line-height:1.65; color:#334155; white-space:pre-wrap; }
+	.gjk-ticket-head { display:flex; align-items:center; gap:14px; padding:20px 22px; background:linear-gradient(135deg,#ffffff 0%,#f6f8fb 100%); }
+	.gjk-avatar { width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg,#00aa13,#00c81c); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.4rem; flex-shrink:0; box-shadow:0 6px 14px -6px rgba(0,170,19,.5); }
+	.gjk-emp { font-weight:800; color:#0f172a; font-size:1.02rem; display:flex; align-items:center; gap:6px; }
+	.gjk-emp .gjk-verif { color:#00aa13; font-size:.8rem; }
+	.gjk-sub { font-size:.8rem; color:#64748b; }
+	.gjk-ticket-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:0 22px 16px; }
+	.gjk-ticket-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; background:#f1f5f9; font-size:.72rem; font-weight:700; color:#475569; }
+	.gjk-ticket-rule { height:1px; background:linear-gradient(90deg, #eef1f5, #f6f8fb); }
 
-	.plrd-target { display:flex; align-items:center; gap:14px; background:#f8fafc; border:1px solid #edf1f7; border-radius:12px; padding:16px 18px; margin-bottom:18px; }
-	.plrd-avatar { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#c7d2fe,#a5b4fc); color:#312e81; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.25rem; flex-shrink:0; }
-	.plrd-emp { font-weight:800; color:#0f172a; font-size:1rem; }
-	.plrd-sub { font-size:.8rem; color:#64748b; }
-	.plrd-stars { font-size:1.3rem; white-space:nowrap; }
+	.gjk-thread { padding:20px 18px 8px; background:#f7f9fc; }
+	.gjk-tl { display:flex; align-items:center; justify-content:center; gap:8px; margin:8px 0 6px; }
+	.gjk-tl .line { height:1px; flex:1; max-width:60px; background:#e2e8f0; }
+	.gjk-tl-chip { padding:5px 13px; border-radius:999px; background:#eef2f7; color:#64748b; font-size:.7rem; font-weight:700; letter-spacing:.02em; }
 
-	.plrd-decision-form label { display:block; font-size:.8rem; font-weight:600; color:#334155; margin-bottom:6px; }
-	.plrd-decision-form .form-control { border-color:#e2e8f0; border-radius:8px; padding:10px 12px; font-size:.875rem; }
-	.plrd-note { font-size:.75rem; color:#64748b; margin-top:8px; }
+	.gjk-msg { display:flex; gap:10px; margin:10px 0; }
+	.gjk-msg-in { justify-content:flex-start; }
+	.gjk-msg-out { justify-content:flex-end; }
+	.gjk-mini { width:34px; height:34px; border-radius:50%; background:#d9dce2; color:#53606e; display:flex; align-items:center; justify-content:center; font-size:.85rem; flex-shrink:0; margin-top:2px; }
+	.gjk-msg-out.has-mini { padding-right:44px; }
+	.gjk-bubble { max-width:82%; padding:12px 16px; border-radius:16px; font-size:.88rem; line-height:1.6; position:relative; }
+	.gjk-in { background:#fff; border:1px solid #e7ebf0; border-top-left-radius:4px; color:#334155; box-shadow:0 4px 12px -8px rgba(15,23,42,.12); }
+	.gjk-in .gjk-bubble-head { color:#94a3b8; }
+	.gjk-out { background:#00aa13; color:#fff; border-top-right-radius:4px; box-shadow:0 4px 12px -6px rgba(0,170,19,.35); }
+	.gjk-out .gjk-bubble-head { color:rgba(255,255,255,.8); }
+	.gjk-in-sign { background:#fff; border:1px solid #e7ebf0; border-top-left-radius:4px; color:#334155; box-shadow:0 4px 12px -8px rgba(15,23,42,.12); }
+	.gjk-sys { background:#eff6ff; border:1px solid #dbeafe; border-radius:14px; padding:11px 15px; font-size:.8rem; color:#1e3a8a; margin:10px 0; }
+	.gjk-sys.green { background:#f0fdf4; border-color:#bbf7d0; color:#065f46; }
+	.gjk-sys.red { background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+	.gjk-bubble-head { display:flex; align-items:center; gap:7px; font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; }
+	.gjk-bubble-time { font-size:.68rem; margin-top:8px; opacity:.75; display:flex; align-items:center; gap:5px; }
+	.gjk-bubble-stars { font-size:1rem; margin:2px 0 4px; }
 
-	.plrd-sanggah-box { background:#fffbeb; border:1px solid #fde68a; border-radius:12px; padding:16px 18px; }
-	.plrd-sanggah-form label { display:block; font-size:.8rem; font-weight:600; color:#334155; margin-bottom:6px; }
-	.plrd-sanggah-form .form-control { border-color:#e2e8f0; border-radius:8px; padding:10px 12px; font-size:.875rem; }
-	.plrd-note-lock { font-size:.75rem; color:#64748b; margin-top:8px; }
+	.gjk-composer { padding:16px 18px 20px; background:#f7f9fc; border-top:1px solid #edf1f5; }
+	.gjk-composer label { display:block; font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#8b9cb4; margin-bottom:8px; }
+	.gjk-composer label span { color:#dc2626; }
+	.gjk-composer .form-control { border:1px solid #e2e8f0; border-radius:14px; padding:12px 14px; font-size:.875rem; }
+	.gjk-composer .form-control:focus { border-color:#00aa13; box-shadow:0 0 0 .2rem rgba(0,170,19,.12); }
+	.gjk-note { font-size:.72rem; color:#8b9cb4; margin-top:9px; }
+	.gjk-anon { display:inline-flex; align-items:center; gap:6px; background:#eef2f7; border-radius:999px; padding:4px 11px; font-size:.7rem; color:#64748b; font-weight:600; }
 
 	@media (max-width:768px){
-		.plrd-body { padding:18px; }
-		.plrd-card-title { padding:14px 18px 0; }
-		.plrd-status { padding:16px 18px; }
-		.plrd-info-grid { grid-template-columns:1fr; }
+		.gjk-bubble { max-width:92%; }
+		.gjk-msg-out.has-mini { padding-right:0; }
+		.gjk-ticket-head { padding:16px; }
+		.gjk-ticket-meta { padding:0 16px 14px; }
 	}
 </style>
 
-	<div class="plrd-page">
+	<?php $flash = $this->session->flashdata('message'); ?>
+	<?php if ($flash): ?><div style="margin-bottom:12px; padding:11px 16px; border-radius:12px; font-size:.85rem; font-weight:600; background:#f0fdf4; border:1px solid #bbf7d0; color:#065f46;"><?= $flash ?></div><?php endif; ?>
 
-		<?php $flash = $this->session->flashdata('message'); ?>
-		<?php if ($flash): ?><div style="margin-bottom:14px; padding:11px 16px; border-radius:10px; font-size:.85rem; font-weight:600; background:#ecfdf5; border:1px solid #a7f3d0; color:#064e3b;"><?= $flash ?></div><?php endif; ?>
+	<div class="gjk-toolbar">
+		<a href="<?= site_url('pelaporan') ?>" class="gjk-btn gjk-btn-soft"><i class="fas fa-arrow-left"></i> Kembali</a>
+		<div style="font-weight:800; color:#0f172a; font-size:1.05rem;"><i class="fas fa-comments mr-2" style="color:#00aa13;"></i> Detail Laporan</div>
+		<?php if ($is_pelapor || $is_hrd): ?>
+			<a href="<?= site_url('pelaporan/delete/' . $row->id_laporan) ?>" class="gjk-btn gjk-btn-danger ml-auto" onclick="return confirm('Hapus laporan ini?');"><i class="fas fa-trash"></i> Hapus</a>
+		<?php endif; ?>
+	</div>
 
-		<div class="plrd-toolbar">
-			<a href="<?= site_url('pelaporan') ?>" class="plrd-btn plrd-btn-soft"><i class="fas fa-arrow-left"></i> Kembali</a>
-			<div class="plrd-title"><i class="fas fa-file-alt mr-2" style="color:#4f46e5;"></i> Detail Laporan</div>
-			<?php if ($is_pelapor || $is_hrd): ?>
-				<a href="<?= site_url('pelaporan/delete/' . $row->id_laporan) ?>" class="plrd-btn plrd-btn-danger ml-auto" onclick="return confirm('Hapus laporan ini?');"><i class="fas fa-trash"></i> Hapus</a>
+	<div class="gjk-card">
+		<div class="gjk-ticket-head">
+			<div class="gjk-avatar"><?= html_escape(mb_substr($row->nama_terlapor ?: '?', 0, 1)) ?></div>
+			<div style="min-width:0;">
+				<div class="gjk-emp"><?= html_escape($row->nama_terlapor ?: '—') ?> <i class="fas fa-check-circle gjk-verif" title="Karyawan yang dilaporkan"></i></div>
+				<div class="gjk-sub"><?= html_escape($row->jabatan_terlapor ?: '—') ?> • <?= html_escape($row->unit_terlapor ?: '—') ?></div>
+			</div>
+			<div class="ml-auto text-right">
+				<div style="font-size:.96rem; white-space:nowrap;"><?= gjk_stars($row->bintang) ?></div>
+				<div class="gjk-sub" style="margin-top:3px;"><?= (int) $row->bintang ?>/5</div>
+			</div>
+		</div>
+		<div class="gjk-ticket-meta">
+			<span class="gjk-ticket-chip"><i class="fas fa-hashtag"></i> Laporan #<?= (int) $row->id_laporan ?></span>
+			<span class="gjk-ticket-chip"><i class="far fa-calendar-alt"></i> <?= date('d M Y', strtotime($row->created_at)) ?></span>
+			<span class="gjk-ticket-chip"><i class="far fa-clock"></i> <?= !empty($row->jam) ? date('H:i', strtotime($row->jam)) : date('H:i', strtotime($row->created_at)) ?> WIB</span>
+			<span class="gjk-ticket-chip gc"><i class="fas fa-star"></i> Bintang</span>
+		</div>
+		<div class="gjk-ticket-rule"></div>
+
+		<div class="gjk-thread">
+
+			<div class="gjk-tl"><span class="line"></span><span class="gjk-tl-chip"><i class="fas fa-file-alt mr-1"></i> Awal Percakapan</span><span class="line"></span></div>
+
+			<!-- Pesan laporan (pelapor) -->
+			<div class="gjk-msg gjk-msg-in">
+				<div class="gjk-mini"><i class="fas fa-user-shield"></i></div>
+				<div class="gjk-bubble gjk-in">
+					<div class="gjk-bubble-head"><i class="fas fa-flag"></i> Laporan / Pengaduan
+						<?php if ($show_pelapor_identitas): ?><span class="ml-auto" style="text-transform:none; font-weight:600;"><?= html_escape($row->nama_pelapor ?: 'Pelapor') ?></span><?php endif; ?>
+					</div>
+					<div class="gjk-bubble-stars"><?= gjk_stars($row->bintang) ?></div>
+					<div style="white-space:pre-wrap;"><?= html_escape($row->alasan ?: '—') ?></div>
+					<div class="gjk-bubble-time"><i class="far fa-clock"></i> <?= date('d M Y H:i', strtotime($row->created_at)) ?>
+						<?php if (!$show_pelapor_identitas): ?><span class="ml-auto gjk-anon"><i class="fas fa-lock"></i> Identitas pelapor dirahasiakan</span><?php endif; ?>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sanggahan (terlapor) -->
+			<?php if (!empty($row->sanggahan)): ?>
+			<div class="gjk-tl"><span class="line"></span><span class="gjk-tl-chip"><i class="fas fa-reply mr-1"></i> Sanggahan Terlapor</span><span class="line"></span></div>
+			<div class="gjk-msg gjk-msg-out has-mini">
+				<div class="gjk-bubble gjk-out">
+					<div class="gjk-bubble-head"><i class="fas fa-user"></i> <?= html_escape($row->sanggahan_oleh ?: 'Terlapor') ?></div>
+					<div style="white-space:pre-wrap;"><?= html_escape($row->sanggahan) ?></div>
+					<div class="gjk-bubble-time"><i class="far fa-clock"></i> <?= !empty($row->sanggahan_at) ? date('d M Y H:i', strtotime($row->sanggahan_at)) : '-' ?></div>
+				</div>
+			</div>
 			<?php endif; ?>
+
+			<!-- Status validasi (paling bawah) -->
+			<?php if (!empty($row->validasi_at)): ?>
+			<div class="gjk-tl"><span class="line"></span><span class="gjk-tl-chip"><i class="fas fa-clipboard-check mr-1"></i> Keputusan Admin / HRD</span><span class="line"></span></div>
+			<div class="gjk-msg gjk-msg-in">
+				<div class="gjk-mini" style="background:<?= $row->status === 'divalidasi' ? '#f0fdf4; color:#00aa13' : '#fef2f2; color:#dc2626' ?>"><i class="<?= $row->status === 'divalidasi' ? 'fas fa-check' : 'fas fa-times' ?>"></i></div>
+				<div class="gjk-bubble gjk-<?= $row->status === 'divalidasi' ? 'sys green' : 'sys red' ?>" style="border-radius:16px;">
+					<div class="gjk-bubble-head"><?= gjk_status($row->status) ?></div>
+					<div style="white-space:pre-wrap;"><?= html_escape($row->validasi_alasan ?: '-') ?></div>
+					<div class="gjk-bubble-time"><i class="fas fa-user-tie"></i> <?= html_escape($row->validasi_oleh ?: 'Admin / HRD') ?> &mdash; <?= date('d M Y H:i', strtotime($row->validasi_at)) ?></div>
+				</div>
+			</div>
+			<?php else: ?>
+			<div class="gjk-tl"><span class="line"></span><span class="gjk-tl-chip"><i class="fas fa-hourglass-half mr-1"></i> Menunggu Validasi</span><span class="line"></span></div>
+			<?php endif; ?>
+
 		</div>
 
-		<?php $sm = plrd_status_meta($row->status); ?>
-
-		<!-- Status Validasi (paling atas) -->
-		<div class="plrd-card">
-			<div class="plrd-status" style="background:<?= $sm[2] ?>;">
-				<div class="plrd-status-ic" style="background:#fff; color:<?= $sm[3] ?>;"><i class="<?= $sm[5] ?>"></i></div>
-				<div class="plrd-status-txt">
-					<div class="plrd-status-title" style="color:<?= $sm[3] ?>;"><?= $sm[0] ?></div>
-					<div class="plrd-status-sub" style="color:<?= $sm[3] ?>; opacity:.75;"><?= $sm[1] ?></div>
+		<!-- Composer sanggahan -->
+		<?php if ($can_sanggah): ?>
+		<div class="gjk-composer" style="border-top:0;">
+			<form method="POST" action="<?= site_url('pelaporan/sanggah_action') ?>">
+				<input type="hidden" name="id_laporan" value="<?= (int) $row->id_laporan ?>">
+				<label><?= $is_hrd && !$is_terlapor ? '<i class="fas fa-user-tie mr-1"></i> Sanggahan (atas nama terlapor)' : '<i class="fas fa-reply mr-1"></i> Balas — Tulis sanggahan Anda' ?></label>
+				<textarea name="sanggahan" class="form-control" rows="3" placeholder="Tulis tanggapan / sanggahan Anda atas laporan ini..."><?= html_escape($row->sanggahan ?: '') ?></textarea>
+				<div class="d-flex align-items-center justify-content-between" style="gap:10px; margin-top:12px; flex-wrap:wrap;">
+					<div class="gjk-note mb-0"><?= $is_terlapor ? '<i class="fas fa-shield-alt mr-1"></i> Sanggahan hanya dapat dikirim satu kali dan identitas pelapor dirahasiakan.' : '<i class="fas fa-info-circle mr-1"></i> Diisi Admin/HRD atas nama terlapor.' ?></div>
+					<button type="submit" class="gjk-btn gjk-btn-green"><i class="fas fa-paper-plane mr-1"></i> Kirim Sanggahan</button>
 				</div>
-				<div class="ml-auto plrd-stars" style="font-size:1.05rem;"><?= date('d M Y', strtotime($row->created_at)) ?></div>
-			</div>
-			<div class="plrd-body">
-				<?php if (!empty($row->validasi_at)): ?>
-					<div class="plrd-info-grid">
-						<div class="plrd-info-item">
-							<label>Diputuskan Oleh</label>
-							<span><?= html_escape($row->validasi_oleh ?: '-') ?></span>
-						</div>
-						<div class="plrd-info-item">
-							<label>Waktu</label>
-							<span><?= date('d M Y H:i', strtotime($row->validasi_at)) ?></span>
-						</div>
-					</div>
-					<div class="plrd-alasan-box">
-						<div class="plrd-alasan-label"><i class="fas fa-stamp mr-1"></i> Alasan<?= $row->status === 'ditolak' ? ' Penolakan' : ' Validasi' ?></div>
-						<div class="plrd-alasan-text"><?= html_escape($row->validasi_alasan ?: '-') ?></div>
-					</div>
-				<?php else: ?>
-					<div class="plrd-empty" style="margin-bottom:12px;"><i class="fas fa-hourglass-half mr-1"></i> Laporan ini masih menunggu keputusan Admin / HRD.</div>
-				<?php endif; ?>
-
-				<?php if ($can_validasi): ?>
-				<form method="POST" action="<?= site_url('pelaporan/validasi_action') ?>" class="plrd-decision-form" style="margin-top:18px; padding-top:18px; border-top:1px solid #edf1f7;">
-					<input type="hidden" name="id_laporan" value="<?= (int) $row->id_laporan ?>">
-					<label>Alasan Validasi / Penolakan <span class="text-danger">*</span></label>
-					<textarea name="alasan_validasi" id="alasan_validasi" class="form-control" rows="3" placeholder="Tuliskan alasan keputusan Anda..."><?= html_escape($row->validasi_alasan ?: '') ?></textarea>
-					<div class="d-flex flex-wrap align-items-center" style="gap:10px; margin-top:12px;">
-						<button type="submit" name="keputusan" value="divalidasi" class="plrd-btn plrd-btn-success" onclick="return validasiCheck('divalidasi');"><i class="fas fa-check mr-1"></i> Validasi Laporan</button>
-						<button type="submit" name="keputusan" value="ditolak" class="plrd-btn plrd-btn-danger" onclick="return validasiCheck('ditolak');"><i class="fas fa-times mr-1"></i> Tolak Laporan</button>
-					</div>
-					<div class="plrd-note"><i class="fas fa-info-circle mr-1"></i> Keputusan beserta alasan akan terlihat oleh pemberi nilai dan karyawan yang dinilai.</div>
-				</form>
-				<?php endif; ?>
-			</div>
+			</form>
 		</div>
-
-		<!-- Detail Laporan -->
-		<div class="plrd-card">
-			<div class="plrd-card-title"><i class="fas fa-file-alt mr-1"></i> Detail Laporan</div>
-			<div class="plrd-body">
-
-				<div class="plrd-target">
-					<div class="plrd-avatar"><?= html_escape(mb_substr($row->nama_terlapor ?: '?', 0, 1)) ?></div>
-					<div>
-						<div class="plrd-emp"><?= html_escape($row->nama_terlapor ?: '—') ?></div>
-						<div class="plrd-sub"><?= html_escape($row->jabatan_terlapor ?: '—') ?> • <?= html_escape($row->unit_terlapor ?: '—') ?></div>
-					</div>
-					<div class="ml-auto plrd-stars"><?= plrd_stars($row->bintang) ?></div>
-				</div>
-
-				<div class="plrd-alasan-box" style="margin-bottom:16px;">
-					<div class="plrd-alasan-label"><i class="fas fa-comment-dots mr-1"></i> Alasan / Pengaduan</div>
-					<div class="plrd-alasan-text"><?= html_escape($row->alasan ?: '—') ?></div>
-				</div>
-
-				<div class="plrd-info-grid">
-					<div class="plrd-info-item">
-						<label>Nilai Bintang</label>
-						<span><?= (int) $row->bintang ?> / 5</span>
-					</div>
-					<div class="plrd-info-item">
-						<label>Waktu Pelaporan</label>
-						<span><?= date('d M Y H:i', strtotime($row->created_at)) ?><?= !empty($row->jam) ? ' (jam ' . date('H:i', strtotime($row->jam)) . ')' : '' ?></span>
-					</div>
-					<div class="plrd-info-item" style="grid-column:1/-1;">
-						<label>Dilaporkan Oleh</label>
-						<?php if ($show_pelapor_identitas): ?>
-						<span><?= html_escape($row->nama_pelapor ?: '—') ?><?= !empty($row->identitas_pelapor) ? '<br><small style="font-weight:400;color:#94a3b8;">' . html_escape($row->identitas_pelapor) . '</small>' : '' ?></span>
-						<?php else: ?>
-						<span><i class="fas fa-user-shield mr-1" style="color:#64748b;"></i> Identitas pelapor disembunyikan (rahasia)</span>
-						<?php endif; ?>
-					</div>
-				</div>
-
-			</div>
+		<?php elseif ($is_terlapor && !empty($row->sanggahan)): ?>
+		<div class="gjk-composer" style="border-top:0;">
+			<div class="gjk-note mb-0 text-center"><i class="fas fa-lock mr-1"></i> Sanggahan Anda telah terkirim dan hanya dapat diberikan <strong>satu kali</strong>.</div>
 		</div>
+		<?php endif; ?>
 
-		<!-- Sanggahan -->
-		<div class="plrd-card">
-			<div class="plrd-card-title"><i class="fas fa-reply mr-1"></i> Sanggahan Terlapor</div>
-			<div class="plrd-body">
-				<?php if (!empty($row->sanggahan)): ?>
-				<div class="plrd-sanggah-box">
-					<div class="plrd-alasan-label"><i class="fas fa-reply mr-1"></i> Sanggahan</div>
-					<div class="plrd-alasan-text"><?= html_escape($row->sanggahan) ?></div>
-					<div class="plrd-sub" style="margin-top:8px;">
-						Oleh: <?= html_escape($row->sanggahan_oleh ?: 'Terlapor') ?> &mdash; <?= !empty($row->sanggahan_at) ? date('d M Y H:i', strtotime($row->sanggahan_at)) : '-' ?>
+		<!-- Composer validasi (Admin/HRD) -->
+		<?php if ($can_validasi): ?>
+		<div class="gjk-composer" style="border-top:1px solid #edf1f5;">
+			<form method="POST" action="<?= site_url('pelaporan/validasi_action') ?>">
+				<input type="hidden" name="id_laporan" value="<?= (int) $row->id_laporan ?>">
+				<label><i class="fas fa-clipboard-check mr-1"></i> Keputusan Validasi <span>*</span></label>
+				<textarea name="alasan_validasi" id="alasan_validasi" class="form-control" rows="3" placeholder="Tuliskan alasan keputusan Anda..."><?= html_escape($row->validasi_alasan ?: '') ?></textarea>
+				<div class="d-flex align-items-center justify-content-between" style="gap:10px; margin-top:12px; flex-wrap:wrap;">
+					<div class="gjk-note mb-0"><i class="fas fa-info-circle mr-1"></i> Alasan terlihat oleh pelapor &amp; karyawan yang dinilai.</div>
+					<div class="d-flex" style="gap:8px;">
+						<button type="submit" name="keputusan" value="ditolak" class="gjk-btn gjk-btn-red" onclick="return validasiCheck('ditolak');"><i class="fas fa-times mr-1"></i> Tolak</button>
+						<button type="submit" name="keputusan" value="divalidasi" class="gjk-btn gjk-btn-green" onclick="return validasiCheck('divalidasi');"><i class="fas fa-check mr-1"></i> Validasi</button>
 					</div>
 				</div>
-
-				<?php if ($is_terlapor): ?>
-				<div class="plrd-note-lock" style="margin-top:10px;"><i class="fas fa-lock mr-1"></i> Sanggahan Anda telah terkirim dan hanya dapat diberikan <strong>satu kali</strong>, sehingga tidak dapat diubah / dikirim ulang.</div>
-				<?php endif; ?>
-
-				<?php elseif ($can_sanggah): ?>
-				<div class="plrd-empty"><i class="fas fa-reply mr-1"></i> Terlapor belum memberikan sanggahan.</div>
-				<?php endif; ?>
-
-				<?php if ($can_sanggah): ?>
-				<form method="POST" action="<?= site_url('pelaporan/sanggah_action') ?>" class="plrd-sanggah-form" style="<?= empty($row->sanggahan) ? '' : 'margin-top:16px; padding-top:16px; border-top:1px solid #edf1f7;' ?>">
-					<input type="hidden" name="id_laporan" value="<?= (int) $row->id_laporan ?>">
-					<label><?= $is_hrd && !$is_terlapor ? 'Sanggahan (atas nama terlapor)' : 'Tulis sanggahan Anda' ?></label>
-					<textarea name="sanggahan" class="form-control" rows="4" placeholder="Sampaikan tanggapan / sanggahan Anda terkait laporan ini..."><?= html_escape($row->sanggahan ?: '') ?></textarea>
-					<div class="d-flex align-items-center" style="gap:10px; margin-top:12px;">
-						<button type="submit" class="plrd-btn plrd-btn-primary"><i class="fas fa-paper-plane mr-1"></i> Simpan Sanggahan</button>
-					</div>
-					<?php if ($is_terlapor): ?>
-					<div class="plrd-note-lock"><i class="fas fa-shield-alt mr-1"></i> Identitas pelapor tidak akan pernah ditampilkan kepada Anda. Sanggahan hanya dapat dikirim satu kali.</div>
-					<?php else: ?>
-					<div class="plrd-note-lock"><i class="fas fa-info-circle mr-1"></i> Diisi oleh HRD/Admin atas nama terlapor.</div>
-					<?php endif; ?>
-				</form>
-				<?php endif; ?>
-			</div>
+			</form>
 		</div>
-
+		<?php endif; ?>
 	</div>
 
 </div>
