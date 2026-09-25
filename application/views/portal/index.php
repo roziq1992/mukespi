@@ -35,8 +35,8 @@
 
 <div class="container-fluid portal">
     <div class="portal-hero">
-        <div class="portal-eyebrow">RS Airlangga / Portal Terpadu</div>
-        <h1>Selamat datang di Portal Sistem RS Airlangga</h1>
+        <div class="portal-eyebrow">RSA-ONE / One-Stop Digital Services</div>
+        <h1>RSA-ONE — RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</h1>
         <p>Satu halaman untuk mengakses seluruh layanan digital mutu, dokumen, penilaian, monitoring, dan manajemen surat.</p>
         <span class="portal-tagline"><i></i> Full Digital &middot; Tanpa Kertas</span>
     </div>

@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="description" content="Sistem Informasi Manajemen Mutu, PPI, dan Dokumen Rumah Sakit">
 	<meta name="author" content="Much Roziq, S.Kom">
-	<title>RS AIRLANGGA V2 - Login</title>
+	<title>RSA-ONE - Login</title>
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -512,7 +512,7 @@
 		margin-top: 5px;
 	}
 
-	/* Field row — remember + button */
+	/* Field row â€” remember + button */
 	.field-row {
 		display: flex;
 		align-items: center;
@@ -650,8 +650,8 @@
 		<div class="form-panel">
 			<div class="form-wrap">
 				<div class="form-logo">
-					<div class="form-logo-icon"><i class="fas fa-hospital"></i></div>
-					<span class="form-logo-text">RSA V2</span>
+					<div class="form-logo-icon"><i class="fas fa-feather-pointed"></i></div>
+					<span class="form-logo-text">RSA-ONE</span>
 				</div>
 
 				<div class="form-header">
@@ -692,28 +692,28 @@
 				<hr class="form-hr">
 				<div class="form-foot">
 					Kendalikan akses medis secara aman. Hubungi Tim IT jika kendala login.
-					<span class="mono">RSA-SIM &middot; Build V2.0</span>
+					<span class="mono">RSA-ONE &middot; Build V2.0</span>
 				</div>
 			</div>
 		</div>
 		<!-- ============ BRAND PANEL ============ -->
 		<div class="brand-panel">
 			<div class="brand-header">
-				<span class="brand-badge"><i class="fas fa-hospital"></i> Sistem Informasi V2</span>
+				<span class="brand-badge"><i class="fas fa-feather-pointed"></i> RSA-ONE</span>
 
 				<div class="emblem-row">
-					<div class="emblem-icon"><i class="fas fa-shield-halved"></i></div>
+					<div class="emblem-icon"><i class="fas fa-feather-pointed"></i></div>
 					<div class="brand-title">
-						<h1>RS AIRLANGGA</h1>
-						<p>Jombang, Jawa Timur</p>
+						<h1>RSA-ONE</h1>
+						<p>RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</p>
 					</div>
 				</div>
 
 				<span class="brand-tagline"><span class="tag-dot"></span> Full Digital &middot; Tanpa Kertas</span>
 
 				<div class="system-intro">
-				<h2 class="system-name">Mutu, PPI &amp; <em>Dokumen</em></h2>
-				<p class="system-sub">Portal terpadu untuk pengelolaan indikator mutu, pencegahan infeksi, serta integrasi dokumen akreditasi rumah sakit.</p>
+				<p class="system-sub"><strong style="color:#E0E7FF; font-weight:700;">RSA-ONE</strong> &mdash; RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</p>
+				<p class="system-sub" style="font-size:12px; opacity:.9;">Makna: Menggambarkan bahwa seluruh layanan digital RS Airlangga terpusat dan dapat diakses dalam satu pintu (one-stop service).</p>
 
 				<div class="module-grid">
 					<div class="module-card">
