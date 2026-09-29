@@ -291,22 +291,15 @@ class Survei_model extends CI_Model
      */
     public function rekap_tindak_lanjut($f = array())
     {
-        $row = $this->db->select(
-            'SUM(CASE WHEN t.status IS NULL THEN 1 ELSE 0 END) AS belum_ada,
-             SUM(CASE WHEN t.status = "Diproses" THEN 1 ELSE 0 END) AS diproses,
-             SUM(CASE WHEN t.status = "Selesai" THEN 1 ELSE 0 END) AS selesai'
-        )
-            ->from('survei_responden r')
-            ->join(
-                '(SELECT t1.id_responden, t1.status
-                    FROM survei_tindak_lanjut t1
-                    INNER JOIN (SELECT id_responden, MAX(id) AS id
-                                FROM survei_tindak_lanjut
-                               GROUP BY id_responden) x
-                            ON x.id = t1.id) t',
-                't.id_responden = r.id',
-                'left'
-            );
+        // Status terkini = catatan tindak lanjut dengan id terbesar.
+        $terkini = '(SELECT t.status FROM survei_tindak_lanjut t'
+            . ' WHERE t.id_responden = r.id ORDER BY t.id DESC LIMIT 1)';
+
+        $row = $this->db->select('COUNT(*) AS total', FALSE)
+            ->select('SUM(CASE WHEN ' . $terkini . ' IS NULL THEN 1 ELSE 0 END) AS belum_ada', FALSE)
+            ->select('SUM(CASE WHEN ' . $terkini . ' = "Diproses" THEN 1 ELSE 0 END) AS diproses', FALSE)
+            ->select('SUM(CASE WHEN ' . $terkini . ' = "Selesai" THEN 1 ELSE 0 END) AS selesai', FALSE)
+            ->from('survei_responden r');
         $this->_filter($f);
         // KPI "Perlu Tindak Lanjut" hanya relevan untuk keluhan (skor rendah).
         if (!isset($f['is_kritik']) || $f['is_kritik'] === '' || $f['is_kritik'] === null) {
