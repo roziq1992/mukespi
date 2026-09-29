@@ -154,10 +154,8 @@ class Survei extends CI_Controller
 
         $this->Survei_model->catat_fingerprint($fp);
 
-        // Kabari admin & HRD bila ada keluhan bermasalah
-        if ($kritik) {
-            $this->_kabar_admin($simpan['kode']);
-        }
+        // Kabari admin, surveior, & HRD setiap ada survei baru masuk
+        $this->_kabar_admin($simpan['kode'], $kritik, $header['skor_rata'], $header['predikat']);
 
         $this->session->set_flashdata('sv_kode', $simpan['kode']);
         $this->session->set_flashdata('sv_rata', $header['skor_rata']);
@@ -204,9 +202,10 @@ class Survei extends CI_Controller
     }
 
     /**
-     * Kirim notifikasi ke seluruh akun admin & HRD saat ada aspek bernilai 1..2.
+     * Kirim notifikasi ke akun admin (1), surveior (3), dan HRD (6) setiap
+     * ada survei baru. Keluhan (aspek bernilai 1..2) ditandai khusus.
      */
-    private function _kabar_admin($kode)
+    private function _kabar_admin($kode, $kritik, $rata, $predikat)
     {
         $this->load->model('Notifikasi_model', 'notifikasi');
 
@@ -215,12 +214,22 @@ class Survei extends CI_Controller
             ->get('users')
             ->result();
 
+        if (!$penerima) {
+            return;
+        }
+
+        $ringkas = 'Rata-rata ' . number_format($rata, 2, ',', '.') . '/5 (' . $predikat . ')';
+
+        if ($kritik) {
+            $pesan = '[Perlu Tindak Lanjut] Survei ' . $kode . ' berisi penilaian buruk yang perlu ditindaklanjuti. ' . $ringkas;
+        } else {
+            $pesan = 'Survei kepuasan baru dari pasien: ' . $kode . '. ' . $ringkas;
+        }
+
+        $url = site_url('survei_admin/detail_responden/' . $kode);
+
         foreach ($penerima as $u) {
-            $this->notifikasi->add(
-                $u->id,
-                'Survei kepuasan baru (' . $kode . ') berisi penilaian yang perlu ditindaklanjuti.',
-                site_url('survei_admin/detail_responden/' . $kode)
-            );
+            $this->notifikasi->add($u->id, $pesan, $url);
         }
     }
 }
