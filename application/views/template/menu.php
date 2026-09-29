@@ -348,6 +348,30 @@
 </li>
 <?php } ?>
 
+<!-- ================= SURVEI KEPUASAN PASIEN ================= -->
+<?php if (is_menu_accessible('survei_admin')) { ?>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSurveiKepuasan"
+       aria-expanded="false" aria-controls="collapseSurveiKepuasan"
+       data-tooltip="true" data-placement="right"
+       title="Survei Kepuasan Pasien — Monitoring Hasil Survei">
+        <i class="nav-icon-badge icon-monitoring fas fa-star"></i>
+        <span>SURVEI KEPUASAN</span>
+    </a>
+    <div id="collapseSurveiKepuasan" class="collapse" aria-labelledby="headingSurveiKepuasan" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="<?=base_url();?>index.php/survei_admin"><i class="fas fa-chart-line"></i> Dashboard Survei</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/survei_admin/data"><i class="fas fa-list"></i> Data Survei</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/survei_admin/data?kritik=1"><i class="fas fa-exclamation-triangle"></i> Keluhan Pasien</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/survei_admin/aspek"><i class="fas fa-sliders-h"></i> Master Aspek</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/survei_admin/ekspor"><i class="fas fa-file-excel"></i> Ekspor Excel</a>
+            <h6 class="collapse-header">Formulir Pasien:</h6>
+            <a class="collapse-item" href="<?=base_url();?>index.php/survei" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Buka Survei Publik</a>
+        </div>
+    </div>
+</li>
+<?php } ?>
+
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>
 <!-- ================= SERTIFIKAT ONLINE ================= -->
 <li class="nav-item">

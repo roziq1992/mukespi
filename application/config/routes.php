@@ -130,3 +130,21 @@ $route['data_inventaris/get_maintenance_tracking/(:any)'] = 'data_inventaris/get
 $route['data_inventaris/maintenance_history_form/(:any)'] = 'data_inventaris/maintenance_history_form/$1';
 $route['data_inventaris/maintenance_history_form'] = 'data_inventaris/maintenance_history_form';
 $route['data_inventaris/sparepart_delete/(:any)'] = 'data_inventaris/sparepart_delete/$1';
+
+// Survei Kepuasan Pasien — formulir publik (tanpa login)
+$route['survei'] = 'survei/index';
+$route['survei/kirim'] = 'survei/kirim';
+$route['survei/terima'] = 'survei/terima';
+
+// Survei Kepuasan Pasien — monitoring internal (butuh login)
+$route['survei_admin'] = 'survei_admin/index';
+$route['survei_admin/data'] = 'survei_admin/data';
+$route['survei_admin/detail/(:num)'] = 'survei_admin/detail/$1';
+$route['survei_admin/detail_responden/(:any)'] = 'survei_admin/detail_responden/$1';
+$route['survei_admin/tindak_lanjut'] = 'survei_admin/tindak_lanjut';
+$route['survei_admin/hapus/(:num)'] = 'survei_admin/hapus/$1';
+$route['survei_admin/ekspor'] = 'survei_admin/ekspor';
+$route['survei_admin/aspek'] = 'survei_admin/aspek';
+$route['survei_admin/aspek/simpan'] = 'survei_admin/aspek_simpan';
+$route['survei_admin/aspek/hapus/(:num)'] = 'survei_admin/aspek_hapus/$1';
+$route['survei_admin/aspek/toggle/(:num)'] = 'survei_admin/aspek_toggle/$1';

@@ -143,6 +143,16 @@
         </a>
         <?php } ?>
 
+        <?php if (is_menu_accessible('survei_admin')) { ?>
+        <!-- SURVEI KEPUASAN PASIEN -->
+        <a class="portal-card portal-simonika" href="<?php echo site_url('survei_admin'); ?>">
+            <span class="portal-icon"><i class="fas fa-star"></i></span>
+            <h3>SURVEI KEPUASAN</h3>
+            <p>Monitoring penilaian bintang, keluhan, dan tindak lanjut pasien.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+
         <?php if (current_pegawai_id()) { ?>
         <!-- DATA SAYA PEGAWAI -->
         <a class="portal-card portal-siasset" href="<?php echo site_url('pegawai/detail/' . current_pegawai_id()); ?>">
