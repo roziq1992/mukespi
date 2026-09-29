@@ -201,11 +201,13 @@
 		<div class="lbl">Pasien Puas</div>
 		<div class="sub">Kategori Baik &amp; Sangat Baik</div>
 	</div>
-	<div class="sk-stat warn">
-		<i class="fas fa-exclamation-triangle ico"></i>
-		<div class="num"><?= number_format($statistik['kritik'], 0, ',', '.'); ?></div>
+	<div class="sk-stat <?= $rekap_tl['menunggu'] > 0 ? 'warn' : 'good' ?>">
+		<i class="<?= $rekap_tl['menunggu'] > 0 ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle' ?> ico"></i>
+		<div class="num"><?= number_format($rekap_tl['menunggu'], 0, ',', '.'); ?></div>
 		<div class="lbl">Perlu Tindak Lanjut</div>
-		<div class="sub"><?= $belum_ttl; ?> belum ada tindak lanjut</div>
+		<div class="sub">
+			<?= $rekap_tl['diproses']; ?> sedang diproses &middot; <?= $rekap_tl['belum_ada']; ?> belum ada tindak lanjut<?= $rekap_tl['selesai'] > 0 ? ' &middot; <b>' . $rekap_tl['selesai'] . ' selesai</b>' : '' ?>
+		</div>
 	</div>
 	<div class="sk-stat nps">
 		<i class="fas fa-bullhorn ico"></i>

@@ -282,6 +282,50 @@ class Survei_model extends CI_Model
     }
 
     /**
+     * Rekap status tindak lanjut untuk keluhan survei.
+     *
+     * Yang dihitung adalah status TERKINI tiap responden, yaitu catatan tindak
+     * lanjut dengan id terbesar. Catatan "Selesai" tidak lagi dihitung sebagai
+     * pekerjaan yang tertunda, sehingga KPI "Perlu Tindak Lanjut" turun
+     * sendiri begitu keluhan itu diselesaikan.
+     */
+    public function rekap_tindak_lanjut($f = array())
+    {
+        $row = $this->db->select(
+            'SUM(CASE WHEN t.status IS NULL THEN 1 ELSE 0 END) AS belum_ada,
+             SUM(CASE WHEN t.status = "Diproses" THEN 1 ELSE 0 END) AS diproses,
+             SUM(CASE WHEN t.status = "Selesai" THEN 1 ELSE 0 END) AS selesai'
+        )
+            ->from('survei_responden r')
+            ->join(
+                '(SELECT t1.id_responden, t1.status
+                    FROM survei_tindak_lanjut t1
+                    INNER JOIN (SELECT id_responden, MAX(id) AS id
+                                FROM survei_tindak_lanjut
+                               GROUP BY id_responden) x
+                            ON x.id = t1.id) t',
+                't.id_responden = r.id',
+                'left'
+            );
+        $this->_filter($f);
+        // KPI "Perlu Tindak Lanjut" hanya relevan untuk keluhan (skor rendah).
+        if (!isset($f['is_kritik']) || $f['is_kritik'] === '' || $f['is_kritik'] === null) {
+            $this->db->where('r.is_kritik', 1);
+        }
+        $row = $this->db->get()->row();
+
+        $out = array(
+            'belum_ada' => (int) $row->belum_ada,
+            'diproses'  => (int) $row->diproses,
+            'selesai'   => (int) $row->selesai,
+        );
+        $out['total'] = $out['belum_ada'] + $out['diproses'] + $out['selesai'];
+        // Masih perlu dikerjakan: belum ada tindak lanjut + masih diproses.
+        $out['menunggu'] = $out['belum_ada'] + $out['diproses'];
+        return $out;
+    }
+
+    /**
      * Rata-rata skor tiap aspek (untuk grafik batang horizontal).
      */
     public function rekap_aspek($f = array())

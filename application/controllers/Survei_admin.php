@@ -47,7 +47,7 @@ class Survei_admin extends CI_Controller
             'rekap_unit'    => $this->Survei_model->rekap_unit($f, 10),
             'tren'          => $this->Survei_model->tren_bulanan(isset($f['tahun']) ? $f['tahun'] : date('Y')),
             'label_skor'    => Survei_model::$label_skor,
-            'belum_ttl'     => $this->_hitung_belum_tindak_lanjut($f),
+            'rekap_tl'     => $this->Survei_model->rekap_tindak_lanjut($f),
         );
 
         $this->load->view('template/header', $data);
@@ -377,32 +377,6 @@ class Survei_admin extends CI_Controller
         }
 
         return $f;
-    }
-
-    /**
-     * Jumlah respon pada periode filter yang belum punya tindak lanjut.
-     */
-    private function _hitung_belum_tindak_lanjut($f)
-    {
-        $this->db->select('COUNT(*) AS jml')
-            ->from('survei_responden r')
-            ->where('NOT EXISTS (SELECT 1 FROM survei_tindak_lanjut t WHERE t.id_responden = r.id)', NULL, FALSE);
-        if (!empty($f['bulan']) && !empty($f['tahun'])) {
-            $this->db->where('MONTH(r.tanggal_survei) =', (int) $f['bulan']);
-            $this->db->where('YEAR(r.tanggal_survei) =', (int) $f['tahun']);
-        } elseif (!empty($f['tahun'])) {
-            $this->db->where('YEAR(r.tanggal_survei) =', (int) $f['tahun']);
-        }
-        if (!empty($f['id_unit'])) {
-            $this->db->where('r.id_unit', (int) $f['id_unit']);
-        }
-        if (!empty($f['predikat'])) {
-            $this->db->where('r.predikat', $f['predikat']);
-        }
-        if (isset($f['is_kritik'])) {
-            $this->db->where('r.is_kritik', (int) $f['is_kritik']);
-        }
-        return (int) $this->db->get()->row('jml');
     }
 
     private function _bulan_list()
