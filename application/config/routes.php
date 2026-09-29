@@ -101,6 +101,14 @@ $route['pegawai/export_excel'] = 'pegawai/export_excel';
 $route['pegawai/template_excel'] = 'pegawai/template_excel';
 $route['pegawai/import_excel'] = 'pegawai/import_excel';
 
+// QR Code data pegawai. t/ = publik (hasil scan tanpa login, memakai token,
+// bukan NIK). cetak/ & token_baru/ memakai NIK karena hanya untuk yang login.
+$route['pegawai_qr'] = 'pegawai_qr/index';
+$route['pegawai_qr/cetak_semua'] = 'pegawai_qr/cetak_semua';
+$route['pegawai_qr/t/(:alphanum)'] = 'pegawai_qr/t/$1';
+$route['pegawai_qr/cetak/(:num)'] = 'pegawai_qr/cetak/$1';
+$route['pegawai_qr/token_baru/(:num)'] = 'pegawai_qr/token_baru/$1';
+
 $route['operan'] = 'operan/index';
 $route['operan/create'] = 'operan/create';
 $route['operan/store'] = 'operan/create_action';

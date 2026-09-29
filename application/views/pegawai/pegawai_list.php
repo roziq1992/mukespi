@@ -543,6 +543,9 @@ $prev_flash = $this->session->userdata('message');
 			<button type="button" class="btn-add" data-toggle="modal" data-target="#importModal" style="background:#0f766e; border:0; cursor:pointer; box-shadow:0 4px 12px -3px rgba(15,118,110,0.4);">
 				<i class="fas fa-file-import"></i> Import Excel
 			</button>
+			<a href="<?= site_url('pegawai_qr/cetak_semua') ?>" class="btn-add" target="_blank" rel="noopener" style="background:#1d4ed8; border:0; box-shadow:0 4px 12px -3px rgba(29,78,216,0.4); color:#fff; text-decoration:none;">
+				<i class="fas fa-qrcode"></i> Cetak QR Massal
+			</a>
 			<?php endif; ?>
 
 			<?php if (!empty($is_admin)): ?>
@@ -630,6 +633,15 @@ $prev_flash = $this->session->userdata('message');
 						<td data-label="Aksi">
 							<div class="action-flex">
 								<?= anchor(site_url('pegawai/detail/' . $p->id_pegawai), '<i class="fas fa-eye"></i> Detail', 'class="btn-act btn-act-primary" title="Detail & Riwayat"') ?>
+								<?php
+								$nik_qr = preg_replace('/\D/', '', (string) $p->nik);
+								if (strlen($nik_qr) === 16): ?>
+									<?= anchor(site_url('pegawai_qr/cetak/' . $nik_qr), '<i class="fas fa-qrcode"></i>', 'class="btn-act btn-act-edit" title="Buat & Unduh QR Code" target="_blank" rel="noopener"') ?>
+								<?php else: ?>
+									<button type="button" class="btn-act" disabled title="NIK belum diisi (16 digit) sehingga QR tidak dapat dibuat" style="opacity:.4;cursor:not-allowed;">
+										<i class="fas fa-qrcode"></i>
+									</button>
+								<?php endif; ?>
 								<?= anchor(site_url('pegawai/update/' . $p->id_pegawai), '<i class="fas fa-edit"></i>' , 'class="btn-act btn-act-edit" title="Edit Data"') ?>
 								<?php if ($p->status === 'aktif'): ?>
 									<button type="button" class="btn-act btn-act-danger" data-toggle="modal" data-target="#nonaktifModal" data-id="<?= $p->id_pegawai ?>" data-nama="<?= html_escape($p->nama) ?>" title="Nonaktifkan">

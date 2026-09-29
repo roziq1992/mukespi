@@ -237,6 +237,9 @@
 			</div>
 			<div class="pgw-hero-actions">
 				<?= anchor($is_pegawai_view ? site_url('portal') : site_url('pegawai'), '<i class="fas fa-arrow-left"></i> Kembali', 'class="pgw-btn pgw-btn-ghost"') ?>
+				<?php if (!$is_pegawai_view && strlen(preg_replace('/\D/', '', (string) $pegawai->nik)) === 16): ?>
+					<?= anchor(site_url('pegawai_qr/cetak/' . preg_replace('/\D/', '', (string) $pegawai->nik)), '<i class="fas fa-qrcode"></i> QR Code', 'class="pgw-btn pgw-btn-light" target="_blank" rel="noopener" title="Buat, cetak, dan unduh QR Code pegawai"') ?>
+				<?php endif; ?>
 				<?php if ($can_edit): ?>
 					<?= anchor(site_url('pegawai/update/' . $pegawai->id_pegawai), '<i class="fas fa-edit"></i> Edit', 'class="pgw-btn pgw-btn-light"') ?>
 				<?php endif; ?>
