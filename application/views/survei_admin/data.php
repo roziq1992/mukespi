@@ -176,8 +176,12 @@
 		<span>Urut dari yang terbaru</span>
 	</div>
 
-	<?php if ($this->session->flashdata('message')): ?>
-		<div style="padding:14px 18px 0"><?= $this->session->flashdata('message'); ?></div>
+	<?php
+	// flashdata dibaca satu kali (pembacaan pertama sudah menghapusnya).
+	$flash = $this->session->flashdata('message');
+	?>
+	<?php if ($flash): ?>
+		<div style="padding:14px 18px 0"><?= $flash; ?></div>
 	<?php endif; ?>
 
 	<div class="sk-table-wrap">

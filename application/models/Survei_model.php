@@ -401,6 +401,10 @@ class Survei_model extends CI_Model
             ->join('users u', 'u.id = t.id_user', 'left')
             ->where('t.id_responden', (int) $id_responden)
             ->order_by('t.created_at', 'DESC')
+            // created_at hanya presisi detik: dua catatan pada detik yang sama
+            // perlu diurutkan dengan id, jika tidak "catatan terbaru" bisa
+            // tertukar dan status yang tampil di layar bukan yang terakhir disimpan.
+            ->order_by('t.id', 'DESC')
             ->get()
             ->result();
     }

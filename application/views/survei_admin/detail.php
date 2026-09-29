@@ -128,8 +128,13 @@
 	</div>
 </div>
 
-<?php if ($this->session->flashdata('message')): ?>
-	<div class="sk-flash"><?= $this->session->flashdata('message'); ?></div>
+<?php
+// flashdata harus dibaca satu kali saja: pada pembacaan pertama CI3
+// menghapusnya, sehingga pembacaan kedua selalu menghasilkan NULL.
+$flash = $this->session->flashdata('message');
+?>
+<?php if ($flash): ?>
+	<div class="sk-flash"><?= $flash; ?></div>
 <?php endif; ?>
 
 <div class="sk-grid">
@@ -246,6 +251,24 @@
 				<span><?= count($tindak); ?> catatan</span>
 			</div>
 			<div class="sk-panel-body">
+				<?php
+				// $tindak sudah diurutkan dari yang terbaru, jadi index 0 = status terkini.
+				$sekarang = empty($tindak) ? '' : $tindak[0]->status;
+				$warna = $sekarang === 'Selesai'
+					? 'background:#ecfdf5;border:1px solid #a7f3d0'
+					: ($sekarang === 'Diproses' ? 'background:#eff6ff;border:1px solid #bfdbfe' : 'background:#f8fafc;border:1px solid #e2e8f0');
+				?>
+				<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px;margin-bottom:14px;border-radius:10px;<?= $warna ?>">
+					<span style="font-size:.72rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#64748b">Status Tindak Lanjut</span>
+					<?php if ($sekarang !== ''): ?>
+						<span class="sk-badge <?= $sekarang === 'Selesai' ? 'sb' : 'b' ?>" style="font-size:.74rem"><?= html_escape($sekarang) ?></span>
+						<span style="font-size:.74rem;color:#64748b">
+							terakhir diubah <?= date('d M Y H:i', strtotime($tindak[0]->created_at)) ?><?= $tindak[0]->nama_user ? ' oleh ' . html_escape($tindak[0]->nama_user) : '' ?>
+						</span>
+					<?php else: ?>
+						<span class="sk-badge netral" style="font-size:.74rem">Belum ada</span>
+					<?php endif; ?>
+				</div>
 				<?php if (empty($tindak)): ?>
 					<div style="font-size:.78rem;color:var(--sk-muted);margin-bottom:14px">
 						<i class="fas fa-info-circle"></i> Belum ada tindak lanjut untuk data survei ini.
@@ -270,8 +293,8 @@
 					<div style="margin-bottom:12px">
 						<label for="tl-status">Status</label>
 						<select id="tl-status" name="status" required>
-							<option value="Diproses">Diproses — sedang ditindaklanjuti</option>
-							<option value="Selesai">Selesai — sudah ada perbaikan</option>
+							<option value="Diproses" <?= ($sekarang !== 'Selesai') ? 'selected' : '' ?>>Diproses &mdash; sedang ditindaklanjuti</option>
+							<option value="Selesai" <?= ($sekarang === 'Selesai') ? 'selected' : '' ?>>Selesai &mdash; sudah ada perbaikan</option>
 						</select>
 					</div>
 					<div style="margin-bottom:6px">

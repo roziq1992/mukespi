@@ -112,8 +112,12 @@
 	</div>
 </div>
 
-<?php if ($this->session->flashdata('message')): ?>
-	<div class="sk-flash"><?= $this->session->flashdata('message'); ?></div>
+<?php
+// flashdata dibaca satu kali (pembacaan pertama sudah menghapusnya).
+$flash = $this->session->flashdata('message');
+?>
+<?php if ($flash): ?>
+	<div class="sk-flash"><?= $flash; ?></div>
 <?php endif; ?>
 
 <!-- ============ FORM TAMBAH / UBAH ============ -->
