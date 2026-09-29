@@ -155,7 +155,7 @@ class Survei extends CI_Controller
         $this->Survei_model->catat_fingerprint($fp);
 
         // Kabari admin, surveior, & HRD setiap ada survei baru masuk
-        $this->_kabar_admin($simpan['kode'], $kritik, $header['skor_rata'], $header['predikat']);
+        $this->_kabar_admin($simpan['kode']);
 
         $this->session->set_flashdata('sv_kode', $simpan['kode']);
         $this->session->set_flashdata('sv_rata', $header['skor_rata']);
@@ -202,10 +202,10 @@ class Survei extends CI_Controller
     }
 
     /**
-     * Kirim notifikasi ke akun admin (1), surveior (3), dan HRD (6) setiap
-     * ada survei baru. Keluhan (aspek bernilai 1..2) ditandai khusus.
+     * Kirim notifikasi ke akun admin (1), surveior (3), dan HRD (6)
+     * setiap kali ada survei diisi pasien — tanpa syarat maupun kecuali.
      */
-    private function _kabar_admin($kode, $kritik, $rata, $predikat)
+    private function _kabar_admin($kode)
     {
         $this->load->model('Notifikasi_model', 'notifikasi');
 
@@ -218,14 +218,7 @@ class Survei extends CI_Controller
             return;
         }
 
-        $ringkas = 'Rata-rata ' . number_format($rata, 2, ',', '.') . '/5 (' . $predikat . ')';
-
-        if ($kritik) {
-            $pesan = '[Perlu Tindak Lanjut] Survei ' . $kode . ' berisi penilaian buruk yang perlu ditindaklanjuti. ' . $ringkas;
-        } else {
-            $pesan = 'Survei kepuasan baru dari pasien: ' . $kode . '. ' . $ringkas;
-        }
-
+        $pesan = 'Survei kepuasan baru dari pasien: ' . $kode . '.';
         $url = site_url('survei_admin/detail_responden/' . $kode);
 
         foreach ($penerima as $u) {
