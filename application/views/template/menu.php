@@ -166,13 +166,13 @@
        data-tooltip="true" data-placement="right"
        title="Pelaporan & pengaduan karyawan — penilaian sesama karyawan">
         <i class="nav-icon-badge icon-monitoring fas fa-star-half-alt"></i>
-        <span>PELAPORAN</span>
+        <span>RATING PEGAWAI</span>
     </a>
     <div id="collapsePelaporan" class="collapse" aria-labelledby="headingPelaporan" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Pelaporan Karyawan:</h6>
-            <a class="collapse-item" href="<?=base_url();?>index.php/pelaporan"><i class="fas fa-list"></i> Daftar Laporan</a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/pelaporan/create"><i class="fas fa-pen"></i> Buat Laporan</a>
+            <h6 class="collapse-header">RATING Karyawan:</h6>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pelaporan"><i class="fas fa-list"></i> Daftar Rating</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/pelaporan/create"><i class="fas fa-pen"></i> Buat Rating</a>
         </div>
     </div>
 </li>
@@ -184,7 +184,7 @@
 <?php $ci = get_instance(); $ci->load->model('Surat_model'); $surat_pending = $ci->Surat_model->pending_count($surat_role === 1 ? 'admin' : ($surat_role === 5 ? 'sekretaris' : ($surat_role === 4 ? 'direktur' : 'user')), $ci->session->userdata('id')); ?>
 <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSurat" aria-expanded="false" title="Manajemen Surat Internal & Eksternal">
-        <i class="nav-icon-badge icon-dokumen fas fa-envelope"></i><span>E-OFFICE</span><?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?>
+        <i class="nav-icon-badge icon-dokumen fas fa-envelope"></i><span>SI-OFFICE</span><?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?>
     </a>
     <div id="collapseSurat" class="collapse" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
@@ -293,7 +293,7 @@
        data-tooltip="true" data-placement="right"
        title="SIMONIKA - Sistem Informasi Monitoring Aplikasi Kemenkes Airlangga">
         <i class="nav-icon-badge icon-monitoring fas fa-tasks"></i>
-        <span>SIMONIKA</span>
+        <span>SIMON</span>
     </a>
     <div id="collapseMonitoringPj" class="collapse" aria-labelledby="headingMonitoringPj" data-parent="#accordionSidebar">
 
@@ -322,7 +322,7 @@
        data-tooltip="true" data-placement="right"
        title="Penilaian Kinerja Pegawai per Unit">
         <i class="nav-icon-badge icon-monitoring fas fa-clipboard-check"></i>
-        <span>PENILAIAN KINERJA</span>
+        <span>SIPENA</span>
     </a>
     <div id="collapsePenilaianKinerja" class="collapse" aria-labelledby="headingPenilaianKinerja" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
@@ -356,7 +356,7 @@
        data-tooltip="true" data-placement="right"
        title="Survei Kepuasan Pasien — Monitoring Hasil Survei">
         <i class="nav-icon-badge icon-monitoring fas fa-star"></i>
-        <span>SURVEI KEPUASAN</span>
+        <span>SIBINTANG</span>
     </a>
     <div id="collapseSurveiKepuasan" class="collapse" aria-labelledby="headingSurveiKepuasan" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
@@ -374,21 +374,21 @@
 
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>
 <!-- ================= SERTIFIKAT ONLINE ================= -->
-<li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo3"
-       aria-expanded="false" aria-controls="collapseTwo3"
-       data-tooltip="true" data-placement="right"
-       title="Sertifikat Online — Penerbitan & Pengelolaan Sertifikat Digital">
-        <i class="nav-icon-badge icon-sertifikat fas fa-certificate"></i>
-        <span>SERTIFIKAT ONLINE</span>
-    </a>
-    <div id="collapseTwo3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">
-        <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Entry Sertifikat:</h6>
-            <a class="collapse-item" href="https://api-rsa.com/mukespi/index.php/sertifikat"><i class="fas fa-award"></i> Sertifikat</a>
-        </div>
-    </div>
-</li>
+<!--<li class="nav-item">-->
+<!--    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo3"-->
+<!--       aria-expanded="false" aria-controls="collapseTwo3"-->
+<!--       data-tooltip="true" data-placement="right"-->
+<!--       title="Sertifikat Online — Penerbitan & Pengelolaan Sertifikat Digital">-->
+<!--        <i class="nav-icon-badge icon-sertifikat fas fa-certificate"></i>-->
+<!--        <span>SERTIFIKAT ONLINE</span>-->
+<!--    </a>-->
+<!--    <div id="collapseTwo3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">-->
+<!--        <div class="bg-white py-2 collapse-inner rounded">-->
+<!--            <h6 class="collapse-header">Entry Sertifikat:</h6>-->
+<!--            <a class="collapse-item" href="https://api-rsa.com/mukespi/index.php/sertifikat"><i class="fas fa-award"></i> Sertifikat</a>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</li>-->
 <?php } ?>
 
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>
