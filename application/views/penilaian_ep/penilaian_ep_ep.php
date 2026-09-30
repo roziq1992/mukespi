@@ -77,26 +77,153 @@
         margin-bottom: 18px;
     }
 
+    /* ---- Group Standar (bisa di-minimize) ---- */
+    .pe2-standar {
+        border: 1px solid #eef0f3;
+        border-radius: 12px;
+        margin-bottom: 14px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .pe2-standar-head {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: #faf8fd;
+        border: none;
+        border-bottom: 1px solid #efe6fa;
+        text-align: left;
+        cursor: pointer;
+    }
+    .pe2-standar-head:hover { background: #f3ecfb; }
+    .pe2-standar-head:focus { outline: 2px solid #6a3fa0; outline-offset: -2px; }
+    .pe2-standar-arrow {
+        flex-shrink: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: #6a3fa0;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        transition: transform .18s ease;
+    }
+    .pe2-standar:not(.pe2-standar-open) .pe2-standar-arrow { transform: rotate(-90deg); }
     .pe2-standar-title {
+        flex: 1;
+        min-width: 0;
         font-size: 0.8rem;
         font-weight: 800;
         color: #6a3fa0;
         text-transform: uppercase;
         letter-spacing: 0.03em;
-        margin: 26px 0 12px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #efe6fa;
     }
-    .pe2-standar-title:first-of-type { margin-top: 0; }
     .pe2-standar-isi {
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         font-weight: 400;
         color: #8a94a6;
         text-transform: none;
         letter-spacing: normal;
         display: block;
-        margin-top: 3px;
+        margin-top: 2px;
     }
+    .pe2-standar-count {
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: #eef2f7;
+        color: #33475b;
+        white-space: nowrap;
+    }
+    .pe2-standar-count.selesai { background: #d4edda; color: #1e7e34; }
+    .pe2-standar-bar { height: 4px; background: #f2ecfa; }
+    .pe2-standar-bar > span { display: block; height: 100%; background: #6a3fa0; transition: width .2s ease; }
+    .pe2-standar-body { padding: 16px 16px 0; }
+    .pe2-standar:not(.pe2-standar-open) .pe2-standar-body,
+    .pe2-standar:not(.pe2-standar-open) .pe2-standar-bar { display: none; }
+    .pe2-standar-body .pe2-ep-card:last-child { margin-bottom: 0; }
+
+    /* ---- Toolbar: cari EP + filter ---- */
+    .pe2-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 6;
+        background: #fff;
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #f1f3f6;
+    }
+    .pe2-search-wrap { position: relative; }
+    .pe2-search-input {
+        width: 100%;
+        border: 1.5px solid #dde3ea;
+        border-radius: 10px;
+        padding: 10px 40px 10px 38px;
+        font-size: 0.88rem;
+    }
+    .pe2-search-input:focus { border-color: #6a3fa0; outline: none; box-shadow: 0 0 0 3px rgba(106,63,160,0.12); }
+    .pe2-search-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8a94a6;
+        pointer-events: none;
+        font-size: 0.85rem;
+    }
+    .pe2-search-clear {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: none;
+        color: #8a94a6;
+        cursor: pointer;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 4px 6px;
+        display: none;
+    }
+    .pe2-search-clear:hover { color: #c0392b; }
+    .pe2-search-clear.show { display: block; }
+    .pe2-search-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 10px;
+    }
+    .pe2-chip-btn {
+        border: 1.5px solid #dde3ea;
+        background: #fff;
+        color: #556;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .pe2-chip-btn:hover { border-color: #6a3fa0; color: #6a3fa0; }
+    .pe2-chip-btn.active { background: #6a3fa0; border-color: #6a3fa0; color: #fff; }
+    .pe2-search-info { font-size: 0.78rem; color: #8a94a6; margin-left: auto; }
+    .pe2-no-result {
+        display: none;
+        text-align: center;
+        color: #8a94a6;
+        font-size: 0.85rem;
+        padding: 30px 12px;
+    }
+    .pe2-no-result.show { display: block; }
+    mark.pe2-hl { background: #fff2a8; color: inherit; padding: 0 1px; border-radius: 2px; }
+    .pe2-ep-card.pe2-dim { display: none; }
+    .pe2-standar.pe2-dim { display: none; }
 
     .pe2-ep-card {
         border: 1px solid #eef0f3;
@@ -319,6 +446,28 @@
     .pe2-empty-file { text-align: center; color: #8a94a6; font-size: 0.82rem; padding: 14px; }
 </style>
 
+<?php
+    // Kelompokkan EP per Standar supaya tiap standar bisa di-minimize sendiri2
+    $grup_standar = array();
+    foreach ($ep_list as $ep) {
+        $kunci = (string) $ep->no_standar;
+        if (!isset($grup_standar[$kunci])) {
+            $grup_standar[$kunci] = array(
+                'no_standar'  => $ep->no_standar,
+                'isi_standar' => $ep->isi_standar,
+                'ep'          => array(),
+            );
+        }
+        $grup_standar[$kunci]['ep'][] = $ep;
+    }
+
+    // EP yang siap diinput = belum dinilai di track user yang sedang login
+    $jml_belum_saya = 0;
+    foreach ($ep_list as $ep) {
+        $sudah = ($jenis_saya === 'surveior') ? ($ep->skor_surveior !== NULL) : ($ep->skor_internal !== NULL);
+        if (!$sudah) $jml_belum_saya++;
+    }
+?>
 <div class="container-fluid">
     <div class="pe2-card">
         <div class="pe2-header">
@@ -360,13 +509,57 @@
             <?php if (empty($ep_list)): ?>
                 <div class="pe2-empty-file">Belum ada elemen penilaian untuk pokja ini.</div>
             <?php else: ?>
-                <?php $standar_aktif = NULL; ?>
-                <?php foreach ($ep_list as $ep):
-                    if ($standar_aktif !== $ep->no_standar) {
-                        $standar_aktif = $ep->no_standar;
-                        echo '<div class="pe2-standar-title">Standar ' . $ep->no_standar . '<span class="pe2-standar-isi">' . $ep->isi_standar . '</span></div>';
-                    }
 
+                <div class="pe2-toolbar">
+                    <div class="pe2-search-wrap">
+                        <span class="pe2-search-icon">🔍</span>
+                        <input type="text" id="peSearch" class="pe2-search-input"
+                               placeholder="Cari EP yang mau diinput — ketik nomor EP, isi EP, atau nama standar..."
+                               autocomplete="off">
+                        <button type="button" class="pe2-search-clear" id="peSearchClear" title="Bersihkan pencarian">&times;</button>
+                    </div>
+                    <div class="pe2-search-row">
+                        <button type="button" class="pe2-chip-btn" id="peFilterBelum">⏳ Belum Dinilai (<?php echo $jml_belum_saya ?>)</button>
+                        <button type="button" class="pe2-chip-btn" id="peExpandAll">▼ Buka Semua Standar</button>
+                        <button type="button" class="pe2-chip-btn" id="peCollapseAll">▶ Minimize Semua Standar</button>
+                        <span class="pe2-search-info" id="peSearchInfo"></span>
+                    </div>
+                </div>
+
+                <div class="pe2-no-result" id="peNoResult">
+                    🔎 EP tidak ditemukan. Coba kata kunci lain atau klik <strong>Buka Semua Standar</strong>.
+                </div>
+
+                <?php $grup_idx = 0; ?>
+                <?php foreach ($grup_standar as $grup):
+                    $grup_idx++;
+                    $ep_grup     = $grup['ep'];
+                    $total_grup  = count($ep_grup);
+                    $sudah_grup  = 0;
+                    foreach ($ep_grup as $e) {
+                        $s = ($jenis_saya === 'surveior') ? ($e->skor_surveior !== NULL) : ($e->skor_internal !== NULL);
+                        if ($s) $sudah_grup++;
+                    }
+                    $persen_grup = $total_grup > 0 ? round($sudah_grup / $total_grup * 100) : 0;
+                    // standar yang belum tuntas otomatis dibuka, yang sudah tuntas default minimize
+                    $default_open = ($sudah_grup < $total_grup) ? 1 : 0;
+                ?>
+                <div class="pe2-standar<?php echo $default_open ? ' pe2-standar-open' : '' ?>"
+                     data-standar="<?php echo html_escape((string) $grup_idx) ?>"
+                     data-default-open="<?php echo $default_open ?>">
+                    <button type="button" class="pe2-standar-head" aria-expanded="<?php echo $default_open ? 'true' : 'false' ?>" onclick="peToggleStandar(this)">
+                        <span class="pe2-standar-arrow">▼</span>
+                        <span class="pe2-standar-title">
+                            Standar <?php echo $grup['no_standar'] ?>
+                            <span class="pe2-standar-isi"><?php echo $grup['isi_standar'] ?></span>
+                        </span>
+                        <span class="pe2-standar-count <?php echo $sudah_grup === $total_grup ? 'selesai' : '' ?>">
+                            <?php echo $sudah_grup ?>/<?php echo $total_grup ?> dinilai
+                        </span>
+                    </button>
+                    <div class="pe2-standar-bar"><span style="width: <?php echo $persen_grup ?>%"></span></div>
+                    <div class="pe2-standar-body">
+                <?php foreach ($ep_grup as $ep):
                     $skor_maks = intval($ep->skor_maks);
                     $skor_half = (int) round($skor_maks / 2);
 
@@ -381,8 +574,11 @@
                     $ada_selisih    = ($skor_saya !== NULL && $skor_lain !== NULL && intval($skor_saya) !== intval($skor_lain));
 
                     $jml_bukti_total = intval($ep->jml_bukti_internal) + intval($ep->jml_bukti_surveior);
+
+                    // teks yang dipakai kolom pencarian
+                    $teks_cari = trim('EP ' . $ep->no_ep . ' ' . $ep->isi_ep . ' ' . $grup['no_standar'] . ' ' . $grup['isi_standar']);
                 ?>
-                <div class="pe2-ep-card <?php echo $sudah_dinilai ? 'pe2-saved' : '' ?>" id="ep-card-<?php echo $ep->id_ep ?>" data-id-ep="<?php echo $ep->id_ep ?>">
+                <div class="pe2-ep-card <?php echo $sudah_dinilai ? 'pe2-saved' : '' ?>" id="ep-card-<?php echo $ep->id_ep ?>" data-id-ep="<?php echo $ep->id_ep ?>" data-dinilai="<?php echo $sudah_dinilai ? 1 : 0 ?>" data-search="<?php echo html_escape($teks_cari) ?>">
                     <div class="pe2-ep-top">
                         <div>
                             <span class="pe2-ep-no">EP <?php echo $ep->no_ep ?></span>
@@ -437,6 +633,9 @@
                     </div>
                 </div>
                 <?php endforeach; ?>
+                    </div><!-- /.pe2-standar-body -->
+                </div><!-- /.pe2-standar -->
+                <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -485,7 +684,164 @@ window.addEventListener('load', function() {
     var currentIdEp = null;
     var pickedFiles = [];
 
-    // ---------- Simpan skor per EP ----------
+    // =========================================================
+    //  MINIMIZE / EXPAND GROUP STANDAR
+    // =========================================================
+    var COLLAPSE_KEY = 'pe2_collapse_<?php echo rawurlencode($pokja->bab . '_' . $periode->id_periode) ?>';
+
+    function peSimpanStateStandar() {
+        var state = {};
+        $('.pe2-standar').each(function() {
+            state[String($(this).attr('data-standar'))] = $(this).hasClass('pe2-standar-open') ? 1 : 0;
+        });
+        try { window.sessionStorage.setItem(COLLAPSE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    function peMuatStateStandar() {
+        var state = null;
+        try { state = JSON.parse(window.sessionStorage.getItem(COLLAPSE_KEY) || 'null'); } catch (e) {}
+
+        $('.pe2-standar').each(function() {
+            var $g = $(this);
+            var key = String($g.attr('data-standar'));
+            var open = (state && Object.prototype.hasOwnProperty.call(state, key))
+                ? !!state[key]
+                : ($g.attr('data-default-open') === '1');
+            $g.toggleClass('pe2-standar-open', open);
+            $g.find('.pe2-standar-head').attr('aria-expanded', open ? 'true' : 'false');
+        });
+    }
+
+    window.peToggleStandar = function(head) {
+        var $g = $(head).closest('.pe2-standar');
+        $g.toggleClass('pe2-standar-open');
+        $(head).attr('aria-expanded', $g.hasClass('pe2-standar-open') ? 'true' : 'false');
+        peSimpanStateStandar();
+    };
+
+    $(function() {
+        $('#peExpandAll').on('click', function() {
+            $('.pe2-standar').not('.pe2-dim').addClass('pe2-standar-open')
+                .find('.pe2-standar-head').attr('aria-expanded', 'true');
+            peSimpanStateStandar();
+        });
+
+        $('#peCollapseAll').on('click', function() {
+            $('.pe2-standar').removeClass('pe2-standar-open')
+                .find('.pe2-standar-head').attr('aria-expanded', 'false');
+            peSimpanStateStandar();
+        });
+    });
+
+    // =========================================================
+    //  CARI EP YANG MAU DIINPUT
+    // =========================================================
+    function peNormalize(teks) {
+        return (teks === undefined || teks === null) ? '' : String(teks).toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    // Sorot kata kunci di dalam nomor EP / isi EP (pakai <mark>)
+    function peSorotTeks($card, qRaw) {
+        if (!qRaw) return;
+        $card.find('.pe2-ep-no, .pe2-ep-isi').each(function() {
+            var $el = $(this);
+            if ($el.data('peOrig') === undefined) $el.data('peOrig', $el.html());
+            var re = new RegExp('(' + qRaw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+            $el.html($el.data('peOrig').replace(re, '<mark class="pe2-hl">$1</mark>'));
+        });
+    }
+
+    function peHapusSorot($card) {
+        $card.find('.pe2-ep-no, .pe2-ep-isi').each(function() {
+            var $el = $(this);
+            if ($el.data('peOrig') !== undefined) $el.html($el.data('peOrig'));
+        });
+    }
+
+    function peTerapkanFilter() {
+        var qRaw = $.trim($('#peSearch').val() || '');
+        var q    = peNormalize(qRaw);
+        var hanyaBelum = $('#peFilterBelum').hasClass('active');
+        var jmlCocok = 0;
+
+        $('.pe2-standar').each(function() {
+            var $g = $(this);
+            var adaCocok = 0;
+
+            $g.find('.pe2-ep-card').each(function() {
+                var $c = $(this);
+                var cocokTeks   = (q === '') || (peNormalize($c.attr('data-search')).indexOf(q) > -1);
+                var cocokFilter = !hanyaBelum || ($c.attr('data-dinilai') !== '1');
+                var tampil = cocokTeks && cocokFilter;
+
+                $c.toggleClass('pe2-dim', !tampil);
+                if (tampil) {
+                    adaCocok++;
+                    peSorotTeks($c, qRaw);
+                } else {
+                    peHapusSorot($c);
+                }
+            });
+
+            $g.toggleClass('pe2-dim', adaCocok === 0);
+            // standar yang punya hasil pencarian otomatis dibuka
+            if (q !== '' && adaCocok > 0) {
+                $g.addClass('pe2-standar-open').find('.pe2-standar-head').attr('aria-expanded', 'true');
+            }
+            jmlCocok += adaCocok;
+        });
+
+        var adaFilter = (q !== '' || hanyaBelum);
+        var totalEp   = $('.pe2-ep-card').length;
+
+        $('#peNoResult').toggleClass('show', adaFilter && jmlCocok === 0);
+        $('#peSearchClear').toggleClass('show', qRaw !== '');
+        $('#peSearchInfo').text(adaFilter
+            ? jmlCocok + ' dari ' + totalEp + ' EP cocok'
+            : 'Total ' + totalEp + ' EP');
+    }
+
+    function peResetFilter() {
+        $('#peSearch').val('');
+        $('#peFilterBelum').removeClass('active');
+        peTerapkanFilter();
+    }
+
+    $(function() {
+        var timer = null;
+        $('#peSearch').on('input', function() {
+            clearTimeout(timer);
+            timer = setTimeout(peTerapkanFilter, 180);
+        });
+
+        $('#peSearchClear').on('click', function() {
+            $('#peSearch').val('').trigger('focus');
+            peTerapkanFilter();
+        });
+
+        $('#peFilterBelum').on('click', function() {
+            $(this).toggleClass('active');
+            peTerapkanFilter();
+        });
+
+        // tombol "/" buat fokus ke kolom pencarian
+        $(document).on('keydown', function(e) {
+            if (e.key === '/' && !$(e.target).is('input, textarea')) {
+                e.preventDefault();
+                $('#peSearch').trigger('focus').trigger('select');
+            }
+            if (e.key === 'Escape' && $(e.target).is('#peSearch')) {
+                peResetFilter();
+            }
+        });
+
+        peMuatStateStandar();
+        peTerapkanFilter();
+    });
+
+    // =========================================================
+    //  SIMPAN SKOR PER EP
+    // =========================================================
 window.peSimpanSkor = function(idEp) {
     var $card = $('#ep-card-' + idEp);
     var skor = $card.find('input[type="radio"]:checked').val();
@@ -548,10 +904,41 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
     }
     // kalau data-skor-lain kosong (track sebelah "Belum dinilai"), tidak perlu diubah
 
-    // 3) hitung ulang chip "✅ X sudah dinilai" di header, tanpa call server lagi
+    // 3) hitung ulang chip "✅ X sudah Dinilai" di header, tanpa call server lagi
     var totalSudah = $('.pe2-status-badge.pe2-status-sudah').length;
-    $('#statDinilai').text('✅ ' + totalSudah + ' sudah dinilai (<?php echo $jenis_saya === "surveior" ? "Surveior" : "Internal" ?>)');
+    $('#statDinilai').text('✅ ' + totalSudah + ' sudah Dinilai (<?php echo $jenis_saya === "surveior" ? "Surveior" : "Internal" ?>)');
+
+    // 4) tandai status EP ini untuk filter "Belum Dinilai"
+    $card.attr('data-dinilai', sudahDinilai ? '1' : '0');
+
+    // 5) segarkan chip + progress bar group standar EP ini
+    peSegarkanProgresStandar($card);
+
+    // 6) kalau filter "Belum Dinilai" sedang aktif, card ini harus langsung hilang
+    if ($('#peFilterBelum').hasClass('active')) {
+        peTerapkanFilter();
+    }
 }
+
+    // Chip "n/m dinilai" + bar progres tiap group standar
+    function peSegarkanProgresStandar($card) {
+        var $g = $card.closest('.pe2-standar');
+        if (!$g.length) return;
+
+        var total = $g.find('.pe2-ep-card').length;
+        var sudah = $g.find('.pe2-status-badge.pe2-status-sudah').length;
+        var persen = total > 0 ? Math.round(sudah / total * 100) : 0;
+
+        $g.find('.pe2-standar-count')
+            .text(sudah + '/' + total + ' Dinilai')
+            .toggleClass('selesai', total > 0 && sudah === total);
+        $g.find('.pe2-standar-bar > span').css('width', persen + '%');
+
+        // chip jumlah EP yang belum dinilai di toolbar
+        var belum = $('.pe2-ep-card[data-dinilai="0"]').length;
+        $('#peFilterBelum').text('⏳ Belum Dinilai (' + belum + ')');
+    }
+
 
     // ---------- Modal bukti ----------
     window.peBukaModalBukti = function(idEp, noEp) {
