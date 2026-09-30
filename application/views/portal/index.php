@@ -59,8 +59,8 @@
         <!-- E-OFFICE RSA -->
         <a class="portal-card portal-office" href="<?php echo site_url('surat'); ?>">
             <span class="portal-icon"><i class="fas fa-envelope-open-text"></i></span>
-            <h3>E-OFFICE RSA</h3>
-            <p>Pengajuan, penomoran, disposisi, tanda tangan, dan tracking surat.</p>
+            <h3>SI-OFFICE</h3>
+            <p>Sistem Informasi Administrasi Office</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
@@ -80,7 +80,7 @@
         <a class="portal-card portal-siasset" href="<?php echo site_url('data_inventaris'); ?>">
             <span class="portal-icon"><i class="fas fa-boxes"></i></span>
             <h3>SIASSET</h3>
-            <p>Sistem informasi manajemen aset, inventaris, pemeliharaan, dan tracking barang.</p>
+            <p>Sistem informasi manajemen aset</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
@@ -90,7 +90,7 @@
         <a class="portal-card portal-sidokta" href="<?php echo site_url('dokumen_unit'); ?>">
             <span class="portal-icon"><i class="fas fa-folder-open"></i></span>
             <h3>SIDOKTA</h3>
-            <p>Sistem informasi dokumen terpadu dan akses dokumen unit.</p>
+            <p>Sistem informasi dokumen unit terpadu.</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
@@ -100,7 +100,7 @@
         <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_ep'); ?>">
             <span class="portal-icon"><i class="fas fa-award"></i></span>
             <h3>SIPARDI</h3>
-            <p>Penilaian akreditasi dan pemantauan eviden rumah sakit.</p>
+            <p> Sistem Informasi Penilaian akreditasi .</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
@@ -109,8 +109,8 @@
         <!-- SIMONIKA -->
         <a class="portal-card portal-simonika" href="<?php echo site_url('monitoring_pj'); ?>">
             <span class="portal-icon"><i class="fas fa-chart-line"></i></span>
-            <h3>SIMONIKA</h3>
-            <p>Monitoring penanggung jawab dan tindak lanjut kegiatan.</p>
+            <h3>SIMON</h3>
+            <p>Sistem Informasi Monitoring pelaoran Online.</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
@@ -120,18 +120,18 @@
         <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_otk'); ?>">
             <span class="portal-icon"><i class="fas fa-clipboard-check"></i></span>
             <h3>SIPENA</h3>
-            <p>Sistem Penilaian Pegawai</p>
+            <p>Sistem Informasi Penilaian Pegawai</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
         
         <!-- Monitoring Document Akreditasi -->
-        <a class="portal-card portal-sheet" href="https://docs.google.com/spreadsheets/d/1EZyX69HEBVTDsRIH8S0db70Gn7hSq5jp/edit?usp=sharing&ouid=106587354370618703140&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer">
-            <span class="portal-icon"><i class="fas fa-table"></i></span>
-            <h3>Monitoring Document Akreditasi</h3>
-            <p>Akses data dan rekap dalam format spreadsheet Google Sheets.</p>
-            <span class="portal-open">Buka sheet <i class="fas fa-arrow-right"></i></span>
-        </a>
+        <!--<a class="portal-card portal-sheet" href="https://docs.google.com/spreadsheets/d/1EZyX69HEBVTDsRIH8S0db70Gn7hSq5jp/edit?usp=sharing&ouid=106587354370618703140&rtpof=true&sd=true" target="_blank" rel="noopener noreferrer">-->
+        <!--    <span class="portal-icon"><i class="fas fa-table"></i></span>-->
+        <!--    <h3>Monitoring Document Akreditasi</h3>-->
+        <!--    <p>Akses data dan rekap dalam format spreadsheet Google Sheets.</p>-->
+        <!--    <span class="portal-open">Buka sheet <i class="fas fa-arrow-right"></i></span>-->
+        <!--</a>-->
 
         <?php if (is_menu_accessible('pelaporan')) { ?>
         <!-- PELAPORAN KARYAWAN -->
@@ -147,8 +147,8 @@
         <!-- SURVEI KEPUASAN PASIEN -->
         <a class="portal-card portal-simonika" href="<?php echo site_url('survei_admin'); ?>">
             <span class="portal-icon"><i class="fas fa-star"></i></span>
-            <h3>SURVEI KEPUASAN</h3>
-            <p>Monitoring penilaian bintang, keluhan, dan tindak lanjut pasien.</p>
+            <h3>SIBINTANG</h3>
+            <p>Sistem Informasi Survei Pelanggan.</p>
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
