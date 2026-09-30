@@ -88,19 +88,20 @@
     .pe2-standar-head {
         width: 100%;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 12px;
         padding: 12px 16px;
         background: #faf8fd;
-        border: none;
         border-bottom: 1px solid #efe6fa;
         text-align: left;
         cursor: pointer;
+        user-select: none;
     }
     .pe2-standar-head:hover { background: #f3ecfb; }
     .pe2-standar-head:focus { outline: 2px solid #6a3fa0; outline-offset: -2px; }
     .pe2-standar-arrow {
         flex-shrink: 0;
+        margin-top: 1px;
         width: 22px;
         height: 22px;
         border-radius: 6px;
@@ -128,10 +129,49 @@
         color: #8a94a6;
         text-transform: none;
         letter-spacing: normal;
-        display: block;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        overflow: hidden;
         margin-top: 2px;
     }
+    .pe2-standar-more {
+        display: none;
+        margin-top: 3px;
+        border: none;
+        background: none;
+        padding: 0;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #6a3fa0;
+        cursor: pointer;
+        text-decoration: underline;
+        white-space: nowrap;
+    }
+    .pe2-standar-more:hover { color: #4f2f7a; }
+    .pe2-standar-more.show { display: inline-block; }
+
+    /* ---- Modal isi standar lengkap ---- */
+    #modalStandar .modal-header { background: #6a3fa0; color: #fff; }
+    #modalStandar .modal-header .close { color: #fff; opacity: 0.9; }
+    #modalStandarNoStandar {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        opacity: 0.9;
+    }
+    #modalStandarIsi {
+        font-size: 0.88rem;
+        line-height: 1.7;
+        color: #33475b;
+        white-space: pre-wrap;
+    }
+
     .pe2-standar-count {
+        flex-shrink: 0;
+        margin-top: 2px;
         font-size: 0.7rem;
         font-weight: 800;
         padding: 3px 10px;
@@ -224,6 +264,8 @@
     mark.pe2-hl { background: #fff2a8; color: inherit; padding: 0 1px; border-radius: 2px; }
     .pe2-ep-card.pe2-dim { display: none; }
     .pe2-standar.pe2-dim { display: none; }
+    /* dipakai sesaat untuk mengukur tinggi teks standar yang lagi tersembunyi */
+    .pe2-standar.pe2-ukur { display: block !important; }
 
     .pe2-ep-card {
         border: 1px solid #eef0f3;
@@ -547,16 +589,21 @@
                 <div class="pe2-standar<?php echo $default_open ? ' pe2-standar-open' : '' ?>"
                      data-standar="<?php echo html_escape((string) $grup_idx) ?>"
                      data-default-open="<?php echo $default_open ?>">
-                    <button type="button" class="pe2-standar-head" aria-expanded="<?php echo $default_open ? 'true' : 'false' ?>" onclick="peToggleStandar(this)">
+                    <div class="pe2-standar-head" role="button" tabindex="0"
+                         aria-expanded="<?php echo $default_open ? 'true' : 'false' ?>"
+                         onclick="peToggleStandar(this)"
+                         onkeydown="if ((event.key === 'Enter' || event.key === ' ') && event.target === this) { event.preventDefault(); peToggleStandar(this); }">
                         <span class="pe2-standar-arrow">▼</span>
                         <span class="pe2-standar-title">
                             Standar <?php echo $grup['no_standar'] ?>
                             <span class="pe2-standar-isi"><?php echo $grup['isi_standar'] ?></span>
+                            <button type="button" class="pe2-standar-more" onclick="peBukaModalStandar(event, this)">Selengkapnya…</button>
                         </span>
                         <span class="pe2-standar-count <?php echo $sudah_grup === $total_grup ? 'selesai' : '' ?>">
-                            <?php echo $sudah_grup ?>/<?php echo $total_grup ?> dinilai
+                            <?php echo $sudah_grup ?>/<?php echo $total_grup ?> Dinilai
                         </span>
-                    </button>
+                    </div>
+
                     <div class="pe2-standar-bar"><span style="width: <?php echo $persen_grup ?>%"></span></div>
                     <div class="pe2-standar-body">
                 <?php foreach ($ep_grup as $ep):
@@ -637,6 +684,29 @@
                 </div><!-- /.pe2-standar -->
                 <?php endforeach; ?>
             <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL ISI STANDAR LENGKAP ================= -->
+<div class="modal fade" id="modalStandar" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:12px; overflow:hidden;">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" style="margin-bottom:2px;">Isi Standar</h5>
+                    <div id="modalStandarNoStandar"></div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalStandarIsi"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm" style="background:#6a3fa0; border:none;" data-dismiss="modal">Tutup</button>
+            </div>
         </div>
     </div>
 </div>
@@ -734,6 +804,45 @@ window.addEventListener('load', function() {
     });
 
     // =========================================================
+    //  ISI STANDAR: RINGKAS DI HEADER, LENGKAP DI MODAL
+    // =========================================================
+    // Teks penuh tetap ada di .pe2-standar-isi, cuma "dipotong" sama
+    // line-clamp CSS. Jadi buat modal kita baca dari DOM, bukan simpan
+    // salinan kedua -> tidak ada data yang dobel.
+    window.peBukaModalStandar = function(ev, btn) {
+        // jangan sampai klik "Selengkapnya" ikut minimize/maximize standarnya
+        ev.stopPropagation();
+        ev.preventDefault();
+
+        var $title = $(btn).closest('.pe2-standar-title');
+        var noStandar = $.trim($title.clone().children().remove().end().text());
+
+        $('#modalStandarNoStandar').text(noStandar);
+        $('#modalStandarIsi').text($title.find('.pe2-standar-isi').text());
+        $('#modalStandar').modal('show');
+    };
+
+    // Tombol "Selengkapnya" hanya muncul kalau teksnya benar-benar terpotong
+    function peCekTeksStandarTerpotong() {
+        $('.pe2-standar').each(function() {
+            var $g = $(this);
+            var $isi  = $g.find('.pe2-standar-isi');
+            var $more = $g.find('.pe2-standar-more');
+            if (!$isi.length) return;
+
+            // standar yang lagi disembunyikan filter ga bisa diukur, jadi dibuka
+            // sesaat biar scrollHeight-nya bener
+            var tersembunyi = $g.hasClass('pe2-dim');
+            if (tersembunyi) $g.addClass('pe2-ukur');
+
+            var terpotong = ($isi[0].scrollHeight - $isi[0].clientHeight) > 1;
+
+            if (tersembunyi) $g.removeClass('pe2-ukur');
+            $more.toggleClass('show', terpotong);
+        });
+    }
+
+    // =========================================================
     //  CARI EP YANG MAU DIINPUT
     // =========================================================
     function peNormalize(teks) {
@@ -799,6 +908,8 @@ window.addEventListener('load', function() {
         $('#peSearchInfo').text(adaFilter
             ? jmlCocok + ' dari ' + totalEp + ' EP cocok'
             : 'Total ' + totalEp + ' EP');
+
+        peCekTeksStandarTerpotong();
     }
 
     function peResetFilter() {
@@ -837,6 +948,13 @@ window.addEventListener('load', function() {
 
         peMuatStateStandar();
         peTerapkanFilter();
+
+        // jumlah baris yang kepotong berubah kalau lebar layar berubah
+        var timerResize = null;
+        $(window).on('resize', function() {
+            clearTimeout(timerResize);
+            timerResize = setTimeout(peCekTeksStandarTerpotong, 200);
+        });
     });
 
     // =========================================================
