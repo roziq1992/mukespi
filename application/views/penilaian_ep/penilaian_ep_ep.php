@@ -309,6 +309,18 @@
         border-radius: 20px;
         margin-bottom: 6px;
     }
+    .pe2-ep-resmi {
+        display: inline-block;
+        background: #f8f9fa;
+        border: 1px dashed #cfd4dc;
+        color: #6c757d;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-bottom: 6px;
+        margin-left: 4px;
+    }
     .pe2-ep-isi { font-size: 0.88rem; color: #33475b; font-weight: 600; margin-bottom: 2px; }
     .pe2-ep-maks { font-size: 0.75rem; color: #8a94a6; }
 
@@ -648,13 +660,19 @@
 
                     $jml_bukti_total = intval($ep->jml_bukti_internal) + intval($ep->jml_bukti_surveior);
 
+                    // Nomor tampilan (no_urut) dipakai kalau sudah diisi, fallback ke nomor resmi.
+                    $no_tampil = ($ep->no_urut !== NULL) ? (int)$ep->no_urut : (int)$ep->no_ep;
+
                     // teks yang dipakai kolom pencarian
-                    $teks_cari = trim('EP ' . $ep->no_ep . ' ' . $ep->isi_ep . ' ' . $grup['no_standar'] . ' ' . $grup['isi_standar']);
+                    $teks_cari = trim('EP ' . $no_tampil . ' ' . $ep->no_ep . ' ' . $ep->isi_ep . ' ' . $grup['no_standar'] . ' ' . $grup['isi_standar']);
                 ?>
                 <div class="pe2-ep-card <?php echo $sudah_dinilai ? 'pe2-saved' : '' ?>" id="ep-card-<?php echo $ep->id_ep ?>" data-id-ep="<?php echo $ep->id_ep ?>" data-dinilai="<?php echo $sudah_dinilai ? 1 : 0 ?>" data-search="<?php echo html_escape($teks_cari) ?>">
                     <div class="pe2-ep-top">
                         <div>
-                            <span class="pe2-ep-no">EP <?php echo $ep->no_ep ?></span>
+                            <span class="pe2-ep-no">EP <?php echo $no_tampil ?></span>
+                            <?php if ($ep->no_urut !== NULL && (int)$ep->no_urut !== (int)$ep->no_ep): ?>
+                                <span class="pe2-ep-resmi" title="Nomor resmi dari dokumen SIPARDI/Kemenkes">no. resmi <?php echo (int)$ep->no_ep ?></span>
+                            <?php endif; ?>
                             <div class="pe2-ep-isi"><?php echo $ep->isi_ep ?></div>
                             <div class="pe2-ep-maks">Skor maksimal: <?php echo $skor_maks ?></div>
                         </div>

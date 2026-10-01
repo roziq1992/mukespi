@@ -101,6 +101,27 @@ $route['pegawai/export_excel'] = 'pegawai/export_excel';
 $route['pegawai/template_excel'] = 'pegawai/template_excel';
 $route['pegawai/import_excel'] = 'pegawai/import_excel';
 
+$route['master_ep'] = 'master_ep/index';
+$route['master_ep/pokja'] = 'master_ep/pokja';
+$route['master_ep/pokja_form'] = 'master_ep/pokja_form';
+$route['master_ep/pokja_form/(:num)'] = 'master_ep/pokja_form/$1';
+$route['master_ep/pokja_delete/(:num)'] = 'master_ep/pokja_delete/$1';
+$route['master_ep/pokja_toggle/(:num)/(:any)'] = 'master_ep/pokja_toggle/$1/$2';
+$route['master_ep/pokja_standar'] = 'master_ep/pokja_standar';
+$route['master_ep/pokja_standar/(:num)'] = 'master_ep/pokja_standar/$1';
+$route['master_ep/rapikan_urutan'] = 'master_ep/rapikan_urutan';
+$route['master_ep/rapikan_urutan/(:num)'] = 'master_ep/rapikan_urutan/$1';
+$route['master_ep/standar'] = 'master_ep/standar';
+$route['master_ep/standar_form'] = 'master_ep/standar_form';
+$route['master_ep/standar_form/(:num)'] = 'master_ep/standar_form/$1';
+$route['master_ep/standar_delete/(:num)'] = 'master_ep/standar_delete/$1';
+$route['master_ep/standar_toggle/(:num)/(:any)'] = 'master_ep/standar_toggle/$1/$2';
+$route['master_ep/elemen'] = 'master_ep/elemen';
+$route['master_ep/elemen_form'] = 'master_ep/elemen_form';
+$route['master_ep/elemen_form/(:num)'] = 'master_ep/elemen_form/$1';
+$route['master_ep/elemen_delete/(:num)'] = 'master_ep/elemen_delete/$1';
+$route['master_ep/elemen_toggle/(:num)/(:any)'] = 'master_ep/elemen_toggle/$1/$2';
+
 // QR Code data pegawai. t/ = publik (hasil scan tanpa login, memakai token,
 // bukan NIK). cetak/ & token_baru/ memakai NIK karena hanya untuk yang login.
 $route['pegawai_qr'] = 'pegawai_qr/index';

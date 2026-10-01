@@ -278,9 +278,9 @@
             <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_ep"><i class="fas fa-clipboard-check"></i> Penilaian Akreditasi</a>
             <?php if($this->session->userdata('email')=='admin@mail.com') {?>
             <a class="collapse-item" href="<?=site_url('user_pokja_ep');?>"><i class="fas fa-user-shield"></i> Akses Pokja Penilaian <span class="nav-badge-admin">Admin</span></a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/User_unit"><i class="fas fa-users"></i> Pokja <span class="nav-badge-admin">Admin</span></a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/User_unit"><i class="fas fa-list-ol"></i> Standart <span class="nav-badge-admin">Admin</span></a>
-            <a class="collapse-item" href="<?=base_url();?>index.php/User_unit"><i class="fas fa-tasks"></i> Element Penilaian <span class="nav-badge-admin">Admin</span></a>
+            <a class="collapse-item" href="<?=site_url('master_ep/pokja');?>"><i class="fas fa-users"></i> Pokja <span class="nav-badge-admin">Admin</span></a>
+            <a class="collapse-item" href="<?=site_url('master_ep/standar');?>"><i class="fas fa-list-ol"></i> Standar <span class="nav-badge-admin">Admin</span></a>
+            <a class="collapse-item" href="<?=site_url('master_ep/elemen');?>"><i class="fas fa-tasks"></i> Element Penilaian <span class="nav-badge-admin">Admin</span></a>
             <?php } ?>
         </div>
     </div>

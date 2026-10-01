@@ -168,6 +168,26 @@ class Penilaian_ep extends CI_Controller
         return $row ? intval($row->id) : 0;
     }
 
+    // EP yang sudah dinonaktifkan (dan EP dari standar nonaktif) tidak boleh
+    // bisa dibuka lewat crafted URL, misalnya penilaian_ep/pokja/MFK lalu
+    // dipaksa akses id_ep yang nonaktif. Query daftar sudah menyaringnya,
+    // tapi endpoint ini tetap perlu dijaga sendiri.
+    private function _ep_tersedia($id_ep)
+    {
+        $row = $this->db
+            ->select('ep.id_ep')
+            ->from('elemen_penilaian ep')
+            ->join('standar s', 's.id_standar = ep.id_standar')
+            ->where('ep.id_ep', intval($id_ep))
+            ->where('ep.active', 'Y')
+            ->where('ep.tdd', 'N')
+            ->where('s.active', 'Y')
+            ->limit(1)
+            ->get()
+            ->row();
+        return $row ? TRUE : FALSE;
+    }
+
     // ================= HALAMAN =================
 
     public function index()
@@ -285,6 +305,11 @@ class Penilaian_ep extends CI_Controller
             return;
         }
 
+        if (!$this->_ep_tersedia($id_ep)) {
+            echo json_encode(array('status' => FALSE, 'message' => 'EP tidak tersedia'));
+            return;
+        }
+
         if (!$this->_boleh_nilai_pokja($this->_id_pokja_dari_ep($id_ep))) {
             echo json_encode(array('status' => FALSE, 'message' => 'Anda tidak punya hak untuk menilai EP ini'));
             return;
@@ -320,6 +345,11 @@ class Penilaian_ep extends CI_Controller
 
         if (!$periode) {
             echo json_encode(array('status' => FALSE, 'message' => 'Tidak ada periode aktif'));
+            return;
+        }
+
+        if (!$this->_ep_tersedia($id_ep)) {
+            echo json_encode(array('status' => FALSE, 'message' => 'EP tidak tersedia'));
             return;
         }
 
@@ -475,6 +505,11 @@ class Penilaian_ep extends CI_Controller
 
         if (!$id_ep) {
             echo json_encode(array('status' => FALSE, 'message' => 'EP tidak valid'));
+            return;
+        }
+
+        if (!$this->_ep_tersedia($id_ep)) {
+            echo json_encode(array('status' => FALSE, 'message' => 'EP tidak tersedia'));
             return;
         }
 

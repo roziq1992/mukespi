@@ -39,7 +39,7 @@ class Penilaian_ep_model extends CI_Model
             ", FALSE);
         $this->db->from('pokja');
         $this->db->join('standar', 'standar.bab = pokja.bab');
-        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N'");
+        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N' AND ep.active = 'Y' AND standar.active = 'Y'");
         $this->db->join('penilaian_ep pn', "pn.id_ep = ep.id_ep AND pn.id_periode = " . intval($id_periode) . " AND pn.jenis_penilaian = " . $this->db->escape($jenis_penilaian), 'left');
         $this->db->where('pokja.active', 'Y');
         $this->db->group_by('pokja.id, pokja.bab, pokja.ket');
@@ -63,7 +63,7 @@ class Penilaian_ep_model extends CI_Model
             ", FALSE);
         $this->db->from('pokja');
         $this->db->join('standar', 'standar.bab = pokja.bab');
-        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N'");
+        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N' AND ep.active = 'Y' AND standar.active = 'Y'");
         $this->db->join('penilaian_ep pn', "pn.id_ep = ep.id_ep AND pn.id_periode = " . intval($id_periode), 'left');
         $this->db->join('upload_bukti_ep ub', 'ub.id_penilaian = pn.id_penilaian', 'left');
         $this->db->where('pokja.active', 'Y');
@@ -80,7 +80,7 @@ class Penilaian_ep_model extends CI_Model
     {
         $this->db->select("
                 standar.no_standar, standar.isi_standar,
-                ep.id_ep, ep.no_ep, ep.isi_ep, ep.skor_maks,
+                ep.id_ep, ep.no_ep, ep.no_urut, ep.isi_ep, ep.skor_maks,
 
                 pi.id_penilaian AS id_penilaian_internal,
                 pi.skor AS skor_internal,
@@ -95,10 +95,14 @@ class Penilaian_ep_model extends CI_Model
                 (SELECT COUNT(*) FROM upload_bukti_ep ub2 WHERE ub2.id_penilaian = ps.id_penilaian) AS jml_bukti_surveior
             ", FALSE);
         $this->db->from('standar');
-        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N'");
+        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N' AND ep.active = 'Y' AND standar.active = 'Y'");
         $this->db->join('penilaian_ep pi', "pi.id_ep = ep.id_ep AND pi.id_periode = " . intval($id_periode) . " AND pi.jenis_penilaian = 'internal'", 'left');
         $this->db->join('penilaian_ep ps', "ps.id_ep = ep.id_ep AND ps.id_periode = " . intval($id_periode) . " AND ps.jenis_penilaian = 'surveior'", 'left');
         $this->db->where('standar.bab', $bab);
+        // Urut dari no_urut (nomor tampilan), fallback ke no_ep.
+        // COALESCE dipakai karena NULL akan terurut paling atas di MySQL.
+        $this->db->order_by('COALESCE(ep.no_urut, ep.no_ep)', 'ASC', FALSE);
+        $this->db->order_by('ep.no_ep', 'ASC');
         $this->db->order_by('ep.id_ep', 'ASC');
         return $this->db->get()->result();
     }
@@ -212,7 +216,7 @@ class Penilaian_ep_model extends CI_Model
             ", FALSE);
         $this->db->from('pokja');
         $this->db->join('standar', 'standar.bab = pokja.bab');
-        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N'");
+        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N' AND ep.active = 'Y' AND standar.active = 'Y'");
         $this->db->join('penilaian_ep pi', "pi.id_ep = ep.id_ep AND pi.id_periode = " . intval($id_periode) . " AND pi.jenis_penilaian = 'internal'", 'left');
         $this->db->join('penilaian_ep ps', "ps.id_ep = ep.id_ep AND ps.id_periode = " . intval($id_periode) . " AND ps.jenis_penilaian = 'surveior'", 'left');
         $this->db->where('pokja.active', 'Y');
