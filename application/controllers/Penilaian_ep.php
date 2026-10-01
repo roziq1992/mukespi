@@ -30,6 +30,9 @@ if (!defined('BASEPATH'))
  */
 class Penilaian_ep extends CI_Controller
 {
+    // Hanya PDF dan JPG yang boleh jadi bukti. Daftar ini WAJIB sama dengan
+    // $ekstensi_bukti dan atribut accept di view penilaian_ep_ep.php.
+    private $ekstensi_bukti = array('pdf', 'jpg', 'jpeg');
     private $upload_folder = 'uploads/bukti_ep/';
 
     // >>> SESUAIKAN angka ini dengan role_id akun Surveior di tabel user kamu <<<
@@ -433,14 +436,9 @@ class Penilaian_ep extends CI_Controller
         $ext = strtolower(pathinfo($path_full, PATHINFO_EXTENSION));
 
         switch ($ext) {
-            case 'pdf':  $mime = 'application/pdf'; break;
-            case 'doc':  $mime = 'application/msword'; break;
-            case 'docx': $mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'; break;
-            case 'xls':  $mime = 'application/vnd.ms-excel'; break;
-            case 'xlsx': $mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; break;
+            case 'pdf': $mime = 'application/pdf'; break;
             case 'jpg':
             case 'jpeg': $mime = 'image/jpeg'; break;
-            case 'png':  $mime = 'image/png'; break;
             default:     $mime = 'application/octet-stream'; break;
         }
 
@@ -504,7 +502,7 @@ class Penilaian_ep extends CI_Controller
         }
 
         $config['upload_path']   = $upload_path;
-        $config['allowed_types'] = 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png';
+        $config['allowed_types'] = implode('|', $this->ekstensi_bukti); // pdf|jpg|jpeg
         $config['max_size']      = 5120; // 5 MB
         $config['encrypt_name']  = TRUE;
 
@@ -516,6 +514,14 @@ class Penilaian_ep extends CI_Controller
 
         for ($i = 0; $i < $total; $i++) {
             if (empty($_FILES['file_bukti']['name'][$i])) continue;
+
+            // Cek ekstensi dulu supaya pesan error-nya jelas, tidak perlu
+            // menunggu lib Upload menolaknya dengan pesan bawaan Bahasa Inggris.
+            $ext_asli = strtolower(pathinfo($_FILES['file_bukti']['name'][$i], PATHINFO_EXTENSION));
+            if (!in_array($ext_asli, $this->ekstensi_bukti, TRUE)) {
+                $gagal[] = $_FILES['file_bukti']['name'][$i] . ': format .' . $ext_asli . ' tidak diizinkan, hanya PDF atau JPG';
+                continue;
+            }
 
             $_FILES['file_single']['name']     = $_FILES['file_bukti']['name'][$i];
             $_FILES['file_single']['type']     = $_FILES['file_bukti']['type'][$i];

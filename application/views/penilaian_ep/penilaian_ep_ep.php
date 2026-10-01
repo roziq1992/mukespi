@@ -486,8 +486,6 @@
         background: #8a94a6;
     }
     .pe2-file-icon-sm.pdf { background: #e74c3c; }
-    .pe2-file-icon-sm.doc { background: #2c5f8a; }
-    .pe2-file-icon-sm.xls { background: #1e8449; }
     .pe2-file-icon-sm.img { background: #b8860b; }
     .pe2-file-name { flex: 1; font-size: 0.82rem; color: #33475b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pe2-file-meta { font-size: 0.7rem; color: #8a94a6; }
@@ -759,9 +757,9 @@
             <div class="modal-body">
                 <?php if (!empty($boleh_nilai)): ?>
                 <label class="pe2-upload-box" id="peUploadBox">
-                    <input type="file" id="peFileBukti" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
+                    <input type="file" id="peFileBukti" multiple accept=".pdf,.jpg,.jpeg" />
                     <div class="pe2-upload-text">⬆️ Ketuk untuk pilih file (boleh lebih dari 1)</div>
-                    <div class="pe2-upload-hint">PDF, Word, Excel, atau gambar — maksimal 5 MB per file. File akan tercatat sebagai bukti dari track Anda.</div>
+                    <div class="pe2-upload-hint">Format PDF atau JPG saja — maksimal 5 MB per file. File akan tercatat sebagai bukti dari track Anda.</div>
                 </label>
                 <div class="pe2-selected-files" id="peSelectedFiles"></div>
 
@@ -1118,9 +1116,7 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
     function iconClassFor(namaFile) {
         var ext = (namaFile.split('.').pop() || '').toLowerCase();
         if (ext === 'pdf') return ['pdf', 'PDF'];
-        if (['doc', 'docx'].indexOf(ext) > -1) return ['doc', 'DOC'];
-        if (['xls', 'xlsx'].indexOf(ext) > -1) return ['xls', 'XLS'];
-        if (['jpg', 'jpeg', 'png'].indexOf(ext) > -1) return ['img', 'IMG'];
+        if (ext === 'jpg' || ext === 'jpeg') return ['img', 'JPG'];
         return ['', 'FILE'];
     }
 
@@ -1172,19 +1168,50 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
         });
     }
 
+    // Hanya PDF dan JPG. WAJIB sama dengan $ekstensi_bukti di Penilaian_ep.php
+    var EKSTENSI_BUKTI = ['pdf', 'jpg', 'jpeg'];
+
+    function ekstensiFile(namaFile) {
+        return (namaFile.split('.').pop() || '').toLowerCase();
+    }
+
     $('#peFileBukti').on('change', function() {
         pickedFiles = Array.prototype.slice.call(this.files);
+
+        // Buang file yang formatnya salah supaya tidak terkirim ke server
+        var sah = [], tolak = [];
+        pickedFiles.forEach(function (f) {
+            if (EKSTENSI_BUKTI.indexOf(ekstensiFile(f.name)) > -1) sah.push(f);
+            else tolak.push(f.name);
+        });
+        pickedFiles = sah;
+
         if (pickedFiles.length) {
-            $('#peSelectedFiles').text(pickedFiles.length + ' file dipilih: ' + pickedFiles.map(function(f){ return f.name; }).join(', '));
+            $('#peSelectedFiles').text(pickedFiles.length + ' file dipilih: ' + pickedFiles.map(function (f) { return f.name; }).join(', '));
         } else {
             $('#peSelectedFiles').text('');
+        }
+
+        if (tolak.length) {
+            alert('Format tidak diizinkan. Hanya PDF atau JPG.\n\nDilewati: ' + tolak.join(', '));
+            if (!pickedFiles.length) $('#peFileBukti').val('');
         }
     });
 
     window.peUploadBukti = function() {
         if (!BISA_NILAI) { alert('Anda tidak punya hak upload bukti pada pokja ini'); return; }
         if (!currentIdEp) return;
-        if (!pickedFiles.length) { alert('Pilih minimal 1 file terlebih dahulu'); return; }
+        if (!pickedFiles.length) { alert('Pilih minimal 1 file PDF atau JPG terlebih dahulu'); return; }
+
+        // Validasi kedua di sisi client, accommodate file yang lolos
+        // (mis. diubah ekstensi lewat dialog di sebagian OS)
+        var formatBuruk = pickedFiles.filter(function (f) {
+            return EKSTENSI_BUKTI.indexOf(ekstensiFile(f.name)) === -1;
+        });
+        if (formatBuruk.length) {
+            alert('Format tidak diizinkan. Hanya PDF atau JPG.\n\nDilewati: ' + formatBuruk.map(function (f) { return f.name; }).join(', '));
+            return;
+        }
 
         var fd = new FormData();
         fd.append('id_ep', currentIdEp);
