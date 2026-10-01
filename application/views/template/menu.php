@@ -277,6 +277,7 @@
         <div class="bg-white py-2 collapse-inner rounded">
             <a class="collapse-item" href="<?=base_url();?>index.php/penilaian_ep"><i class="fas fa-clipboard-check"></i> Penilaian Akreditasi</a>
             <?php if($this->session->userdata('email')=='admin@mail.com') {?>
+            <a class="collapse-item" href="<?=site_url('user_pokja_ep');?>"><i class="fas fa-user-shield"></i> Akses Pokja Penilaian <span class="nav-badge-admin">Admin</span></a>
             <a class="collapse-item" href="<?=base_url();?>index.php/User_unit"><i class="fas fa-users"></i> Pokja <span class="nav-badge-admin">Admin</span></a>
             <a class="collapse-item" href="<?=base_url();?>index.php/User_unit"><i class="fas fa-list-ol"></i> Standart <span class="nav-badge-admin">Admin</span></a>
             <a class="collapse-item" href="<?=base_url();?>index.php/User_unit"><i class="fas fa-tasks"></i> Element Penilaian <span class="nav-badge-admin">Admin</span></a>
@@ -493,6 +494,7 @@
             <a class="collapse-item" href="<?=site_url('users')?>"><i class="fas fa-user-cog"></i> User Management</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/user_unit"><i class="fas fa-bars"></i> Akses User Unit</a>
             <a class="collapse-item" href="<?=site_url('user_list_indikator')?>"><i class="fas fa-list-check"></i> Akses Indikator User</a>
+            <a class="collapse-item" href="<?=site_url('user_pokja_ep')?>"><i class="fas fa-user-lock"></i> Akses Pokja Penilaian</a>
             <a class="collapse-item" href="<?=site_url('menu')?>"><i class="fas fa-bars"></i> Menu Management</a>
             <a class="collapse-item" href="<?=site_url('menu/roles')?>"><i class="fas fa-user-tag"></i> Role Management</a>
             <a class="collapse-item" href="<?=site_url('menu/role_access/1')?>"><i class="fas fa-user-lock"></i> Role &amp; Hak Akses Menu</a>

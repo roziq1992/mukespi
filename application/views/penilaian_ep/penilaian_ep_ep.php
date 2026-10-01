@@ -76,6 +76,23 @@
         font-size: 0.85rem;
         margin-bottom: 18px;
     }
+    .pe2-readonly-banner {
+        background: #eef2f7;
+        color: #4a5b70;
+        border-left: 4px solid #8a94a6;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-bottom: 18px;
+    }
+    .pe2-readonly-note {
+        background: #eef2f7;
+        color: #4a5b70;
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 0.82rem;
+    }
+    .pe2-skor-pills.pe2-disabled { opacity: 0.55; pointer-events: none; }
 
     /* ---- Group Standar (bisa di-minimize) ---- */
     .pe2-standar {
@@ -485,6 +502,8 @@
     .pe2-file-jenis.internal { background: #eef2f7; color: #33475b; }
     .pe2-file-jenis.surveior { background: #fff3cd; color: #856404; }
     .pe2-file-del { color: #c0392b; border: none; background: none; font-size: 0.9rem; cursor: pointer; }
+    .pe2-file-dl { color: #6a3fa0; border: none; background: none; font-size: 0.9rem; cursor: pointer; text-decoration: none; }
+    .pe2-file-dl:hover { color: #3d2266; }
     .pe2-empty-file { text-align: center; color: #8a94a6; font-size: 0.82rem; padding: 14px; }
 </style>
 
@@ -548,6 +567,13 @@
                 </div>
             <?php endif; ?>
 
+            <?php if (empty($boleh_nilai)): ?>
+                <div class="pe2-readonly-banner">
+                    👁️ <strong>Mode lihat saja.</strong> Anda bukan penilai pokja ini, jadi skor tidak bisa diisi
+                    dan bukti tidak bisa diupload. Dokumen masih bisa dibuka, tapi tidak bisa diunduh.
+                </div>
+            <?php endif; ?>
+
             <?php if (empty($ep_list)): ?>
                 <div class="pe2-empty-file">Belum ada elemen penilaian untuk pokja ini.</div>
             <?php else: ?>
@@ -561,7 +587,9 @@
                         <button type="button" class="pe2-search-clear" id="peSearchClear" title="Bersihkan pencarian">&times;</button>
                     </div>
                     <div class="pe2-search-row">
+                        <?php if (!empty($boleh_nilai)): ?>
                         <button type="button" class="pe2-chip-btn" id="peFilterBelum">⏳ Belum Dinilai (<?php echo $jml_belum_saya ?>)</button>
+                        <?php endif; ?>
                         <button type="button" class="pe2-chip-btn" id="peExpandAll">▼ Buka Semua Standar</button>
                         <button type="button" class="pe2-chip-btn" id="peCollapseAll">▶ Minimize Semua Standar</button>
                         <span class="pe2-search-info" id="peSearchInfo"></span>
@@ -639,22 +667,22 @@
 
                     <div class="pe2-track-label"><?php echo $jenis_saya === 'surveior' ? 'Skor Anda (Surveior)' : 'Skor Anda (Internal)' ?></div>
 
-                    <div class="pe2-skor-pills">
+                    <div class="pe2-skor-pills <?php echo empty($boleh_nilai) ? 'pe2-disabled' : '' ?>">
                         <div class="pe2-skor-pill pe2-pill-0">
-                            <input type="radio" name="skor_<?php echo $ep->id_ep ?>" id="skor_<?php echo $ep->id_ep ?>_0" value="0" <?php echo ($sudah_dinilai && intval($skor_saya) === 0) ? 'checked' : '' ?>>
+                            <input type="radio" name="skor_<?php echo $ep->id_ep ?>" id="skor_<?php echo $ep->id_ep ?>_0" value="0" <?php echo empty($boleh_nilai) ? 'disabled' : '' ?> <?php echo ($sudah_dinilai && intval($skor_saya) === 0) ? 'checked' : '' ?>>
                             <label for="skor_<?php echo $ep->id_ep ?>_0">Tidak Terpenuhi (0)</label>
                         </div>
                         <div class="pe2-skor-pill pe2-pill-half">
-                            <input type="radio" name="skor_<?php echo $ep->id_ep ?>" id="skor_<?php echo $ep->id_ep ?>_half" value="<?php echo $skor_half ?>" <?php echo ($sudah_dinilai && intval($skor_saya) === $skor_half) ? 'checked' : '' ?>>
+                            <input type="radio" name="skor_<?php echo $ep->id_ep ?>" id="skor_<?php echo $ep->id_ep ?>_half" value="<?php echo $skor_half ?>" <?php echo empty($boleh_nilai) ? 'disabled' : '' ?> <?php echo ($sudah_dinilai && intval($skor_saya) === $skor_half) ? 'checked' : '' ?>>
                             <label for="skor_<?php echo $ep->id_ep ?>_half">Sebagian (<?php echo $skor_half ?>)</label>
                         </div>
                         <div class="pe2-skor-pill pe2-pill-full">
-                            <input type="radio" name="skor_<?php echo $ep->id_ep ?>" id="skor_<?php echo $ep->id_ep ?>_full" value="<?php echo $skor_maks ?>" <?php echo ($sudah_dinilai && intval($skor_saya) === $skor_maks) ? 'checked' : '' ?>>
+                            <input type="radio" name="skor_<?php echo $ep->id_ep ?>" id="skor_<?php echo $ep->id_ep ?>_full" value="<?php echo $skor_maks ?>" <?php echo empty($boleh_nilai) ? 'disabled' : '' ?> <?php echo ($sudah_dinilai && intval($skor_saya) === $skor_maks) ? 'checked' : '' ?>>
                             <label for="skor_<?php echo $ep->id_ep ?>_full">Terpenuhi Penuh (<?php echo $skor_maks ?>)</label>
                         </div>
                     </div>
 
-                    <textarea class="pe2-keterangan" placeholder="Catatan / keterangan (opsional)"><?php echo $keterangan_saya ?></textarea>
+                    <textarea class="pe2-keterangan" placeholder="Catatan / keterangan (opsional)" <?php echo empty($boleh_nilai) ? 'readonly' : '' ?>><?php echo $keterangan_saya ?></textarea>
 
                    <div class="pe2-banding-box" data-skor-lain="<?php echo ($skor_lain !== NULL) ? intval($skor_lain) : '' ?>">
     <span class="pe2-banding-label"><?php echo $label_lain ?>:</span>
@@ -669,6 +697,7 @@
                     </div>
 
                     <div class="pe2-ep-actions">
+                        <?php if (!empty($boleh_nilai)): ?>
                         <div style="display:flex; align-items:center; gap:10px;">
                             <button type="button" class="pe2-btn-simpan" onclick="peSimpanSkor(<?php echo $ep->id_ep ?>)">💾 Simpan Skor</button>
                             <span class="pe2-save-tick" id="tick-<?php echo $ep->id_ep ?>">✔ Tersimpan</span>
@@ -677,6 +706,12 @@
                             📎 Kelola Bukti
                             <span class="pe2-bukti-count" id="badge-bukti-<?php echo $ep->id_ep ?>"><?php echo $jml_bukti_total ?></span>
                         </button>
+                        <?php else: ?>
+                        <button type="button" class="pe2-btn-bukti" onclick='peBukaModalBukti(<?php echo $ep->id_ep ?>, <?php echo json_encode((string) $ep->no_ep) ?>)'>
+                            👁️ Lihat Bukti
+                            <span class="pe2-bukti-count" id="badge-bukti-<?php echo $ep->id_ep ?>"><?php echo $jml_bukti_total ?></span>
+                        </button>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -722,6 +757,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <?php if (!empty($boleh_nilai)): ?>
                 <label class="pe2-upload-box" id="peUploadBox">
                     <input type="file" id="peFileBukti" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
                     <div class="pe2-upload-text">⬆️ Ketuk untuk pilih file (boleh lebih dari 1)</div>
@@ -736,6 +772,12 @@
                 <button type="button" class="btn btn-primary btn-block" id="peBtnUpload" onclick="peUploadBukti()" style="background:#6a3fa0; border:none;">Upload File</button>
 
                 <hr>
+                <?php else: ?>
+                <div class="pe2-readonly-note">
+                    👁️ Mode lihat saja — dokumen bisa dibuka di browser, tidak bisa diunduh atau diubah.
+                </div>
+                <hr>
+                <?php endif; ?>
 
                 <div id="peDaftarBukti">
                     <div class="pe2-empty-file">Memuat...</div>
@@ -751,6 +793,8 @@ window.addEventListener('load', function() {
     if (!$) { console.error('jQuery tidak tersedia'); return; }
 
     var CI_BASE = '<?php echo site_url('penilaian_ep') ?>';
+    var BISA_NILAI = <?php echo !empty($boleh_nilai) ? 'true' : 'false' ?>;
+    var BISA_DOWNLOAD = <?php echo !empty($boleh_download) ? 'true' : 'false' ?>;
     var currentIdEp = null;
     var pickedFiles = [];
 
@@ -960,7 +1004,8 @@ window.addEventListener('load', function() {
     // =========================================================
     //  SIMPAN SKOR PER EP
     // =========================================================
-window.peSimpanSkor = function(idEp) {
+    window.peSimpanSkor = function(idEp) {
+        if (!BISA_NILAI) { alert('Anda tidak punya hak menilai pada pokja ini'); return; }
     var $card = $('#ep-card-' + idEp);
     var skor = $card.find('input[type="radio"]:checked').val();
     var keterangan = $card.find('.pe2-keterangan').val();
@@ -1097,17 +1142,26 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
                     return;
                 }
 
+                var bolehDownload = (typeof res.boleh_download !== 'undefined') ? res.boleh_download : BISA_DOWNLOAD;
+
                 var html = '';
                 res.files.forEach(function(f) {
                     var ic = iconClassFor(f.nama_file);
                     var jenisLabel = f.jenis_penilaian === 'surveior' ? 'Surveior' : 'Internal';
+                    var actions = '';
+                    if (bolehDownload && f.url_unduh) {
+                        actions += '<a class="pe2-file-dl" title="Unduh dokumen" href="' + f.url_unduh + '">⬇️</a>';
+                    }
+                    if (BISA_NILAI) {
+                        actions += '<button type="button" class="pe2-file-del" title="Hapus" onclick="peHapusBukti(' + f.id_upload + ')">🗑️</button>';
+                    }
                     html += '<div class="pe2-file-item" data-id-upload="' + f.id_upload + '">' +
                         '<div class="pe2-file-icon-sm ' + ic[0] + '">' + ic[1] + '</div>' +
                         '<div style="flex:1; min-width:0;">' +
-                        '<div class="pe2-file-name"><a href="' + f.url + '" target="_blank">' + f.nama_file + '</a><span class="pe2-file-jenis ' + f.jenis_penilaian + '">' + jenisLabel + '</span></div>' +
+                        '<div class="pe2-file-name"><a href="' + f.url + '" target="_blank" rel="noopener">' + f.nama_file + '</a><span class="pe2-file-jenis ' + f.jenis_penilaian + '">' + jenisLabel + '</span></div>' +
                         '<div class="pe2-file-meta">' + (f.uploaded_by || '') + ' • ' + (f.uploaded_at || '') + '</div>' +
                         '</div>' +
-                        '<button type="button" class="pe2-file-del" title="Hapus" onclick="peHapusBukti(' + f.id_upload + ')">🗑️</button>' +
+                        actions +
                         '</div>';
                 });
                 $('#peDaftarBukti').html(html);
@@ -1128,6 +1182,7 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
     });
 
     window.peUploadBukti = function() {
+        if (!BISA_NILAI) { alert('Anda tidak punya hak upload bukti pada pokja ini'); return; }
         if (!currentIdEp) return;
         if (!pickedFiles.length) { alert('Pilih minimal 1 file terlebih dahulu'); return; }
 
@@ -1168,6 +1223,7 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
     };
 
     window.peHapusBukti = function(idUpload) {
+        if (!BISA_NILAI) { alert('Anda tidak punya hak menghapus bukti pada pokja ini'); return; }
         if (!confirm('Hapus file bukti ini?')) return;
 
         $.ajax({

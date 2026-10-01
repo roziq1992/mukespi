@@ -29,6 +29,7 @@ class Penilaian_ep_model extends CI_Model
     public function get_pokja_progress($id_periode, $jenis_penilaian = 'internal')
     {
         $this->db->select("
+                pokja.id AS id_pokja,
                 pokja.bab,
                 pokja.ket,
                 COUNT(DISTINCT ep.id_ep) AS total_ep,
@@ -41,7 +42,32 @@ class Penilaian_ep_model extends CI_Model
         $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N'");
         $this->db->join('penilaian_ep pn', "pn.id_ep = ep.id_ep AND pn.id_periode = " . intval($id_periode) . " AND pn.jenis_penilaian = " . $this->db->escape($jenis_penilaian), 'left');
         $this->db->where('pokja.active', 'Y');
-        $this->db->group_by('pokja.bab, pokja.ket');
+        $this->db->group_by('pokja.id, pokja.bab, pokja.ket');
+        $this->db->order_by('pokja.id', 'ASC');
+        return $this->db->get()->result();
+    }
+
+    // Statistik per pokja untuk grafik batang di halaman daftar pokja.
+    // ep_dinilai    = EP yang sudah punya skor (track internal ATAU surveior)
+    // ep_ada_bukti  = EP yang punya minimal 1 file bukti terupload
+    // Keduanya memakai total_ep di pokja yang sama sebagai pembagi persentase.
+    public function get_pokja_statistik_grafik($id_periode)
+    {
+        $this->db->select("
+                pokja.id AS id_pokja,
+                pokja.bab,
+                pokja.ket,
+                COUNT(DISTINCT ep.id_ep) AS total_ep,
+                COUNT(DISTINCT CASE WHEN pn.skor IS NOT NULL THEN ep.id_ep END) AS ep_dinilai,
+                COUNT(DISTINCT CASE WHEN ub.id_upload IS NOT NULL THEN ep.id_ep END) AS ep_ada_bukti
+            ", FALSE);
+        $this->db->from('pokja');
+        $this->db->join('standar', 'standar.bab = pokja.bab');
+        $this->db->join('elemen_penilaian ep', "ep.id_standar = standar.id_standar AND ep.tdd = 'N'");
+        $this->db->join('penilaian_ep pn', "pn.id_ep = ep.id_ep AND pn.id_periode = " . intval($id_periode), 'left');
+        $this->db->join('upload_bukti_ep ub', 'ub.id_penilaian = pn.id_penilaian', 'left');
+        $this->db->where('pokja.active', 'Y');
+        $this->db->group_by('pokja.id, pokja.bab, pokja.ket');
         $this->db->order_by('pokja.id', 'ASC');
         return $this->db->get()->result();
     }
@@ -78,6 +104,11 @@ class Penilaian_ep_model extends CI_Model
     }
 
     // ================= PENILAIAN_EP =================
+
+    public function get_ep_by_id($id_ep)
+    {
+        return $this->db->where('id_ep', $id_ep)->get('elemen_penilaian')->row();
+    }
 
     public function get_penilaian($id_periode, $id_ep, $jenis_penilaian)
     {

@@ -1,0 +1,11 @@
+# Blokir akses langsung ke file bukti Penilaian EP.
+# File hanya boleh disajikan lewat controller:
+#   index.php/penilaian_ep/lihat_bukti/{id_upload}   (lihat di browser)
+#   index.php/penilaian_ep/unduh_bukti/{id_upload}   (unduh, hanya utk penilai)
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

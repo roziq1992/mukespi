@@ -9,6 +9,11 @@ application/cache/*
 application/logs/*
 !application/logs/index.html
 uploads/*
+# .htaccess di folder bukti_ep wajib ikut version control supaya akses
+# langsung ke file bukti Penilaian EP tetap terblokir setelah deploy
+!uploads/bukti_ep/
+uploads/bukti_ep/*
+!uploads/bukti_ep/.htaccess
 
 # Local archives and macOS metadata
 Archive.zip
