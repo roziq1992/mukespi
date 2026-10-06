@@ -363,6 +363,7 @@ $tanggal = date("Y-m-d");
 		background:#1E8E5A; color:#fff;
 		font-size:12.5px; font-weight:600;
 		padding:8px 14px; border-radius:999px; text-decoration:none;
+		border:0; cursor:pointer;
 	}
 	.btn-excel:hover{ background:#166E45; color:#fff; }
 
@@ -503,12 +504,27 @@ $tanggal = date("Y-m-d");
 						<input type="date" name="tanggal_akhir" id="mutu_tanggal_akhir" class="form-control" required>
 					</div>
 					<div class="form-group">
-						<label class="font-weight-bold" for="mutu_range_num">Numerator</label>
-						<input type="number" step="any" name="num" id="mutu_range_num" class="form-control" required>
+						<label class="font-weight-bold" for="mutu_range_num_min">Rentang Numerator</label>
+						<div class="form-row">
+							<div class="col">
+								<input type="number" min="0" step="1" name="num_min" id="mutu_range_num_min" class="form-control" placeholder="Minimum" required>
+							</div>
+							<div class="col">
+								<input type="number" min="0" step="1" name="num_max" id="mutu_range_num_max" class="form-control" placeholder="Maksimum" required>
+							</div>
+						</div>
 					</div>
 					<div class="form-group mb-0">
-						<label class="font-weight-bold" for="mutu_range_demu">Denumerator</label>
-						<input type="number" step="any" name="demu" id="mutu_range_demu" class="form-control" required>
+						<label class="font-weight-bold" for="mutu_range_demu_min">Rentang Denumerator</label>
+						<div class="form-row">
+							<div class="col">
+								<input type="number" min="1" step="1" name="demu_min" id="mutu_range_demu_min" class="form-control" placeholder="Minimum" required>
+							</div>
+							<div class="col">
+								<input type="number" min="1" step="1" name="demu_max" id="mutu_range_demu_max" class="form-control" placeholder="Maksimum" required>
+							</div>
+						</div>
+						<small class="form-text text-muted">Num dan denum diacak sendiri-sendiri untuk setiap tanggal.</small>
 					</div>
 					<input type="hidden" name="id_indikator" value="<?php echo (int) $this->input->get('id'); ?>">
 					<input type="hidden" name="judul" value="<?php echo html_escape($this->input->get('judul')); ?>">
@@ -599,7 +615,7 @@ $tanggal = date("Y-m-d");
 		<div class="mutu-footer">
 			<div class="mutu-footer-left">
 				<a href="#" class="chip-total">Total Record <span class="n">&nbsp;<?php echo $total_rows ?></span></a>
-				<?php echo anchor(site_url('mutu_indikator/excel'), '<i class="fa fa-file-excel-o"></i> Excel', 'class="btn-excel"'); ?>
+				<button type="button" class="btn-excel" data-toggle="modal" data-target="#mutuExcelModal"><i class="fa fa-file-excel-o"></i> Excel</button>
 			</div>
 			<div class="mutu-pagination">
 				<?php echo $pagination ?>
@@ -665,6 +681,33 @@ $tanggal = date("Y-m-d");
 		</div>
 	</div>
 
+</div>
+
+<div class="modal fade" id="mutuExcelModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<form method="get" action="<?php echo site_url('mutu_indikator/excel'); ?>" class="modal-content border-0 shadow-lg" style="border-radius:14px; overflow:hidden;">
+			<div class="modal-header" style="background:#0F1B2A; color:#fff;">
+				<h5 class="modal-title font-weight-bold" style="font-size:1rem;"><i class="fa fa-file-excel-o mr-2"></i>Ekspor Data Mutu</h5>
+				<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body" style="font-size:14px;">
+				<div class="form-group">
+					<label class="font-weight-bold" for="excel_tanggal_awal">Tanggal Awal</label>
+					<input type="date" name="tanggal_awal" id="excel_tanggal_awal" class="form-control" required>
+				</div>
+				<div class="form-group mb-0">
+					<label class="font-weight-bold" for="excel_tanggal_akhir">Tanggal Akhir</label>
+					<input type="date" name="tanggal_akhir" id="excel_tanggal_akhir" class="form-control" required>
+				</div>
+				<input type="hidden" name="id" value="<?php echo (int) $this->input->get('id'); ?>">
+				<input type="hidden" name="judul" value="<?php echo html_escape($this->input->get('judul')); ?>">
+			</div>
+			<div class="modal-footer justify-content-between">
+				<button type="button" class="btn btn-secondary px-3" data-dismiss="modal">Batal</button>
+				<button type="submit" class="btn px-4 font-weight-bold" style="background:#1E8E5A; color:#fff;"><i class="fa fa-download mr-1"></i> Unduh Excel</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 <!-- ===== MODAL VALIDASI ===== -->

@@ -22,6 +22,17 @@ class Mutu_indikator_model extends CI_Model
         return $this->db->get($this->table)->result();
     }
 
+    function get_export_data($id_indikator, $tanggal_awal, $tanggal_akhir)
+    {
+        return $this->db
+            ->where('id_indikator', (int) $id_indikator)
+            ->where('tanggal >=', $tanggal_awal)
+            ->where('tanggal <=', $tanggal_akhir)
+            ->order_by('tanggal', 'ASC')
+            ->get($this->table)
+            ->result();
+    }
+
     // get data by id
     function get_by_id($id)
     {
@@ -63,7 +74,7 @@ class Mutu_indikator_model extends CI_Model
         $this->db->insert($this->table, $data);
     }
 
-    function insert_range($tanggal_awal, $tanggal_akhir, $id_indikator, $num, $demu, $target, $userid)
+    function insert_range($tanggal_awal, $tanggal_akhir, $id_indikator, $num_min, $num_max, $demu_min, $demu_max, $target, $userid)
     {
         $rows = array();
         $current = new DateTime($tanggal_awal);
@@ -74,8 +85,8 @@ class Mutu_indikator_model extends CI_Model
             $rows[] = array(
                 'tanggal' => $tanggal->format('Y-m-d'),
                 'id_indikator' => (int) $id_indikator,
-                'num' => $num,
-                'demu' => $demu,
+                'num' => random_int($num_min, $num_max),
+                'demu' => random_int($demu_min, $demu_max),
                 'target' => $target,
                 'userid' => (int) $userid,
             );

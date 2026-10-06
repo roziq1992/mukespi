@@ -145,8 +145,10 @@ class Mutu_indikator extends CI_Controller
 
         $tanggal_awal = $this->input->post('tanggal_awal', TRUE);
         $tanggal_akhir = $this->input->post('tanggal_akhir', TRUE);
-        $num = $this->input->post('num', TRUE);
-        $demu = $this->input->post('demu', TRUE);
+        $num_min = $this->input->post('num_min', TRUE);
+        $num_max = $this->input->post('num_max', TRUE);
+        $demu_min = $this->input->post('demu_min', TRUE);
+        $demu_max = $this->input->post('demu_max', TRUE);
         $indikator = $this->db->select('target')
             ->where('id_indikator', $id_indikator)
             ->get('list_indikator')
@@ -157,10 +159,14 @@ class Mutu_indikator extends CI_Controller
             !$this->_is_valid_date($tanggal_awal) ||
             !$this->_is_valid_date($tanggal_akhir) ||
             $tanggal_awal > $tanggal_akhir ||
-            $num === '' || !is_numeric($num) ||
-            $demu === '' || !is_numeric($demu)
+            !$this->_is_valid_nonnegative_integer($num_min) ||
+            !$this->_is_valid_nonnegative_integer($num_max) ||
+            !$this->_is_valid_nonnegative_integer($demu_min) ||
+            !$this->_is_valid_nonnegative_integer($demu_max) ||
+            (int) $num_min > (int) $num_max ||
+            (int) $demu_min < 1 || (int) $demu_min > (int) $demu_max
         ) {
-            $this->session->set_flashdata('message', 'Input rentang tanggal belum valid. Periksa kembali tanggal, numerator, dan denumerator.');
+            $this->session->set_flashdata('message', 'Input rentang belum valid. Periksa tanggal dan batas minimum-maksimum num serta denum.');
             redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
             return;
         }
@@ -169,13 +175,15 @@ class Mutu_indikator extends CI_Controller
             $tanggal_awal,
             $tanggal_akhir,
             $id_indikator,
-            (float) $num,
-            (float) $demu,
+            (int) $num_min,
+            (int) $num_max,
+            (int) $demu_min,
+            (int) $demu_max,
             $indikator->target,
             (int) $this->session->userdata('id')
         )) {
             $jumlah_tanggal = (new DateTime($tanggal_awal))->diff(new DateTime($tanggal_akhir))->days + 1;
-            $this->session->set_flashdata('message', $jumlah_tanggal . ' data mutu berhasil disimpan.');
+            $this->session->set_flashdata('message', $jumlah_tanggal . ' data mutu dengan num dan denum acak berhasil disimpan.');
         } else {
             $this->session->set_flashdata('message', 'Data mutu rentang tanggal gagal disimpan.');
         }
@@ -190,6 +198,11 @@ class Mutu_indikator extends CI_Controller
         }
         $parsed = DateTime::createFromFormat('!Y-m-d', $date);
         return $parsed && $parsed->format('Y-m-d') === $date;
+    }
+
+    private function _is_valid_nonnegative_integer($value)
+    {
+        return is_string($value) && preg_match('/^\d+$/', $value) && filter_var($value, FILTER_VALIDATE_INT) !== FALSE;
     }
     
     public function update() 
@@ -365,9 +378,31 @@ class Mutu_indikator extends CI_Controller
 
     public function excel()
     {
+        $id_indikator = (int) $this->input->get('id', TRUE);
+        $tanggal_awal = $this->input->get('tanggal_awal', TRUE);
+        $tanggal_akhir = $this->input->get('tanggal_akhir', TRUE);
+        $judul_indikator = $this->input->get('judul', TRUE);
+        $role_id = (int) $this->session->userdata('role_id');
+
+        if ($id_indikator <= 0 || !$this->_is_valid_date($tanggal_awal) || !$this->_is_valid_date($tanggal_akhir) || $tanggal_awal > $tanggal_akhir) {
+            $this->session->set_flashdata('message', 'Pilih rentang tanggal ekspor yang valid.');
+            redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul_indikator)));
+            return;
+        }
+
+        if ($role_id !== 1 && $role_id !== 4 && !in_array(
+            $id_indikator,
+            $this->User_list_indikator_model->get_indikator_ids_by_user((int) $this->session->userdata('id')),
+            TRUE
+        )) {
+            $this->session->set_flashdata('message', 'Anda tidak memiliki akses ke indikator ini.');
+            redirect(site_url('list_indikator'));
+            return;
+        }
+
+        $rows = $this->Mutu_indikator_model->get_export_data($id_indikator, $tanggal_awal, $tanggal_akhir);
         $this->load->helper('exportexcel');
-        $namaFile = "mutu_indikator.xls";
-        $judul = "mutu_indikator";
+        $namaFile = 'mutu_indikator_' . $id_indikator . '_' . str_replace('-', '', $tanggal_awal) . '_' . str_replace('-', '', $tanggal_akhir) . '.xls';
         $tablehead = 0;
         $tablebody = 1;
         $nourut = 1;
@@ -390,7 +425,7 @@ class Mutu_indikator extends CI_Controller
 	xlsWriteLabel($tablehead, $kolomhead++, "Num");
 	xlsWriteLabel($tablehead, $kolomhead++, "Demu");
 
-	foreach ($this->Mutu_indikator_model->get_all() as $data) {
+    foreach ($rows as $data) {
             $kolombody = 0;
 
             //ubah xlsWriteLabel menjadi xlsWriteNumber untuk kolom numeric
