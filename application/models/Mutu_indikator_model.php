@@ -63,6 +63,34 @@ class Mutu_indikator_model extends CI_Model
         $this->db->insert($this->table, $data);
     }
 
+    function insert_range($tanggal_awal, $tanggal_akhir, $id_indikator, $num, $demu, $target, $userid)
+    {
+        $rows = array();
+        $current = new DateTime($tanggal_awal);
+        $end = new DateTime($tanggal_akhir);
+        $end->modify('+1 day');
+
+        foreach (new DatePeriod($current, new DateInterval('P1D'), $end) as $tanggal) {
+            $rows[] = array(
+                'tanggal' => $tanggal->format('Y-m-d'),
+                'id_indikator' => (int) $id_indikator,
+                'num' => $num,
+                'demu' => $demu,
+                'target' => $target,
+                'userid' => (int) $userid,
+            );
+        }
+
+        if (empty($rows)) {
+            return FALSE;
+        }
+
+        $this->db->trans_start();
+        $this->db->insert_batch($this->table, $rows);
+        $this->db->trans_complete();
+        return $this->db->trans_status();
+    }
+
     // update data
     function update($id, $data)
     {

@@ -131,6 +131,66 @@ class Mutu_indikator extends CI_Controller
             redirect(site_url('mutu_indikator?id='.$this->input->post('id_indikator',TRUE).'&judul='.$this->input->post('judul',TRUE).'&tanggal='.$this->input->post('tanggal',TRUE)));
         }
     }
+
+    public function range_action()
+    {
+        $id_indikator = (int) $this->input->post('id_indikator', TRUE);
+        $judul = $this->input->post('judul', TRUE);
+
+        if ((int) $this->session->userdata('role_id') !== 1) {
+            $this->session->set_flashdata('message', 'Hanya admin yang dapat input mutu dengan rentang tanggal.');
+            redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+            return;
+        }
+
+        $tanggal_awal = $this->input->post('tanggal_awal', TRUE);
+        $tanggal_akhir = $this->input->post('tanggal_akhir', TRUE);
+        $num = $this->input->post('num', TRUE);
+        $demu = $this->input->post('demu', TRUE);
+        $indikator = $this->db->select('target')
+            ->where('id_indikator', $id_indikator)
+            ->get('list_indikator')
+            ->row();
+
+        if (
+            !$indikator ||
+            !$this->_is_valid_date($tanggal_awal) ||
+            !$this->_is_valid_date($tanggal_akhir) ||
+            $tanggal_awal > $tanggal_akhir ||
+            $num === '' || !is_numeric($num) ||
+            $demu === '' || !is_numeric($demu)
+        ) {
+            $this->session->set_flashdata('message', 'Input rentang tanggal belum valid. Periksa kembali tanggal, numerator, dan denumerator.');
+            redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+            return;
+        }
+
+        if ($this->Mutu_indikator_model->insert_range(
+            $tanggal_awal,
+            $tanggal_akhir,
+            $id_indikator,
+            (float) $num,
+            (float) $demu,
+            $indikator->target,
+            (int) $this->session->userdata('id')
+        )) {
+            $jumlah_tanggal = (new DateTime($tanggal_awal))->diff(new DateTime($tanggal_akhir))->days + 1;
+            $this->session->set_flashdata('message', $jumlah_tanggal . ' data mutu berhasil disimpan.');
+        } else {
+            $this->session->set_flashdata('message', 'Data mutu rentang tanggal gagal disimpan.');
+        }
+
+        redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+    }
+
+    private function _is_valid_date($date)
+    {
+        if (!is_string($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return FALSE;
+        }
+        $parsed = DateTime::createFromFormat('!Y-m-d', $date);
+        return $parsed && $parsed->format('Y-m-d') === $date;
+    }
     
     public function update() 
     {

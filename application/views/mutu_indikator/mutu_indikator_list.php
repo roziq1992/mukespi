@@ -469,6 +469,9 @@ $tanggal = date("Y-m-d");
 
 			<div class="form-actions">
 				<button type="submit" class="btn-action btn-primary-solid"><i class="fa fa-save"></i> <?php echo $button ?></button>
+				<?php if ((int) $this->session->userdata('role_id') === 1): ?>
+				<button type="button" class="btn-action btn-outline" data-toggle="modal" data-target="#mutuRangeModal"><i class="fa fa-calendar"></i> Input Rentang Tanggal</button>
+				<?php endif; ?>
 				<a class="btn-action btn-outline" href="<?php echo site_url('list_indikator') ?>"><i class="fa fa-backward"></i> Kembali</a>
 				<a class="btn-action btn-ghost-gold" href="<?php echo site_url('dashboard/mutugrafik?id='.$this->input->get('id').'&judul='.$this->input->get('judul').'&target='.$target) ?>" target="blank"><i class="fa fa-bar-chart"></i> Laporan Grafik</a>
 				<a class="btn-action btn-ghost-gold" href="<?php echo site_url('mutu_fmea?id='.$this->input->get('id').'&judul='.$this->input->get('judul').'&target='.$target) ?>" target="blank"><i class="fa fa-newspaper-o"></i> Laporan Analisa</a>
@@ -480,6 +483,44 @@ $tanggal = date("Y-m-d");
 			</div>
 		</form>
 	</div>
+
+	<?php if ((int) $this->session->userdata('role_id') === 1): ?>
+	<div class="modal fade" id="mutuRangeModal" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<form method="post" action="<?php echo site_url('mutu_indikator/range_action'); ?>" class="modal-content border-0 shadow-lg" style="border-radius:14px; overflow:hidden;">
+				<div class="modal-header" style="background:#0F1B2A; color:#fff;">
+					<h5 class="modal-title font-weight-bold" style="font-size:1rem;"><i class="fa fa-calendar mr-2"></i>Input Mutu Rentang Tanggal</h5>
+					<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				</div>
+				<div class="modal-body" style="font-size:14px;">
+					<p class="text-muted">Setiap tanggal dari awal sampai akhir akan disimpan sebagai satu data mutu.</p>
+					<div class="form-group">
+						<label class="font-weight-bold" for="mutu_tanggal_awal">Tanggal Awal</label>
+						<input type="date" name="tanggal_awal" id="mutu_tanggal_awal" class="form-control" required>
+					</div>
+					<div class="form-group">
+						<label class="font-weight-bold" for="mutu_tanggal_akhir">Tanggal Akhir</label>
+						<input type="date" name="tanggal_akhir" id="mutu_tanggal_akhir" class="form-control" required>
+					</div>
+					<div class="form-group">
+						<label class="font-weight-bold" for="mutu_range_num">Numerator</label>
+						<input type="number" step="any" name="num" id="mutu_range_num" class="form-control" required>
+					</div>
+					<div class="form-group mb-0">
+						<label class="font-weight-bold" for="mutu_range_demu">Denumerator</label>
+						<input type="number" step="any" name="demu" id="mutu_range_demu" class="form-control" required>
+					</div>
+					<input type="hidden" name="id_indikator" value="<?php echo (int) $this->input->get('id'); ?>">
+					<input type="hidden" name="judul" value="<?php echo html_escape($this->input->get('judul')); ?>">
+				</div>
+				<div class="modal-footer justify-content-between">
+					<button type="button" class="btn btn-secondary px-3" data-dismiss="modal">Batal</button>
+					<button type="submit" class="btn px-4 font-weight-bold" style="background:#2F6F5E; color:#fff;"><i class="fa fa-save mr-1"></i> Simpan Rentang</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	<?php endif; ?>
 
 	<!-- ===== CARD: RIWAYAT CAPAIAN ===== -->
 	<div class="mutu-card">
