@@ -141,6 +141,8 @@
                     <div class="ulif-toolbar-mini">
                         <button type="button" class="ulif-mini-btn" onclick="ulifToggleAll(true)">Pilih Semua</button>
                         <button type="button" class="ulif-mini-btn" onclick="ulifToggleAll(false)">Kosongkan</button>
+                        <button type="button" class="ulif-mini-btn" onclick="ulifToggleValidators(true)">Pilih Semua Validator</button>
+                        <button type="button" class="ulif-mini-btn" onclick="ulifToggleValidators(false)">Kosongkan Validator</button>
                         <input type="text" class="ulif-search" id="ulif-search" placeholder="Cari judul indikator..." onkeyup="ulifFilter(this.value)">
                     </div>
 
@@ -208,6 +210,11 @@
                     function ulifToggleAll(state) {
                         document.querySelectorAll('#ulif-form .ulif-access-checkbox').forEach(function (cb) {
                             ulifSetAccess(cb, state);
+                        });
+                    }
+                    function ulifToggleValidators(state) {
+                        document.querySelectorAll('#ulif-form .ulif-validator-checkbox:not(:disabled)').forEach(function (cb) {
+                            cb.checked = state;
                         });
                     }
                     function ulifFilter(term) {
