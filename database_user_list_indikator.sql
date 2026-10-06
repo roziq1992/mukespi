@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `user_list_indikator` (
   `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT(20) UNSIGNED NOT NULL,
   `id_indikator` INT(5) NOT NULL,
+  `is_validator` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_list_indikator_unique` (`user_id`,`id_indikator`),
   KEY `user_id` (`user_id`),
@@ -19,6 +20,21 @@ CREATE TABLE IF NOT EXISTS `user_list_indikator` (
   CONSTRAINT `fk_uli_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_uli_indikator` FOREIGN KEY (`id_indikator`) REFERENCES `list_indikator` (`id_indikator`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET @validator_column_exists = (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'user_list_indikator'
+    AND COLUMN_NAME = 'is_validator'
+);
+SET @validator_column_sql = IF(
+  @validator_column_exists = 0,
+  'ALTER TABLE `user_list_indikator` ADD COLUMN `is_validator` TINYINT(1) NOT NULL DEFAULT 0 AFTER `id_indikator`',
+  'SELECT 1'
+);
+PREPARE validator_column_stmt FROM @validator_column_sql;
+EXECUTE validator_column_stmt;
+DEALLOCATE PREPARE validator_column_stmt;
 
 -- Menu & hak akses halaman kelola Akses Indikator User (admin)
 INSERT INTO menus (nama_menu, url, icon, sequence, is_active)

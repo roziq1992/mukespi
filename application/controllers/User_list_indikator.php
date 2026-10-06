@@ -67,6 +67,7 @@ class User_list_indikator extends CI_Controller
             'user' => $user,
             'indikators_grouped' => $this->User_list_indikator_model->get_indikators_grouped(),
             'selected_indikators' => $this->User_list_indikator_model->get_indikator_ids_by_user($user_id),
+            'selected_validators' => $this->User_list_indikator_model->get_validator_ids_by_user($user_id),
         );
 
         $this->load->view('template/header', $data);
@@ -78,6 +79,7 @@ class User_list_indikator extends CI_Controller
     {
         $user_id = $this->input->post('user_id', TRUE);
         $id_indikators = $this->input->post('id_indikators');
+        $validator_indikators = $this->input->post('validator_indikators');
 
         $user = $this->User_list_indikator_model->get_user_by_id($user_id);
         if (!$user) {
@@ -86,7 +88,11 @@ class User_list_indikator extends CI_Controller
             return;
         }
 
-        $this->User_list_indikator_model->sync_indikators($user_id, $id_indikators ?: array());
+        $this->User_list_indikator_model->sync_indikators(
+            $user_id,
+            $id_indikators ?: array(),
+            $validator_indikators ?: array()
+        );
         $this->session->set_flashdata('message', 'Akses indikator untuk ' . $user->name . ' berhasil disimpan');
         redirect(site_url('user_list_indikator'));
     }

@@ -85,14 +85,15 @@
     .ulif-items { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
     .ulif-item {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 10px;
         padding: 6px 8px;
         border-radius: 8px;
-        cursor: pointer;
     }
     .ulif-item:hover { background: #f8fafc; }
-    .ulif-item input { width: 17px; height: 17px; accent-color: #0e7490; cursor: pointer; margin-top: 2px; flex-shrink: 0; }
+    .ulif-item input { width: 17px; height: 17px; accent-color: #0e7490; cursor: pointer; flex-shrink: 0; }
+    .ulif-item-access { display: flex; align-items: flex-start; gap: 10px; flex: 1; cursor: pointer; }
+    .ulif-validator-toggle { display: flex; align-items: center; gap: 5px; color: #8a6416; font-size: 0.75rem; white-space: nowrap; cursor: pointer; }
     .ulif-item .itxt { flex: 1; }
     .ulif-item .ijudul { font-size: 0.86rem; color: #33475b; line-height: 1.35; }
     .ulif-item .imeta { font-size: 0.72rem; color: #8a94a6; }
@@ -157,17 +158,25 @@
                                 <div class="ulif-items">
                                     <?php foreach ($items as $ind):
                                         $checked = in_array((int) $ind->id_indikator, $selected_indikators, true);
+                                        $is_validator = in_array((int) $ind->id_indikator, $selected_validators, true);
                                     ?>
-                                        <label class="ulif-item <?php echo $checked ? 'checked' : '' ?>"
+                                        <div class="ulif-item <?php echo $checked ? 'checked' : '' ?>"
                                                data-search="<?php echo html_escape(strtolower($ind->judul . ' ' . $ind->jenis . ' ' . $ind->kelompok . ' ' . $group_name)) ?>">
-                                            <input type="checkbox" name="id_indikators[]" value="<?php echo (int) $ind->id_indikator ?>"
-                                                <?php echo $checked ? 'checked' : '' ?>
-                                                onchange="this.closest('.ulif-item').classList.toggle('checked', this.checked)">
-                                            <span class="itxt">
-                                                <span class="ijudul"><?php echo html_escape($ind->judul) ?></span>
-                                                <span class="imeta"><?php echo html_escape($ind->kelompok) ?><?php echo $ind->jenis ? ' · ' . html_escape($ind->jenis) : '' ?></span>
-                                            </span>
-                                        </label>
+                                            <label class="ulif-item-access">
+                                                <input class="ulif-access-checkbox" type="checkbox" name="id_indikators[]" value="<?php echo (int) $ind->id_indikator ?>"
+                                                    <?php echo $checked ? 'checked' : '' ?>
+                                                    onchange="ulifSetAccess(this, this.checked)">
+                                                <span class="itxt">
+                                                    <span class="ijudul"><?php echo html_escape($ind->judul) ?></span>
+                                                    <span class="imeta"><?php echo html_escape($ind->kelompok) ?><?php echo $ind->jenis ? ' · ' . html_escape($ind->jenis) : '' ?></span>
+                                                </span>
+                                            </label>
+                                            <label class="ulif-validator-toggle">
+                                                <input class="ulif-validator-checkbox" type="checkbox" name="validator_indikators[]" value="<?php echo (int) $ind->id_indikator ?>"
+                                                    <?php echo $is_validator ? 'checked' : '' ?> <?php echo $checked ? '' : 'disabled' ?>>
+                                                Validator
+                                            </label>
+                                        </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
@@ -181,18 +190,24 @@
                 </form>
 
                 <script>
+                    function ulifSetAccess(cb, state) {
+                        var item = cb.closest('.ulif-item');
+                        var validator = item.querySelector('.ulif-validator-checkbox');
+                        cb.checked = state;
+                        item.classList.toggle('checked', state);
+                        validator.disabled = !state;
+                        if (!state) validator.checked = false;
+                    }
                     function ulifToggleGroup(btn, state) {
                         var head = btn.closest('.ulif-group-head');
                         var group = head.parentNode;
-                        group.querySelectorAll('.ulif-items input[type=checkbox]').forEach(function (cb) {
-                            cb.checked = state;
-                            cb.closest('.ulif-item').classList.toggle('checked', state);
+                        group.querySelectorAll('.ulif-access-checkbox').forEach(function (cb) {
+                            ulifSetAccess(cb, state);
                         });
                     }
                     function ulifToggleAll(state) {
-                        document.querySelectorAll('#ulif-form .ulif-items input[type=checkbox]').forEach(function (cb) {
-                            cb.checked = state;
-                            cb.closest('.ulif-item').classList.toggle('checked', state);
+                        document.querySelectorAll('#ulif-form .ulif-access-checkbox').forEach(function (cb) {
+                            ulifSetAccess(cb, state);
                         });
                     }
                     function ulifFilter(term) {

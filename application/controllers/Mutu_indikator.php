@@ -10,7 +10,19 @@ class Mutu_indikator extends CI_Controller
         parent::__construct();
         is_logged_in();
         $this->load->model('Mutu_indikator_model');
+        $this->load->model('User_list_indikator_model');
         $this->load->library('form_validation');
+    }
+
+    private function _can_validate($id_indikator)
+    {
+        if ((int) $this->session->userdata('role_id') === 1) {
+            return TRUE;
+        }
+        return $this->User_list_indikator_model->is_validator_for_indikator(
+            (int) $this->session->userdata('id'),
+            (int) $id_indikator
+        );
     }
 
     public function index()
@@ -57,7 +69,8 @@ class Mutu_indikator extends CI_Controller
     	    'num' => set_value('num'),
     	    'demu' => set_value('demu'),
             'validasi' => $idindikator ? $this->Mutu_indikator_model->get_validasi($idindikator) : array(),
-            'users' => $this->Mutu_indikator_model->users(),
+            'can_validate' => $this->_can_validate($idindikator),
+            'validator_name' => $this->session->userdata('name'),
         );
    
         
@@ -186,12 +199,17 @@ class Mutu_indikator extends CI_Controller
         $id_indikator = (int) $this->input->post('id_indikator', TRUE);
         $judul = $this->input->post('judul', TRUE);
 
+        if (!$this->_can_validate($id_indikator)) {
+            $this->session->set_flashdata('message', 'Anda tidak memiliki hak untuk memvalidasi indikator ini.');
+            redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
+            return;
+        }
+
         $this->form_validation->set_rules('id_indikator', 'Indikator', 'trim|required|integer');
         $this->form_validation->set_rules('tanggal_awal', 'Tanggal Awal', 'trim|required');
         $this->form_validation->set_rules('tanggal_akhir', 'Tanggal Akhir', 'trim|required');
         $this->form_validation->set_rules('num', 'Numerator', 'trim|required|numeric');
         $this->form_validation->set_rules('demu', 'Denumerator', 'trim|required|numeric');
-        $this->form_validation->set_rules('userid', 'Validator', 'trim|required|integer');
         $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
 
         if ($this->form_validation->run() == FALSE) {
@@ -204,7 +222,7 @@ class Mutu_indikator extends CI_Controller
                 'tanggal_akhir' => $this->input->post('tanggal_akhir', TRUE),
                 'num' => (float) $this->input->post('num', TRUE),
                 'demu' => (float) $this->input->post('demu', TRUE),
-                'userid' => (int) $this->input->post('userid', TRUE),
+                'userid' => (int) $this->session->userdata('id'),
                 'created_at' => date('Y-m-d H:i:s'),
             ));
             $this->session->set_flashdata('message', 'Validasi periode berhasil disimpan.');
@@ -220,11 +238,11 @@ class Mutu_indikator extends CI_Controller
         $judul = $this->input->get('judul', TRUE);
 
         $row = $this->Mutu_indikator_model->get_validasi_by_id($id_validasi);
-        if ($row) {
+        if ($row && $this->_can_validate($row->id_indikator)) {
             $this->Mutu_indikator_model->delete_validasi($id_validasi);
             $this->session->set_flashdata('message', 'Catatan validasi berhasil dihapus.');
         } else {
-            $this->session->set_flashdata('message', 'Record Not Found');
+            $this->session->set_flashdata('message', $row ? 'Anda tidak memiliki hak untuk menghapus validasi ini.' : 'Record Not Found');
         }
         redirect(site_url('mutu_indikator?id=' . $id_indikator . '&judul=' . urlencode($judul)));
     }

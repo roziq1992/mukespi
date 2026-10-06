@@ -472,9 +472,11 @@ $tanggal = date("Y-m-d");
 				<a class="btn-action btn-outline" href="<?php echo site_url('list_indikator') ?>"><i class="fa fa-backward"></i> Kembali</a>
 				<a class="btn-action btn-ghost-gold" href="<?php echo site_url('dashboard/mutugrafik?id='.$this->input->get('id').'&judul='.$this->input->get('judul').'&target='.$target) ?>" target="blank"><i class="fa fa-bar-chart"></i> Laporan Grafik</a>
 				<a class="btn-action btn-ghost-gold" href="<?php echo site_url('mutu_fmea?id='.$this->input->get('id').'&judul='.$this->input->get('judul').'&target='.$target) ?>" target="blank"><i class="fa fa-newspaper-o"></i> Laporan Analisa</a>
+				<?php if ($can_validate): ?>
 				<button type="button" class="btn-action btn-ghost-gold" data-toggle="modal" data-target="#validasiModal"
 						data-id="<?php echo $this->input->get('id'); ?>"
 						data-judul="<?php echo html_escape($this->input->get('judul')); ?>"><i class="fa fa-check-circle"></i> Validasi</button>
+				<?php endif; ?>
 			</div>
 		</form>
 	</div>
@@ -606,7 +608,7 @@ $tanggal = date("Y-m-d");
 						<td data-label="Aksi">
 							<div class="action-group">
 								<?php echo anchor(site_url('mutu_indikator/validasi_detail?idvalidasi='.$v->id_validasi.'&id='.$this->input->get('id').'&judul='.urlencode($this->input->get('judul'))), '<i class="fa fa-eye"></i> Lihat', 'class="link-update"'); ?>
-								<?php echo anchor(site_url('mutu_indikator/delete_validasi?idvalidasi='.$v->id_validasi.'&id='.$this->input->get('id').'&judul='.urlencode($this->input->get('judul'))), '<i class="fa fa-trash"></i> Hapus', 'class="link-delete" onclick="return confirm(\'Hapus catatan validasi ini?\')"'); ?>
+								<?php if ($can_validate) echo anchor(site_url('mutu_indikator/delete_validasi?idvalidasi='.$v->id_validasi.'&id='.$this->input->get('id').'&judul='.urlencode($this->input->get('judul'))), '<i class="fa fa-trash"></i> Hapus', 'class="link-delete" onclick="return confirm(\'Hapus catatan validasi ini?\')"'); ?>
 							</div>
 						</td>
 					</tr>
@@ -659,13 +661,9 @@ $tanggal = date("Y-m-d");
 					<small class="text-muted">Terisi otomatis dari total data periode tersebut (dapat diubah).</small>
 				</div>
 				<div class="form-group mb-0">
-					<label class="font-weight-bold">Validator (yang memvalidasi)</label>
-					<select name="userid" class="form-control" required>
-						<option value="">— Pilih User —</option>
-						<?php foreach ($users as $u): ?>
-						<option value="<?php echo $u->id ?>" <?php echo ((int) $u->id === (int) $this->session->userdata('id')) ? 'selected' : '' ?>><?php echo html_escape($u->name) ?></option>
-						<?php endforeach; ?>
-					</select>
+					<label class="font-weight-bold">Validator</label>
+					<input type="text" class="form-control" value="<?php echo html_escape($validator_name); ?>" readonly>
+					<input type="hidden" name="userid" value="<?php echo (int) $this->session->userdata('id'); ?>">
 				</div>
 				<input type="hidden" name="id_indikator" id="val_id_indikator" value="<?php echo (int) $this->input->get('id'); ?>">
 				<input type="hidden" name="judul" value="<?php echo html_escape($this->input->get('judul')); ?>">

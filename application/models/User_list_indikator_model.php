@@ -25,10 +25,27 @@ class User_list_indikator_model extends CI_Model
         return array_map(function ($r) { return (int) $r->id_indikator; }, $rows);
     }
 
+    function get_validator_ids_by_user($user_id)
+    {
+        $this->db->select('id_indikator');
+        $this->db->where('user_id', $user_id);
+        $this->db->where('is_validator', 1);
+        $rows = $this->db->get($this->table)->result();
+        return array_map(function ($r) { return (int) $r->id_indikator; }, $rows);
+    }
+
+    function is_validator_for_indikator($user_id, $id_indikator)
+    {
+        return $this->db->where('user_id', (int) $user_id)
+            ->where('id_indikator', (int) $id_indikator)
+            ->where('is_validator', 1)
+            ->count_all_results($this->table) > 0;
+    }
+
     // detail indikator (judul, unit) milik seorang user - untuk badge di list
     function get_indikators_by_user($user_id)
     {
-        $this->db->select('list_indikator.id_indikator, list_indikator.judul, list_indikator.jenis, list_indikator.kelompok, unit.nm_unit');
+        $this->db->select('list_indikator.id_indikator, list_indikator.judul, list_indikator.jenis, list_indikator.kelompok, unit.nm_unit, ' . $this->table . '.is_validator');
         $this->db->from($this->table);
         $this->db->join('list_indikator', 'list_indikator.id_indikator = ' . $this->table . '.id_indikator');
         $this->db->join('unit', 'unit.id_unit = list_indikator.id_unit', 'left');
@@ -39,8 +56,14 @@ class User_list_indikator_model extends CI_Model
     }
 
     // simpan assignment indikator untuk user (replace semua)
-    function sync_indikators($user_id, $id_indikators = array())
+    function sync_indikators($user_id, $id_indikators = array(), $validator_indikators = array())
     {
+        $id_indikators = array_unique(array_map('intval', (array) $id_indikators));
+        $validator_indikators = array_intersect(
+            array_unique(array_map('intval', (array) $validator_indikators)),
+            $id_indikators
+        );
+
         $this->db->where('user_id', $user_id);
         $this->db->delete($this->table);
 
@@ -50,6 +73,7 @@ class User_list_indikator_model extends CI_Model
                 $insert_data[] = array(
                     'user_id'      => (int) $user_id,
                     'id_indikator' => (int) $id_indikator,
+                    'is_validator' => in_array((int) $id_indikator, $validator_indikators, true) ? 1 : 0,
                 );
             }
             $this->db->insert_batch($this->table, $insert_data);
