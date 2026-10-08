@@ -719,16 +719,18 @@
 						</td>
 						<td data-label="Aksi">
 							<div class="action-flex">
-								<?php
-								echo anchor(site_url('List_indikator/update/'.$list_indikator->id_indikator), '<i class="fa fa-edit"></i> Update', 'class="btn-act btn-act-edit"');
-								?>
+								<?php if ($is_admin): ?>
+									<?php echo anchor(site_url('List_indikator/update/'.$list_indikator->id_indikator), '<i class="fa fa-edit"></i> Update', 'class="btn-act btn-act-edit"'); ?>
+								<?php endif; ?>
 								<?php
 								echo anchor(site_url('Mutu_indikator?id='.$list_indikator->id_indikator.'&judul='.$list_indikator->judul), '<i class="fa fa-database"></i> Mutu', 'class="btn-act btn-act-data"');
 								?>
-								<?php if ($st_aktif): ?>
-									<a class="btn-act btn-act-danger" href="<?php echo site_url('List_indikator/toggle_status/'.$list_indikator->id_indikator) ?>" title="Nonaktifkan" onclick="return confirm('Nonaktifkan indikator ini?');"><i class="fa fa-user-slash"></i> Nonaktifkan</a>
-								<?php else: ?>
-									<a class="btn-act btn-act-success" href="<?php echo site_url('List_indikator/toggle_status/'.$list_indikator->id_indikator) ?>" title="Aktifkan Kembali" onclick="return confirm('Aktifkan kembali indikator ini?');"><i class="fa fa-user-check"></i> Aktifkan</a>
+								<?php if ($is_admin): ?>
+									<?php if ($st_aktif): ?>
+										<a class="btn-act btn-act-danger" href="<?php echo site_url('List_indikator/toggle_status/'.$list_indikator->id_indikator) ?>" title="Nonaktifkan" onclick="return confirm('Nonaktifkan indikator ini?');"><i class="fa fa-user-slash"></i> Nonaktifkan</a>
+									<?php else: ?>
+										<a class="btn-act btn-act-success" href="<?php echo site_url('List_indikator/toggle_status/'.$list_indikator->id_indikator) ?>" title="Aktifkan Kembali" onclick="return confirm('Aktifkan kembali indikator ini?');"><i class="fa fa-user-check"></i> Aktifkan</a>
+									<?php endif; ?>
 								<?php endif; ?>
 							</div>
 						</td>

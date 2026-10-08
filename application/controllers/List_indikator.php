@@ -27,6 +27,22 @@ class List_indikator extends CI_Controller
         return $this->User_list_indikator_model->get_indikator_ids_by_user((int) $this->session->userdata('id'));
     }
 
+    private function _is_admin()
+    {
+        return (int) $this->session->userdata('role_id') === 1;
+    }
+
+    private function _require_admin()
+    {
+        if (!$this->_is_admin()) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Hanya admin yang dapat mengubah status atau memperbarui indikator.</div>');
+            redirect(site_url('list_indikator'));
+            return false;
+        }
+
+        return true;
+    }
+
     public function index()
     {
         $q = urldecode($this->input->get('q', TRUE));
@@ -67,6 +83,7 @@ class List_indikator extends CI_Controller
             'pagination' => $this->pagination->create_links(),
             'total_rows' => $config['total_rows'],
             'start' => $start,
+            'is_admin' => $this->_is_admin(),
         );
         
          $this->load->view('template/header',$data);
@@ -144,6 +161,10 @@ class List_indikator extends CI_Controller
     
     public function update($id) 
     {
+        if (!$this->_require_admin()) {
+            return;
+        }
+
         $row = $this->List_indikator_model->get_by_id($id);
 
         if ($row) {
@@ -174,6 +195,10 @@ class List_indikator extends CI_Controller
     
     public function update_action() 
     {
+        if (!$this->_require_admin()) {
+            return;
+        }
+
         $this->_rules();
 
         if ($this->form_validation->run() == FALSE) {
@@ -213,6 +238,10 @@ class List_indikator extends CI_Controller
     // aktifkan / nonaktifkan indikator (toggle status)
     public function toggle_status($id)
     {
+        if (!$this->_require_admin()) {
+            return;
+        }
+
         $row = $this->List_indikator_model->get_by_id($id);
 
         if ($row) {
