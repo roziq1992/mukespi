@@ -27,6 +27,14 @@ function surat_status_class($status)
     return isset($map[$status]) ? $map[$status] : 'dark';
 }
 
+function surat_email_login_url()
+{
+    $app_url = trim((string) config_item('email_app_url'));
+    return $app_url === ''
+        ? site_url('auth')
+        : rtrim($app_url, '/') . '/index.php/auth';
+}
+
 function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $id_surat, $document_type = '')
 {
     if (!filter_var($email_tujuan, FILTER_VALIDATE_EMAIL)) {
@@ -40,8 +48,7 @@ function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $i
     $ci->email->from(config_item('email_from_address'), config_item('email_from_name'));
     $ci->email->to($email_tujuan, $nama_tujuan);
     $ci->email->subject($subjek);
-    // $link = rtrim(config_item('email_app_url'), '/') . '/index.php/auth';
-    $link = rtrim(config_item('email_app_url'), '/') . 'https://api-rsa.com/mukespi';
+    $link = surat_email_login_url();
     $ci->email->message('<p>Yth. ' . htmlspecialchars($nama_tujuan, ENT_QUOTES, 'UTF-8') . ',</p><p>' . $pesan . '</p><p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Login ke sistem E-OFFICE RSA</a></p>');
 
     if (!$ci->email->send()) {
@@ -71,7 +78,7 @@ function surat_kirim_notifikasi_massal($penerima, $subjek, $pesan)
     $ci->email->from(config_item('email_from_address'), config_item('email_from_name'));
     $ci->email->bcc($emails, 100);
     $ci->email->subject($subjek);
-    $link = rtrim(config_item('email_app_url'), '/') . 'https://api-rsa.com/mukespi';
+    $link = surat_email_login_url();
     $ci->email->message('<p>Yth. Bapak/Ibu,</p><p>' . $pesan . '</p><p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Login ke sistem E-OFFICE RSA</a></p>');
 
     if (!$ci->email->send()) {
