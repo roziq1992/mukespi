@@ -3,18 +3,23 @@
         <div class="card-header"><h5 class="m-0">Aksi Direktur</h5></div>
         <div class="card-body">
             <p><strong><?php echo html_escape($surat->no_surat); ?></strong><br><?php echo html_escape($surat->perihal); ?> | <?php echo html_escape($surat->tujuan); ?></p>
+            <?php $pesan_validasi = $this->session->flashdata('message'); ?>
+            <?php if ($pesan_validasi): ?>
+                <div class="alert alert-danger" role="alert"><?php echo html_escape(strip_tags($pesan_validasi)); ?></div>
+            <?php endif; ?>
             <?php if ($surat->file_ber_nomor): ?>
                 <a class="btn btn-sm btn-outline-primary mb-3" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>">Download dokumen bernomor</a>
             <?php endif; ?>
             <form method="post" enctype="multipart/form-data" action="<?php echo site_url('surat_direktur/simpan/' . $surat->id); ?>">
                 <div class="form-group">
-                    <label>Aksi</label>
-                    <select name="aksi" class="form-control" required>
+                    <label for="aksi_surat">Aksi</label>
+                    <select name="aksi" id="aksi_surat" class="form-control" required>
                         <option value="ttd">Tanda Tangani</option>
                         <option value="disposisi">Disposisi</option>
                     </select>
+                    <small class="form-text text-muted">Jika surat ditandatangani, penerima disposisi tidak ditampilkan. Pilih Disposisi untuk memilih penerima.</small>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="pilihan_penerima_disposisi">
                     <label for="cari_user_disposisi">Cari tujuan disposisi</label>
                     <input type="search" id="cari_user_disposisi" class="form-control mb-2" placeholder="Cari nama, jabatan, atau email...">
                     <div id="daftar_user_disposisi" class="border rounded p-2" style="max-height: 220px; overflow-y: auto;" aria-describedby="petunjuk_disposisi">
@@ -33,8 +38,8 @@
                     <div id="ringkasan_penerima_disposisi" class="mt-2" aria-live="polite"></div>
                 </div>
                 <div class="form-group">
-                    <label>Catatan / instruksi</label>
-                    <textarea name="catatan" class="form-control" rows="3"></textarea>
+                    <label for="catatan_disposisi">Catatan / instruksi</label>
+                    <textarea name="catatan" id="catatan_disposisi" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Dokumen hasil TTD (.pdf, .doc, .docx, .jpg, .png)</label>
@@ -53,7 +58,10 @@
     var empty = document.getElementById('user_disposisi_kosong');
     var summary = document.getElementById('ringkasan_penerima_disposisi');
     var toggle = document.getElementById('toggle_user_disposisi');
-    if (!search || !list || !count || !empty || !summary || !toggle) return;
+    var action = document.getElementById('aksi_surat');
+    var note = document.getElementById('catatan_disposisi');
+    var recipientGroup = document.getElementById('pilihan_penerima_disposisi');
+    if (!search || !list || !count || !empty || !summary || !toggle || !action || !note || !recipientGroup) return;
 
     var options = list.querySelectorAll('.user-disposisi-option');
     var checkboxes = list.querySelectorAll('.ke-user-checkbox');
@@ -89,6 +97,12 @@
         });
     }
 
+    function updateNoteRequirement() {
+        var isDisposition = action.value === 'disposisi';
+        note.required = isDisposition;
+        recipientGroup.style.display = isDisposition ? '' : 'none';
+    }
+
     search.addEventListener('input', function () {
         filterOptions();
     });
@@ -98,10 +112,12 @@
         filterOptions();
     });
 
+    action.addEventListener('change', updateNoteRequirement);
     Array.prototype.forEach.call(checkboxes, function (checkbox) {
         checkbox.addEventListener('change', updateCount);
     });
     filterOptions();
     updateCount();
+    updateNoteRequirement();
 }());
 </script>

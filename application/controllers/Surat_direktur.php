@@ -58,7 +58,16 @@ class Surat_direktur extends CI_Controller
             }
             $ke_users = array_values(array_unique($ke_users));
             $catatan = trim($this->input->post('catatan', TRUE));
-            if (!$ke_users || $catatan === '') { $this->session->set_flashdata('message', 'Tujuan dan catatan disposisi wajib diisi.'); redirect('surat_direktur/proses/' . $id); return; }
+            if (!$ke_users) {
+                $this->session->set_flashdata('message', 'Pilih minimal satu tujuan disposisi.');
+                redirect('surat_direktur/proses/' . $id);
+                return;
+            }
+            if ($catatan === '') {
+                $this->session->set_flashdata('message', 'Catatan / instruksi disposisi wajib diisi.');
+                redirect('surat_direktur/proses/' . $id);
+                return;
+            }
             $penerima = $this->db->select('id, name, email')->where_in('id', $ke_users)
                 ->where('id !=', (int) $this->session->userdata('id'))->get('users')->result();
             if (count($penerima) !== count($ke_users)) {
