@@ -85,9 +85,7 @@ class Surat_direktur extends CI_Controller
             log_surat($id, 'Surat didisposisikan', $catatan);
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) show_error('Disposisi dan status surat gagal disimpan.', 500);
-            foreach ($penerima as $user) {
-                surat_kirim_notifikasi($user->email, $user->name, 'Pemberitahuan Disposisi Surat', 'Dengan hormat, Direktur RS Airlangga telah memberikan disposisi surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong> kepada Anda.<br><br>Catatan disposisi:<br>' . htmlspecialchars($catatan, ENT_QUOTES, 'UTF-8'), $id);
-            }
+            surat_kirim_notifikasi_massal($penerima, 'Pemberitahuan Disposisi Surat', 'Dengan hormat, Direktur RS Airlangga telah memberikan disposisi surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong>.<br><br>Catatan disposisi:<br>' . htmlspecialchars($catatan, ENT_QUOTES, 'UTF-8'));
         }
         redirect((int) $this->session->userdata('role_id') === 1 ? 'surat' : 'surat_direktur');
     }

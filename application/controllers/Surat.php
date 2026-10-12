@@ -69,9 +69,7 @@ class Surat extends CI_Controller
             . '<strong>Perihal:</strong> ' . htmlspecialchars($data['perihal'], ENT_QUOTES, 'UTF-8') . '<br>'
             . '<strong>Jenis:</strong> ' . htmlspecialchars(ucfirst($data['jenis']), ENT_QUOTES, 'UTF-8') . '<br>'
             . '<strong>Tujuan:</strong> ' . htmlspecialchars($data['tujuan'], ENT_QUOTES, 'UTF-8');
-        foreach ($penerima as $user) {
-            surat_kirim_notifikasi($user->email, $user->name, 'Pemberitahuan Pengajuan Surat Baru', $pesan, $id);
-        }
+        surat_kirim_notifikasi_massal($penerima, 'Pemberitahuan Pengajuan Surat Baru', $pesan);
         $this->session->set_flashdata('message', 'Pengajuan surat berhasil dibuat.'); redirect('surat/detail/' . $id);
     }
 

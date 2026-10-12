@@ -50,3 +50,33 @@ function surat_kirim_notifikasi($email_tujuan, $nama_tujuan, $subjek, $pesan, $i
     }
     return TRUE;
 }
+
+function surat_kirim_notifikasi_massal($penerima, $subjek, $pesan)
+{
+    $emails = array();
+    foreach ($penerima as $user) {
+        if (empty($user->email) || !filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            log_message('error', 'Notifikasi surat tidak dikirim ke satu penerima: alamat email tidak valid.');
+            continue;
+        }
+        $emails[] = $user->email;
+    }
+
+    $emails = array_values(array_unique($emails));
+    if (!$emails) return FALSE;
+
+    $ci = get_instance();
+    $ci->load->library('email');
+    $ci->email->clear(TRUE);
+    $ci->email->from(config_item('email_from_address'), config_item('email_from_name'));
+    $ci->email->bcc($emails, 100);
+    $ci->email->subject($subjek);
+    $link = rtrim(config_item('email_app_url'), '/') . 'https://api-rsa.com/mukespi';
+    $ci->email->message('<p>Yth. Bapak/Ibu,</p><p>' . $pesan . '</p><p><a href="' . htmlspecialchars($link, ENT_QUOTES, 'UTF-8') . '">Login ke sistem E-OFFICE RSA</a></p>');
+
+    if (!$ci->email->send()) {
+        log_message('error', 'Notifikasi surat massal gagal dikirim ke ' . count($emails) . ' penerima: ' . $ci->email->print_debugger(array('headers')));
+        return FALSE;
+    }
+    return TRUE;
+}
