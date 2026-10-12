@@ -6,7 +6,8 @@ class Surat_direktur extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        is_logged_in(4);
+        is_logged_in();
+        if (!in_array((int) $this->session->userdata('role_id'), array(1, 4), TRUE)) redirect('auth/blocked');
         $this->load->helper(array('surat', 'download'));
         $this->load->model(array('Surat_model', 'Surat_disposisi_model'));
         $this->load->library(array('upload', 'email'));
@@ -44,21 +45,42 @@ class Surat_direktur extends CI_Controller
             $pemohon = $this->db->where('id', $surat->id_pemohon)->get('users')->row();
             if ($pemohon) surat_kirim_notifikasi($pemohon->email, $pemohon->name, 'Surat Anda telah ditandatangani', 'Surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong> telah ditandatangani Direktur RS Airlangga.', $id);
         } elseif ($aksi === 'disposisi') {
-            $ke_user = (int) $this->input->post('ke_user');
+            $posted_users = $this->input->post('ke_user');
+            if (!is_array($posted_users)) $posted_users = array();
+            $ke_users = array();
+            foreach ($posted_users as $user_id) {
+                if (!is_scalar($user_id) || !ctype_digit((string) $user_id) || (int) $user_id < 1) {
+                    $this->session->set_flashdata('message', 'Satu atau lebih tujuan disposisi tidak valid.');
+                    redirect('surat_direktur/proses/' . $id);
+                    return;
+                }
+                $ke_users[] = (int) $user_id;
+            }
+            $ke_users = array_values(array_unique($ke_users));
             $catatan = trim($this->input->post('catatan', TRUE));
-            if (!$ke_user || $catatan === '') { $this->session->set_flashdata('message', 'Tujuan dan catatan disposisi wajib diisi.'); redirect('surat_direktur/proses/' . $id); return; }
+            if (!$ke_users || $catatan === '') { $this->session->set_flashdata('message', 'Tujuan dan catatan disposisi wajib diisi.'); redirect('surat_direktur/proses/' . $id); return; }
+            $penerima = $this->db->select('id, name, email')->where_in('id', $ke_users)
+                ->where('id !=', (int) $this->session->userdata('id'))->get('users')->result();
+            if (count($penerima) !== count($ke_users)) {
+                $this->session->set_flashdata('message', 'Satu atau lebih tujuan disposisi tidak valid.');
+                redirect('surat_direktur/proses/' . $id);
+                return;
+            }
             $update = array('status' => 'Didisposisikan', 'updated_at' => date('Y-m-d H:i:s'));
             if (!$this->_upload_final($id, $update)) return;
             $this->db->trans_start();
-            $this->Surat_disposisi_model->insert(array('id_surat' => $id, 'dari_user' => $this->session->userdata('id'), 'ke_user' => $ke_user, 'catatan' => $catatan, 'status' => 'Menunggu Tindak Lanjut', 'created_at' => date('Y-m-d H:i:s')));
+            foreach ($penerima as $user) {
+                $this->Surat_disposisi_model->insert(array('id_surat' => $id, 'dari_user' => $this->session->userdata('id'), 'ke_user' => $user->id, 'catatan' => $catatan, 'status' => 'Menunggu Tindak Lanjut', 'created_at' => date('Y-m-d H:i:s')));
+            }
             $this->Surat_model->update($id, $update);
             log_surat($id, 'Surat didisposisikan', $catatan);
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) show_error('Disposisi dan status surat gagal disimpan.', 500);
-            $penerima = $this->db->where('id', $ke_user)->get('users')->row();
-            if ($penerima) surat_kirim_notifikasi($penerima->email, $penerima->name, 'Pemberitahuan Disposisi Surat', 'Dengan hormat, Direktur RS Airlangga telah memberikan disposisi surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong> kepada Anda.<br><br>Catatan disposisi:<br>' . htmlspecialchars($catatan, ENT_QUOTES, 'UTF-8'), $id);
+            foreach ($penerima as $user) {
+                surat_kirim_notifikasi($user->email, $user->name, 'Pemberitahuan Disposisi Surat', 'Dengan hormat, Direktur RS Airlangga telah memberikan disposisi surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong> kepada Anda.<br><br>Catatan disposisi:<br>' . htmlspecialchars($catatan, ENT_QUOTES, 'UTF-8'), $id);
+            }
         }
-        redirect('surat_direktur');
+        redirect((int) $this->session->userdata('role_id') === 1 ? 'surat' : 'surat_direktur');
     }
 
     private function _upload_final($id, &$update)
@@ -75,9 +97,10 @@ class Surat_direktur extends CI_Controller
     public function selesai_disposisi($id)
     {
         $row = $this->db->where('id', (int) $id)->get('surat_disposisi')->row();
-        if (!$row || (int) $row->ke_user !== (int) $this->session->userdata('id')) show_error('Akses ditolak.', 403);
+        if (!$row || ((int) $row->ke_user !== (int) $this->session->userdata('id') && (int) $this->session->userdata('role_id') !== 1)) show_error('Akses ditolak.', 403);
         $this->Surat_disposisi_model->update_status($id, 'Selesai');
-        $this->Surat_model->update($row->id_surat, array('status' => 'Selesai', 'updated_at' => date('Y-m-d H:i:s')));
+        $belum_selesai = $this->db->where('id_surat', $row->id_surat)->where('status !=', 'Selesai')->count_all_results('surat_disposisi');
+        if (!$belum_selesai) $this->Surat_model->update($row->id_surat, array('status' => 'Selesai', 'updated_at' => date('Y-m-d H:i:s')));
         log_surat($row->id_surat, 'Disposisi diselesaikan', $this->input->post('catatan', TRUE));
         redirect('surat/detail/' . $row->id_surat);
     }

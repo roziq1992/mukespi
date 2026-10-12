@@ -36,5 +36,14 @@ class Surat_model extends CI_Model
         if ($role === 'direktur') $this->db->where_in('status', array('Sudah Diberi Nomor', 'Diteruskan ke Direktur'));
         return $this->db->count_all_results();
     }
-    public function users() { return $this->db->where('id !=', (int) $this->session->userdata('id'))->order_by('name')->get('users')->result(); }
+    public function users()
+    {
+        return $this->db->select('u.id, u.name, u.email, p.jabatan')
+            ->from('users u')
+            ->join('pegawai p', 'p.email = u.email', 'left')
+            ->where('u.id !=', (int) $this->session->userdata('id'))
+            ->order_by('u.name')
+            ->get()
+            ->result();
+    }
 }

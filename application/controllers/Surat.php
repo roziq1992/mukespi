@@ -32,7 +32,7 @@ class Surat extends CI_Controller
         if ($role === 'sekretaris') redirect('surat_sekretaris');
         if ($role === 'direktur') redirect('surat_direktur');
         $list_role = $role === 'admin' ? 'admin' : 'user';
-        $data = array('title' => $role === 'admin' ? 'Kelola Semua Surat' : 'Surat Saya', 'surat' => $this->Surat_model->list_data($list_role, $this->session->userdata('id'), $this->filters()), 'filters' => $this->filters(), 'pending' => $this->Surat_model->pending_count($list_role, $this->session->userdata('id')), 'is_admin' => $role === 'admin');
+        $data = array('title' => $role === 'admin' ? 'Kelola Semua Surat' : 'Surat Saya', 'surat' => $this->Surat_model->list_data($list_role, $this->session->userdata('id'), $this->filters()), 'filters' => $this->filters(), 'pending' => $this->Surat_model->pending_count($list_role, $this->session->userdata('id')), 'is_admin' => $role === 'admin', 'action' => $role === 'admin' ? 'admin' : '');
         $this->load->view('template/header', $data); $this->load->view('surat/list_user', $data); $this->load->view('template/footer');
     }
 
@@ -130,9 +130,10 @@ class Surat extends CI_Controller
     public function selesai_disposisi($id)
     {
         $row = $this->db->where('id', (int) $id)->get('surat_disposisi')->row();
-        if (!$row || (int) $row->ke_user !== (int) $this->session->userdata('id')) show_error('Akses ditolak.', 403);
+        if (!$row || ((int) $row->ke_user !== (int) $this->session->userdata('id') && (int) $this->session->userdata('role_id') !== 1)) show_error('Akses ditolak.', 403);
         $this->Surat_disposisi_model->update_status($id, 'Selesai');
-        $this->Surat_model->update($row->id_surat, array('status' => 'Selesai', 'updated_at' => date('Y-m-d H:i:s')));
+        $belum_selesai = $this->db->where('id_surat', $row->id_surat)->where('status !=', 'Selesai')->count_all_results('surat_disposisi');
+        if (!$belum_selesai) $this->Surat_model->update($row->id_surat, array('status' => 'Selesai', 'updated_at' => date('Y-m-d H:i:s')));
         log_surat($row->id_surat, 'Disposisi diselesaikan', $this->input->post('catatan', TRUE));
         redirect('surat/detail/' . $row->id_surat);
     }

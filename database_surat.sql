@@ -37,6 +37,17 @@ CREATE TABLE IF NOT EXISTS surat_log (
   CONSTRAINT fk_log_surat FOREIGN KEY (id_surat) REFERENCES surat(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Perbaiki instalasi lama yang membuat id log tanpa AUTO_INCREMENT.
+ALTER TABLE surat_log MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+-- Pastikan ID surat baru dibuat otomatis pada instalasi lama.
+SET @next_surat_id = (SELECT COALESCE(MAX(id), 0) + 1 FROM surat);
+SET FOREIGN_KEY_CHECKS = 0;
+UPDATE surat_log SET id_surat = @next_surat_id WHERE id_surat = 0 AND EXISTS (SELECT 1 FROM surat WHERE id = 0);
+UPDATE surat_lampiran SET id_surat = @next_surat_id WHERE id_surat = 0 AND EXISTS (SELECT 1 FROM surat WHERE id = 0);
+UPDATE surat_disposisi SET id_surat = @next_surat_id WHERE id_surat = 0 AND EXISTS (SELECT 1 FROM surat WHERE id = 0);
+ALTER TABLE surat MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- Tambahkan role direktur bila instalasi memakai role_id terpisah (sesuaikan implementasi roles Anda).
 ALTER TABLE surat MODIFY status VARCHAR(50) NOT NULL DEFAULT 'Diajukan';
 UPDATE surat s

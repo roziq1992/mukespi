@@ -6,7 +6,8 @@ class Surat_sekretaris extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        is_logged_in(5);
+        is_logged_in();
+        if (!in_array((int) $this->session->userdata('role_id'), array(1, 5), TRUE)) redirect('auth/blocked');
         $this->load->helper(array('surat', 'download'));
         $this->load->model(array('Surat_model', 'Surat_log_model'));
         $this->load->library(array('upload', 'email'));
@@ -65,7 +66,7 @@ class Surat_sekretaris extends CI_Controller
             foreach ($direktur as $user) surat_kirim_notifikasi($user->email, $user->name, 'Surat Masuk untuk Direktur', $pesan, $id);
         }
         $this->session->set_flashdata('message', 'Nomor surat berhasil diproses.');
-        redirect('surat_sekretaris');
+        redirect((int) $this->session->userdata('role_id') === 1 ? 'surat' : 'surat_sekretaris');
     }
 
     private function _generate($jenis)
