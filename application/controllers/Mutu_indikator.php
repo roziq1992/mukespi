@@ -281,8 +281,9 @@ class Mutu_indikator extends CI_Controller
         $this->form_validation->set_rules('id_indikator', 'Indikator', 'trim|required|integer');
         $this->form_validation->set_rules('tanggal_awal', 'Tanggal Awal', 'trim|required');
         $this->form_validation->set_rules('tanggal_akhir', 'Tanggal Akhir', 'trim|required');
-        $this->form_validation->set_rules('num', 'Numerator', 'trim|required|numeric');
-        $this->form_validation->set_rules('demu', 'Denumerator', 'trim|required|numeric');
+        $this->form_validation->set_rules('num', 'Rata-rata Capaian Indikator', 'trim|required|numeric');
+        $this->form_validation->set_rules('demu', 'Capaian Validator', 'trim|required|numeric');
+        $this->form_validation->set_rules('nilai_validasi', 'Nilai Validasi', 'trim|required|numeric');
         $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
 
         if ($this->form_validation->run() == FALSE) {
@@ -295,6 +296,7 @@ class Mutu_indikator extends CI_Controller
                 'tanggal_akhir' => $this->input->post('tanggal_akhir', TRUE),
                 'num' => (float) $this->input->post('num', TRUE),
                 'demu' => (float) $this->input->post('demu', TRUE),
+                'nilai_validasi' => (float) $this->input->post('nilai_validasi', TRUE),
                 'userid' => (int) $this->session->userdata('id'),
                 'created_at' => date('Y-m-d H:i:s'),
             ));

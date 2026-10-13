@@ -169,7 +169,56 @@ class Mutu_indikator_model extends CI_Model
         return $this->db->get($this->table)->result();
     }
 
-    // jumlah num & denum dalam rentang tanggal (untuk isi otomatis form validasi)
+    // nilai capaian satu baris data mutu (konsisten dengan tampilan daftar/detail)
+    function hitung_capaian($num, $demu, $jenis, $judul)
+    {
+        if ((float) $num <= 0) {
+            return 0;
+        }
+        if ($judul == 'Kepuasan Pasien') {
+            return round((float) $num * 25, 2);
+        }
+        if ((float) $demu <= 0) {
+            return 0;
+        }
+        if ($jenis == 'PPI') {
+            return round((float) $num / (float) $demu * 1000, 1);
+        }
+        return round((float) $num / (float) $demu * 100, 1);
+    }
+
+    // rata-rata capaian indikator dari inputan user pada rentang tanggal
+    function avg_capaian_range($id_indikator, $awal = NULL, $akhir = NULL)
+    {
+        $indikator = $this->db
+            ->select('jenis, judul')
+            ->where('id_indikator', (int) $id_indikator)
+            ->get('list_indikator')
+            ->row();
+        $jenis = $indikator ? $indikator->jenis : '';
+        $judul = $indikator ? $indikator->judul : '';
+
+        $this->db->where('id_indikator', (int) $id_indikator);
+        if ($awal !== NULL && $awal !== '') {
+            $this->db->where('tanggal >=', $awal);
+        }
+        if ($akhir !== NULL && $akhir !== '') {
+            $this->db->where('tanggal <=', $akhir);
+        }
+        $rows = $this->db->get($this->table)->result();
+
+        if (empty($rows)) {
+            return 0;
+        }
+
+        $total = 0;
+        foreach ($rows as $row) {
+            $total += $this->hitung_capaian($row->num, $row->demu, $jenis, $judul);
+        }
+        return round($total / count($rows), 2);
+    }
+
+    // rata-rata capaian + jumlah num/denum dalam rentang tanggal (isi otomatis form validasi)
     function sum_range($id_indikator, $awal = NULL, $akhir = NULL)
     {
         $this->db->select('IFNULL(SUM(num),0) AS num, IFNULL(SUM(demu),0) AS demu', FALSE);
@@ -182,8 +231,9 @@ class Mutu_indikator_model extends CI_Model
         }
         $row = $this->db->get($this->table)->row();
         return array(
-            'num'  => $row ? (float) $row->num : 0,
-            'demu' => $row ? (float) $row->demu : 0,
+            'num'         => $row ? (float) $row->num : 0,
+            'demu'        => $row ? (float) $row->demu : 0,
+            'avg_capaian' => $this->avg_capaian_range($id_indikator, $awal, $akhir),
         );
     }
 

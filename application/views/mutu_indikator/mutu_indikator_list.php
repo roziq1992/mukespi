@@ -646,8 +646,11 @@ $tanggal = date("Y-m-d");
 					<tr>
 						<th class="col-no">No</th>
 						<th>Periode</th>
-						<th>Numerator</th>
-						<th>Denumerator</th>
+						<th>Rata-rata Capaian</th>
+						<th>Capaian Validator</th>
+						<th>Nilai Validasi</th>
+						<th>Nilai Capaian</th>
+						<th>Status</th>
 						<th>Validator</th>
 						<th>Tanggal Validasi</th>
 						<th style="text-align:center">Aksi</th>
@@ -657,9 +660,17 @@ $tanggal = date("Y-m-d");
 					<?php $no = 0; foreach ($validasi as $v): $no++; ?>
 					<tr>
 						<td class="col-no"><?php echo $no ?></td>
+						<?php
+						$v_capaian = ((float) $v->demu > 0) ? round($v->num / $v->demu * 100, 2) : 0;
+						$v_valid = ($v->nilai_validasi !== NULL) && $v_capaian >= (float) $v->nilai_validasi;
+						$v_class = $v_valid ? 'ok' : 'low';
+						?>
 						<td data-label="Periode" class="txt-mono"><?php echo $v->tanggal_awal ?> &rarr; <?php echo $v->tanggal_akhir ?></td>
-						<td data-label="Numerator"><?php echo $v->num ?></td>
-						<td data-label="Denumerator"><?php echo $v->demu ?></td>
+						<td data-label="Rata-rata Capaian"><?php echo $v->num ?></td>
+						<td data-label="Capaian Validator"><?php echo $v->demu ?></td>
+						<td data-label="Nilai Validasi"><?php echo $v->nilai_validasi ?></td>
+						<td data-label="Nilai Capaian"><?php echo $v_capaian ?></td>
+						<td data-label="Status"><span class="badge-capaian <?php echo $v_class ?>"><span class="dot"></span><?php echo $v_valid ? 'Valid' : 'Tidak Valid' ?></span></td>
 						<td data-label="Validator"><?php echo html_escape($v->nama_validator ?: '-') ?></td>
 						<td data-label="Tanggal Validasi" class="txt-mono"><?php echo $v->created_at ? date('d M Y H:i', strtotime($v->created_at)) : '-' ?></td>
 						<td data-label="Aksi">
@@ -710,6 +721,47 @@ $tanggal = date("Y-m-d");
 	</div>
 </div>
 
+<style>
+	.val-status-box{
+		display:none;
+		border-radius:10px;
+		padding:11px 14px;
+		font-size:12.5px;
+		line-height:1.5;
+		border:1px solid transparent;
+	}
+	.val-status-box.show{ display:block; }
+	.val-status-box .vs-title{
+		display:flex;
+		align-items:center;
+		gap:7px;
+		font-weight:700;
+		font-size:13px;
+		margin-bottom:3px;
+	}
+	.val-status-box .vs-title i{ font-size:14px; }
+	.val-status-box .vs-detail{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; margin-top:4px; }
+	.val-status-box .vs-detail b{ font-weight:700; }
+	.val-status-box.vs-valid{
+		background:#E3EEE9;
+		border-color:#A9CFC2;
+		color:#1F4338;
+	}
+	.val-status-box.vs-valid .vs-title{ color:#234F44; }
+	.val-status-box.vs-invalid{
+		background:#F7E5E2;
+		border-color:#E3B7AE;
+		color:#7A2F26;
+	}
+	.val-status-box.vs-invalid .vs-title{ color:#B3483D; }
+	.val-status-box.vs-wait{
+		background:#F1F4F5;
+		border-color:#DCE3E5;
+		color:#516770;
+	}
+	.val-status-box.vs-wait .vs-title{ color:#62767C; }
+</style>
+
 <!-- ===== MODAL VALIDASI ===== -->
 <div class="modal fade" id="validasiModal" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
@@ -735,14 +787,29 @@ $tanggal = date("Y-m-d");
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="font-weight-bold">Numerator (num)</label>
-					<input type="number" step="any" name="num" id="val_num" class="form-control" placeholder="0" required>
-					<small class="text-muted">Terisi otomatis dari total data periode tersebut (dapat diubah).</small>
+					<label class="font-weight-bold">Rata-rata Capaian Indikator (num)</label>
+					<input type="number" step="any" name="num" id="val_num" class="form-control" placeholder="0" readonly>
+					<small class="text-muted">Terisi otomatis dari rata-rata capaian data mutu pada periode tersebut.</small>
 				</div>
 				<div class="form-group">
-					<label class="font-weight-bold">Denumerator (denum)</label>
+					<label class="font-weight-bold">Capaian Validator (denum)</label>
 					<input type="number" step="any" name="demu" id="val_demu" class="form-control" placeholder="0" required>
-					<small class="text-muted">Terisi otomatis dari total data periode tersebut (dapat diubah).</small>
+					<small class="text-muted">Isian bebas dari validator.</small>
+				</div>
+				<div class="form-group">
+					<label class="font-weight-bold">Nilai Validasi (Standar)</label>
+					<input type="number" step="any" name="nilai_validasi" id="val_nilai_validasi" class="form-control" placeholder="0" required>
+					<small class="text-muted">Acuan standar validasi. Data mutu dinyatakan VALID bila nilai capaian &ge; nilai validasi.</small>
+				</div>
+				<div class="form-group">
+					<label class="font-weight-bold">Nilai Capaian (num / denum &times; 100)</label>
+					<div class="input-group">
+						<input type="text" id="val_capaian" class="form-control font-weight-bold" value="0" readonly>
+						<div class="input-group-append">
+							<span class="input-group-text">%</span>
+						</div>
+					</div>
+					<div id="val_status" class="val-status-box mt-2"></div>
 				</div>
 				<div class="form-group mb-0">
 					<label class="font-weight-bold">Validator</label>
@@ -770,6 +837,8 @@ $tanggal = date("Y-m-d");
 			$('#val_tanggal_akhir').val('');
 			$('#val_num').val('');
 			$('#val_demu').val('');
+			$('#val_nilai_validasi').val('');
+			hitungCapaian();
 		});
 		function isiOtomatis() {
 			var id = $('#val_id_indikator').val();
@@ -781,14 +850,54 @@ $tanggal = date("Y-m-d");
 				tanggal_awal: awal,
 				tanggal_akhir: akhir
 			}, function (res) {
-				if (res && res.num !== undefined && res.demu !== undefined) {
-					$('#val_num').val(res.num);
-					$('#val_demu').val(res.demu);
+				if (res && res.avg_capaian !== undefined) {
+					$('#val_num').val(res.avg_capaian);
+					hitungCapaian();
 				}
 			}, 'json');
 		}
+		function hitungCapaian() {
+			var num = parseFloat($('#val_num').val()) || 0;
+			var demuRaw = $('#val_demu').val();
+			var standarRaw = $('#val_nilai_validasi').val();
+			var demu = parseFloat(demuRaw) || 0;
+			var standar = parseFloat(standarRaw) || 0;
+			var capaian = demu > 0 ? (num / demu * 100) : 0;
+			$('#val_capaian').val(capaian.toFixed(2));
+
+			var $box = $('#val_status');
+			var info = '<b>' + capaian.toFixed(2) + '%</b> &nbsp;=&nbsp; <b>' + num + '</b> / <b>' + demu + '</b> &times; 100';
+
+			if (demuRaw !== '' && demu > 0 && standarRaw !== '') {
+				if (capaian >= standar) {
+					$box.removeClass('vs-invalid vs-wait').addClass('vs-valid show').html(
+						'<div class="vs-title"><i class="fa fa-check-circle"></i> VALID</div>' +
+						'<div>Nilai capaian <b>' + capaian.toFixed(2) + '%</b> memenuhi standar <b>' + standar + '</b> (capaian &ge; standar). Data mutu dinyatakan <b>VALID</b>.</div>' +
+						'<div class="vs-detail">' + info + '</div>'
+					);
+				} else {
+					$box.removeClass('vs-valid vs-wait').addClass('vs-invalid show').html(
+						'<div class="vs-title"><i class="fa fa-times-circle"></i> TIDAK VALID</div>' +
+						'<div>Nilai capaian <b>' + capaian.toFixed(2) + '%</b> belum mencapai standar <b>' + standar + '</b> (capaian &lt; standar). Data mutu dinyatakan <b>TIDAK VALID</b>.</div>' +
+						'<div class="vs-detail">' + info + '</div>'
+					);
+				}
+			} else if (demuRaw !== '' && demu <= 0) {
+				$box.removeClass('vs-valid vs-invalid').addClass('vs-wait show').html(
+					'<div class="vs-title"><i class="fa fa-exclamation-circle"></i> Capaian validator tidak valid</div>' +
+					'<div>Nilai capaian validator harus lebih besar dari 0 agar rasio capaian dapat dihitung.</div>'
+				);
+			} else {
+				$box.removeClass('vs-valid vs-invalid').addClass('vs-wait show').html(
+					'<div class="vs-title"><i class="fa fa-info-circle"></i> Menunggu isian</div>' +
+					'<div>Isi <b>Capaian Validator</b> dan <b>Nilai Validasi (Standar)</b> untuk melihat hasil validasi.</div>'
+				);
+			}
+		}
 		$('#val_tanggal_awal').on('change', isiOtomatis);
 		$('#val_tanggal_akhir').on('change', isiOtomatis);
+		$('#val_demu').on('input', hitungCapaian);
+		$('#val_nilai_validasi').on('input', hitungCapaian);
 	}
 	init();
 })();

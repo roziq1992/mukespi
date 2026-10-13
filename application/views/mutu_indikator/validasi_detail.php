@@ -240,42 +240,37 @@
 		</span>
 	</div>
 
+	<?php
+	$std_validasi = ($validasi->nilai_validasi !== NULL) ? (float) $validasi->nilai_validasi : NULL;
+	$capaian = ((float) $validasi->demu > 0) ? round($validasi->num / $validasi->demu * 100, 2) : 0;
+	$valid = ($std_validasi !== NULL) && ($capaian >= $std_validasi);
+	?>
 	<div class="summary-grid">
 		<div class="sum-item">
-			<div class="sum-label">Numerator (num)</div>
+			<div class="sum-label">Rata-rata Capaian Indikator</div>
 			<div class="sum-value"><?php echo $validasi->num ?></div>
-			<div class="sum-sub">Total angka pembilang pada periode</div>
+			<div class="sum-sub">Rata-rata capaian dari inputan user pada periode</div>
 		</div>
 		<div class="sum-item">
-			<div class="sum-label">Denumerator (demu)</div>
+			<div class="sum-label">Capaian Validator</div>
 			<div class="sum-value"><?php echo $validasi->demu ?></div>
-			<div class="sum-sub">Total angka penyebut pada periode</div>
+			<div class="sum-sub">Isian validator pada periode</div>
 		</div>
 		<div class="sum-item sum-accent">
 			<div class="sum-label">Nilai Capaian</div>
-			<?php
-			$capaian = 0;
-			$st = $validasi->num;
-			$sd = $validasi->demu;
-			if ((float) $sd > 0) {
-				if ($jenis <> "PPI" and $judul <> "Kepuasan Pasien") {
-					$capaian = round($st / $sd * 100, 1);
-				}
-				if ($judul == "Kepuasan Pasien") {
-					$capaian = round($st * 25, 2);
-				}
-				if ($jenis == "PPI") {
-					$capaian = round($st / $sd * 1000, 1);
-				}
-			}
-			?>
-			<div class="sum-value"><?php echo $capaian ?><?php echo ($jenis == "PPI") ? '&permil;' : '%' ?></div>
-			<div class="sum-sub"><?php echo ($capaian >= $target) ? 'Mencapai target' : 'Belum mencapai target' ?></div>
+			<div class="sum-value"><?php echo $capaian ?>%</div>
+			<div class="sum-sub">Rata-rata capaian / capaian validator &times; 100</div>
 		</div>
 		<div class="sum-item sum-gold">
-			<div class="sum-label">Target</div>
-			<div class="sum-value"><?php echo $target ?><?php echo ($jenis == "PPI") ? '&permil;' : '%' ?></div>
-			<div class="sum-sub">Standar capaian indikator</div>
+			<div class="sum-label">Nilai Validasi (Standar)</div>
+			<div class="sum-value"><?php echo ($std_validasi !== NULL) ? $std_validasi : '-' ?></div>
+			<div class="sum-sub">
+				<?php if ($std_validasi === NULL): ?>
+					Belum ada standar validasi
+				<?php else: ?>
+					<span class="badge-capaian <?php echo $valid ? 'ok' : 'low' ?>" style="margin-top:4px;"><span class="dot"></span><?php echo $valid ? 'VALID' : 'TIDAK VALID' ?></span>
+				<?php endif; ?>
+			</div>
 		</div>
 	</div>
 
