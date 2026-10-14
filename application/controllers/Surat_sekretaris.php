@@ -49,12 +49,23 @@ class Surat_sekretaris extends CI_Controller
         if ($this->input->post('generate')) $nomor = $this->_generate($surat->jenis);
         if ($nomor === '') { $this->session->set_flashdata('message', 'Nomor surat wajib diisi.'); redirect('surat_sekretaris/proses/' . $id); return; }
         $teruskan = (bool) $this->input->post('teruskan');
+        $ada_upload = !empty($_FILES['file_ber_nomor']['name']);
+        if ($teruskan && $ada_upload && strtolower(pathinfo($_FILES['file_ber_nomor']['name'], PATHINFO_EXTENSION)) !== 'pdf') {
+            $this->session->set_flashdata('message', 'Dokumen harus berformat PDF agar dapat dipratinjau dan ditandatangani Direktur.');
+            redirect('surat_sekretaris/proses/' . $id);
+            return;
+        }
+        if ($teruskan && !$ada_upload && (empty($surat->file_ber_nomor) || strtolower(pathinfo($surat->file_ber_nomor, PATHINFO_EXTENSION)) !== 'pdf')) {
+            $this->session->set_flashdata('message', 'Unggah dokumen bernomor PDF sebelum meneruskan surat ke Direktur.');
+            redirect('surat_sekretaris/proses/' . $id);
+            return;
+        }
         $status = $teruskan ? 'Diteruskan ke Direktur' : 'Sudah Diberi Nomor';
         $update = array('no_surat' => $nomor, 'status' => $status, 'updated_at' => date('Y-m-d H:i:s'));
-        if (!empty($_FILES['file_ber_nomor']['name'])) {
+        if ($ada_upload) {
             $path = FCPATH . 'uploads/surat/' . $id . '/final/';
             if (!is_dir($path)) mkdir($path, 0755, TRUE);
-            $this->upload->initialize(array('upload_path' => $path, 'allowed_types' => 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE));
+            $this->upload->initialize(array('upload_path' => $path, 'allowed_types' => $teruskan ? 'pdf' : 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE));
             if (!$this->upload->do_upload('file_ber_nomor')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat_sekretaris/proses/' . $id); return; }
             $update['file_ber_nomor'] = 'uploads/surat/' . $id . '/final/' . $this->upload->data('file_name');
         }

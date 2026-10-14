@@ -153,6 +153,7 @@ $route['surat_sekretaris/proses/(:num)'] = 'surat_sekretaris/proses/$1';
 $route['surat_sekretaris/simpan/(:num)'] = 'surat_sekretaris/simpan/$1';
 $route['surat_direktur'] = 'surat_direktur/index';
 $route['surat_direktur/proses/(:num)'] = 'surat_direktur/proses/$1';
+$route['surat_direktur/preview/(:num)'] = 'surat_direktur/preview/$1';
 $route['surat_direktur/simpan/(:num)'] = 'surat_direktur/simpan/$1';
 $route['surat_direktur/selesai_disposisi/(:num)'] = 'surat_direktur/selesai_disposisi/$1';
 $route['data_inventaris/get_maintenance_tracking/(:any)'] = 'data_inventaris/get_maintenance_tracking/$1';
