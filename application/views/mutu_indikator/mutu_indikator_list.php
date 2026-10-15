@@ -661,7 +661,7 @@ $tanggal = date("Y-m-d");
 					<tr>
 						<td class="col-no"><?php echo $no ?></td>
 						<?php
-						$v_capaian = ((float) $v->demu > 0) ? round($v->num / $v->demu * 100, 2) : 0;
+						$v_capaian = ((float) $v->num > 0) ? round($v->demu / $v->num * 100, 2) : 0;
 						$v_valid = ($v->nilai_validasi !== NULL) && $v_capaian >= (float) $v->nilai_validasi;
 						$v_class = $v_valid ? 'ok' : 'low';
 						?>
@@ -802,7 +802,7 @@ $tanggal = date("Y-m-d");
 					<small class="text-muted">Acuan standar validasi. Data mutu dinyatakan VALID bila nilai capaian &ge; nilai validasi.</small>
 				</div>
 				<div class="form-group">
-					<label class="font-weight-bold">Nilai Capaian (num / denum &times; 100)</label>
+					<label class="font-weight-bold">Nilai Capaian (denum / num &times; 100)</label>
 					<div class="input-group">
 						<input type="text" id="val_capaian" class="form-control font-weight-bold" value="0" readonly>
 						<div class="input-group-append">
@@ -862,13 +862,13 @@ $tanggal = date("Y-m-d");
 			var standarRaw = $('#val_nilai_validasi').val();
 			var demu = parseFloat(demuRaw) || 0;
 			var standar = parseFloat(standarRaw) || 0;
-			var capaian = demu > 0 ? (num / demu * 100) : 0;
+			var capaian = num > 0 ? (demu / num * 100) : 0;
 			$('#val_capaian').val(capaian.toFixed(2));
 
 			var $box = $('#val_status');
-			var info = '<b>' + capaian.toFixed(2) + '%</b> &nbsp;=&nbsp; <b>' + num + '</b> / <b>' + demu + '</b> &times; 100';
+			var info = '<b>' + capaian.toFixed(2) + '%</b> &nbsp;=&nbsp; <b>' + demu + '</b> / <b>' + num + '</b> &times; 100';
 
-			if (demuRaw !== '' && demu > 0 && standarRaw !== '') {
+			if (num > 0 && demuRaw !== '' && standarRaw !== '') {
 				if (capaian >= standar) {
 					$box.removeClass('vs-invalid vs-wait').addClass('vs-valid show').html(
 						'<div class="vs-title"><i class="fa fa-check-circle"></i> VALID</div>' +
@@ -882,10 +882,10 @@ $tanggal = date("Y-m-d");
 						'<div class="vs-detail">' + info + '</div>'
 					);
 				}
-			} else if (demuRaw !== '' && demu <= 0) {
+			} else if (num <= 0) {
 				$box.removeClass('vs-valid vs-invalid').addClass('vs-wait show').html(
-					'<div class="vs-title"><i class="fa fa-exclamation-circle"></i> Capaian validator tidak valid</div>' +
-					'<div>Nilai capaian validator harus lebih besar dari 0 agar rasio capaian dapat dihitung.</div>'
+					'<div class="vs-title"><i class="fa fa-exclamation-circle"></i> Rata-rata capaian tidak valid</div>' +
+					'<div>Nilai rata-rata capaian indikator harus lebih besar dari 0 agar rasio capaian dapat dihitung.</div>'
 				);
 			} else {
 				$box.removeClass('vs-valid vs-invalid').addClass('vs-wait show').html(

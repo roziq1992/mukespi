@@ -242,7 +242,7 @@
 
 	<?php
 	$std_validasi = ($validasi->nilai_validasi !== NULL) ? (float) $validasi->nilai_validasi : NULL;
-	$capaian = ((float) $validasi->demu > 0) ? round($validasi->num / $validasi->demu * 100, 2) : 0;
+	$capaian = ((float) $validasi->num > 0) ? round($validasi->demu / $validasi->num * 100, 2) : 0;
 	$valid = ($std_validasi !== NULL) && ($capaian >= $std_validasi);
 	?>
 	<div class="summary-grid">
@@ -259,7 +259,7 @@
 		<div class="sum-item sum-accent">
 			<div class="sum-label">Nilai Capaian</div>
 			<div class="sum-value"><?php echo $capaian ?>%</div>
-			<div class="sum-sub">Rata-rata capaian / capaian validator &times; 100</div>
+			<div class="sum-sub">Capaian validator / rata-rata capaian &times; 100</div>
 		</div>
 		<div class="sum-item sum-gold">
 			<div class="sum-label">Nilai Validasi (Standar)</div>
