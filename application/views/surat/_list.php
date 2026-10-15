@@ -7,6 +7,7 @@ $status_icons = array(
     'Diteruskan ke Direktur' => 'fa-share-square',
     'Ditandatangani' => 'fa-signature',
     'Didisposisikan' => 'fa-share',
+    'Ditolak' => 'fa-times-circle',
     'Selesai' => 'fa-check-circle'
 );
 ?>
@@ -41,7 +42,7 @@ $status_icons = array(
 <div class="eo-list">
     <form class="eo-list-toolbar form-row align-items-end" method="get">
         <div class="col-md-3 mb-2"><label class="small font-weight-bold text-muted">Pencarian</label><input class="form-control" name="q" placeholder="Perihal, tujuan, nomor" value="<?php echo html_escape(isset($filters['q']) ? $filters['q'] : ''); ?>"></div>
-        <div class="col-md-2 mb-2"><label class="small font-weight-bold text-muted">Status</label><select class="form-control" name="status"><option value="">Semua status</option><?php foreach (array('Diajukan','Diproses Sekretaris','Sudah Diberi Nomor','Diteruskan ke Direktur','Ditandatangani','Didisposisikan','Selesai') as $status): ?><option value="<?php echo html_escape($status); ?>" <?php echo isset($filters['status']) && $filters['status'] === $status ? 'selected' : ''; ?>><?php echo $status; ?></option><?php endforeach; ?></select></div>
+        <div class="col-md-2 mb-2"><label class="small font-weight-bold text-muted">Status</label><select class="form-control" name="status"><option value="">Semua status</option><?php foreach (array('Diajukan','Diproses Sekretaris','Sudah Diberi Nomor','Diteruskan ke Direktur','Ditandatangani','Didisposisikan','Ditolak','Selesai') as $status): ?><option value="<?php echo html_escape($status); ?>" <?php echo isset($filters['status']) && $filters['status'] === $status ? 'selected' : ''; ?>><?php echo $status; ?></option><?php endforeach; ?></select></div>
         <div class="col-md-2 mb-2"><label class="small font-weight-bold text-muted">Jenis</label><select class="form-control" name="jenis"><option value="">Semua jenis</option><option value="internal" <?php echo isset($filters['jenis']) && $filters['jenis'] === 'internal' ? 'selected' : ''; ?>>Internal</option><option value="eksternal" <?php echo isset($filters['jenis']) && $filters['jenis'] === 'eksternal' ? 'selected' : ''; ?>>Eksternal</option></select></div>
         <div class="col-md-2 mb-2"><label class="small font-weight-bold text-muted">Dari tanggal</label><input type="date" class="form-control" name="mulai" value="<?php echo html_escape(isset($filters['mulai']) ? $filters['mulai'] : ''); ?>"></div>
         <div class="col-md-2 mb-2"><label class="small font-weight-bold text-muted">Sampai tanggal</label><input type="date" class="form-control" name="sampai" value="<?php echo html_escape(isset($filters['sampai']) ? $filters['sampai'] : ''); ?>"></div>

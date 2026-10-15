@@ -11,13 +11,6 @@
                 <a class="btn btn-sm btn-outline-primary mb-3" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>">Download dokumen bernomor</a>
             <?php endif; ?>
             <form method="post" enctype="multipart/form-data" action="<?php echo site_url('surat_direktur/simpan/' . $surat->id); ?>">
-                <div class="form-group">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="ttd_luar_sistem" name="ttd_luar_sistem" value="1" checked>
-                        <label class="custom-control-label" for="ttd_luar_sistem">Direktur tidak menandatangani di sistem (tanda tangan dilakukan di luar sistem)</label>
-                    </div>
-                    <small class="form-text text-muted">Centang jika surat akan ditandatangani di luar sistem. Pratinjau dan area tanda tangan akan disembunyikan.</small>
-                </div>
                 <div id="blok_pratinjau_ttd">
                 <?php if ($signature_preview): ?>
                     <div class="form-group">
@@ -26,7 +19,6 @@
                             <div id="pdf_loading" class="text-muted">Memuat dokumen PDF...</div>
                             <div id="pdf_pages"></div>
                         </div>
-                        <small class="form-text text-muted">Bubuhkan tanda tangan langsung pada halaman PDF. Seret tanda tangan untuk mengatur posisinya; untuk pindah halaman, hapus lalu bubuhkan kembali pada halaman yang diinginkan.</small>
                     </div>
                 <?php else: ?>
                     <div class="alert alert-warning">Pratinjau dan tanda tangan hanya tersedia untuk dokumen PDF. Minta sekretaris mengunggah dokumen bernomor dalam format PDF.</div>
@@ -35,10 +27,12 @@
                 <div class="form-group">
                     <label for="aksi_surat">Aksi</label>
                     <select name="aksi" id="aksi_surat" class="form-control" required>
-                        <option value="ttd" <?php echo !$signature_preview ? 'disabled' : ''; ?>>Tanda Tangani</option>
-                        <option value="disposisi" <?php echo !$signature_preview ? 'selected' : ''; ?>>Disposisi</option>
+                        <option value="ttd">Tanda Tangani</option>
+                        <option value="disposisi">Disposisi</option>
+                        <option value="tolak">Tolak</option>
                     </select>
-                    <small class="form-text text-muted">Jika surat ditandatangani, penerima disposisi tidak ditampilkan. Pilih Disposisi untuk memilih penerima.</small>
+                    <small class="form-text text-muted">Jika surat ditandatangani, penerima disposisi tidak ditampilkan. Pilih Disposisi untuk memilih penerima, atau Tolak bila surat tidak disetujui.</small>
+                    <div class="alert alert-info mt-2 mb-0 py-2"><small><strong>Info unduhan:</strong> Tanda Tangani &rarr; dokumen final dapat diunduh pemohon. Disposisi &rarr; dokumen final dapat diunduh penerima. Tolak &rarr; pemohon tidak dapat mengunduh dokumen final.</small></div>
                 </div>
                 <div class="form-group" id="panel_tanda_tangan">
                     <label>Tanda tangan pada dokumen</label>
@@ -47,8 +41,18 @@
                     <input type="hidden" name="signature_x" id="signature_x">
                     <input type="hidden" name="signature_y" id="signature_y">
                     <input type="hidden" name="signature_width" id="signature_width">
-                    <button type="button" id="hapus_tanda_tangan" class="btn btn-sm btn-outline-secondary">Hapus tanda tangan</button>
                     <small class="form-text text-muted">Tanda tangan ini bersifat visual dan bukan tanda tangan elektronik tersertifikasi VIDA TTE.</small>
+                </div>
+                <div class="form-group" id="panel_verifikasi">
+                    <label>QR verifikasi dokumen</label>
+                    <div class="d-flex align-items-start" style="gap:12px;">
+                        <canvas id="qr_verifikasi_preview" width="116" height="116" style="width:116px;height:116px;border:1px solid #d1d3e2;border-radius:.35rem;background:#fff;"></canvas>
+                        <div>
+                            <small class="form-text text-muted mt-0 mb-1">QR ini otomatis ditempel pada dokumen final saat surat ditandatangani. Bila dipindai, menampilkan halaman verifikasi keaslian dokumen.</small>
+                            <a id="qr_verifikasi_link" href="<?php echo html_escape($verifikasi_url); ?>" target="_blank" rel="noopener" class="small d-block text-break"><?php echo html_escape($verifikasi_url); ?></a>
+                        </div>
+                    </div>
+                    <input type="hidden" name="verification_qr" id="verification_qr">
                 </div>
                 <div class="form-group" id="pilihan_penerima_disposisi">
                     <label for="cari_user_disposisi">Cari tujuan disposisi</label>
@@ -72,8 +76,28 @@
                     <label for="catatan_disposisi">Catatan / instruksi</label>
                     <textarea name="catatan" id="catatan_disposisi" class="form-control" rows="3"></textarea>
                 </div>
+                <div class="form-group" id="panel_alasan_tolak" style="display:none;">
+                    <label for="alasan_tolak">Alasan penolakan</label>
+                    <textarea name="alasan_tolak" id="alasan_tolak" class="form-control" rows="3" placeholder="Tulis alasan surat ditolak..."></textarea>
+                    <small class="form-text text-muted">Alasan ini dikirimkan kepada pemohon sebagai pemberitahuan bahwa surat ditolak.</small>
+                </div>
+                <div class="form-group" id="panel_review_berkas">
+                    <label>Review berkas dari sekretaris</label>
+                    <div class="d-flex flex-wrap" style="gap:8px;">
+                        <?php if ($signature_preview): ?>
+                            <a class="btn btn-sm btn-outline-primary" href="<?php echo site_url('surat_direktur/preview/' . $surat->id); ?>" target="_blank" rel="noopener"><i class="fas fa-search"></i> Lihat berkas (PDF)</a>
+                        <?php endif; ?>
+                        <?php if ($surat->file_ber_nomor): ?>
+                            <a class="btn btn-sm btn-outline-secondary" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>"><i class="fas fa-download"></i> Unduh berkas bernomor</a>
+                        <?php else: ?>
+                            <span class="text-muted small">Belum ada berkas bernomor dari sekretaris.</span>
+                        <?php endif; ?>
+                    </div>
+                    <small class="form-text text-muted">Buka dan review berkas yang diunggah sekretaris sebelum menandatangani, mendisposisikan, atau menolak surat.</small>
+                </div>
                 <div class="form-group" id="unggah_dokumen_final">
-                    <label>Dokumen hasil TTD (.pdf, .doc, .docx, .jpg, .png)</label>
+                    <label>Dokumen final / hasil TTD (.pdf, .doc, .docx, .jpg, .png)</label>
+                    <small class="form-text text-muted">Opsional. Bila diunggah, dokumen ini dipakai sebagai dokumen final.</small>
                     <input type="file" name="file_final" class="form-control-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                 </div>
                 <button class="btn btn-primary">Simpan Aksi</button>
@@ -82,6 +106,7 @@
     </div>
 </div>
 <script src="<?php echo base_url('assets/vendor/pdfjs/pdf.min.js'); ?>"></script>
+<script src="<?php echo base_url('assets/js/qrcode-generator.js'); ?>"></script>
 <script>
 (function () {
     var search = document.getElementById('cari_user_disposisi');
@@ -94,13 +119,11 @@
     var note = document.getElementById('catatan_disposisi');
     var recipientGroup = document.getElementById('pilihan_penerima_disposisi');
     var signatureGroup = document.getElementById('panel_tanda_tangan');
-    var ttdLuarSistem = document.getElementById('ttd_luar_sistem');
     var pratinjauGroup = document.getElementById('blok_pratinjau_ttd');
-    var ttdOption = action ? action.querySelector('option[value="ttd"]') : null;
-    var ttdOptionDefaultDisabled = ttdOption ? ttdOption.disabled : false;
     var signatureInput = document.getElementById('signature_data');
-    var clearSignatureButton = document.getElementById('hapus_tanda_tangan');
     var finalUpload = document.getElementById('unggah_dokumen_final');
+    var rejectGroup = document.getElementById('panel_alasan_tolak');
+    var rejectField = document.getElementById('alasan_tolak');
     var pdfPreview = document.getElementById('pdf_preview');
     var pdfPages = document.getElementById('pdf_pages');
     var pdfLoading = document.getElementById('pdf_loading');
@@ -108,8 +131,49 @@
     var signatureXInput = document.getElementById('signature_x');
     var signatureYInput = document.getElementById('signature_y');
     var signatureWidthInput = document.getElementById('signature_width');
+    var qrPreview = document.getElementById('qr_verifikasi_preview');
+    var qrInput = document.getElementById('verification_qr');
+    var verifikasiUrl = <?php echo json_encode($verifikasi_url); ?>;
     var form = action ? action.form : null;
-    if (!search || !list || !count || !empty || !summary || !toggle || !action || !note || !recipientGroup || !signatureGroup || !ttdLuarSistem || !pratinjauGroup || !signatureInput || !clearSignatureButton || !finalUpload || !form) return;
+    if (!search || !list || !count || !empty || !summary || !toggle || !action || !note || !recipientGroup || !signatureGroup || !pratinjauGroup || !signatureInput || !finalUpload || !rejectGroup || !rejectField || !form) return;
+
+    function drawQrCanvas(canvas, text, size) {
+        var qr = qrcode(0, 'M');
+        qr.addData(text);
+        qr.make();
+        var moduleCount = qr.getModuleCount();
+        var quiet = 2;
+        var total = moduleCount + quiet * 2;
+        var px = Math.max(1, Math.floor((size || 300) / total));
+        var side = px * total;
+        canvas.width = side;
+        canvas.height = side;
+        var context = canvas.getContext('2d');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, side, side);
+        context.fillStyle = '#111827';
+        for (var row = 0; row < moduleCount; row++) {
+            for (var col = 0; col < moduleCount; col++) {
+                if (qr.isDark(row, col)) context.fillRect((col + quiet) * px, (row + quiet) * px, px, px);
+            }
+        }
+    }
+
+    function buildQrDataUrl(text, size) {
+        var temp = document.createElement('canvas');
+        drawQrCanvas(temp, text, size || 512);
+        return temp.toDataURL('image/png');
+    }
+
+    if (window.qrcode && qrPreview && verifikasiUrl) {
+        try {
+            drawQrCanvas(qrPreview, verifikasiUrl, 116);
+            qrPreview.style.width = '116px';
+            qrPreview.style.height = '116px';
+        } catch (e) {
+            if (window.console && console.error) console.error(e);
+        }
+    }
 
     var options = list.querySelectorAll('.user-disposisi-option');
     var checkboxes = list.querySelectorAll('.ke-user-checkbox');
@@ -221,8 +285,6 @@
         signatureWidthInput.value = '';
     }
 
-    clearSignatureButton.addEventListener('click', clearSignatureInk);
-
     function renderPdfPreview() {
         if (!pdfPreview) return;
         if (!window.pdfjsLib) {
@@ -299,16 +361,16 @@
 
     function updateNoteRequirement() {
         var isDisposition = action.value === 'disposisi';
-        var luarSistem = ttdLuarSistem.checked;
+        var isReject = action.value === 'tolak';
         note.required = isDisposition;
+        rejectField.required = isReject;
+        rejectGroup.style.display = isReject ? '' : 'none';
         recipientGroup.style.display = isDisposition ? '' : 'none';
-        signatureGroup.style.display = (isDisposition || luarSistem) ? 'none' : '';
-        pratinjauGroup.style.display = luarSistem ? 'none' : '';
-        finalUpload.style.display = isDisposition ? '' : 'none';
-        if (ttdOption) ttdOption.disabled = luarSistem ? false : ttdOptionDefaultDisabled;
-        if (!luarSistem && ttdOptionDefaultDisabled && action.value === 'ttd') action.value = 'disposisi';
-        note.previousElementSibling.textContent = isDisposition ? 'Catatan / instruksi' : 'Catatan tanda tangan (opsional)';
-        if (luarSistem) clearSignatureInk();
+        signatureGroup.style.display = (isDisposition || isReject) ? 'none' : '';
+        pratinjauGroup.style.display = '';
+        finalUpload.style.display = isReject ? 'none' : '';
+        note.previousElementSibling.textContent = isDisposition ? 'Catatan / instruksi' : (isReject ? 'Catatan (opsional)' : 'Catatan tanda tangan (opsional)');
+        if (isReject) clearSignatureInk();
     }
 
     search.addEventListener('input', function () {
@@ -321,23 +383,15 @@
     });
 
     action.addEventListener('change', updateNoteRequirement);
-    ttdLuarSistem.addEventListener('change', function () {
-        if (ttdLuarSistem.checked) {
-            updateNoteRequirement();
-            action.value = 'ttd';
-        }
-        updateNoteRequirement();
-    });
     Array.prototype.forEach.call(checkboxes, function (checkbox) {
         checkbox.addEventListener('change', updateCount);
     });
     form.addEventListener('submit', function (event) {
-        if (action.value !== 'ttd' || ttdLuarSistem.checked) return;
-        if (!activeSignature || !activeSignature.strokes.length) {
-            event.preventDefault();
-            alert('Bubuhkan tanda tangan langsung pada halaman PDF terlebih dahulu.');
-            return;
+        if (action.value !== 'ttd') return;
+        if (window.qrcode && qrInput && verifikasiUrl) {
+            try { qrInput.value = buildQrDataUrl(verifikasiUrl, 512); } catch (e) { qrInput.value = ''; }
         }
+        if (!activeSignature || !activeSignature.strokes.length) return;
         var bounds = signatureBounds(activeSignature.strokes);
         var padding = 8;
         var left = Math.max(0, Math.floor(bounds.left - padding));
@@ -358,6 +412,5 @@
     filterOptions();
     updateCount();
     updateNoteRequirement();
-    if (ttdLuarSistem.checked) action.value = 'ttd';
 }());
 </script>

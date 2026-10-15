@@ -22,6 +22,7 @@ function surat_status_class($status)
         'Diteruskan ke Direktur' => 'secondary',
         'Ditandatangani' => 'success',
         'Didisposisikan' => 'danger',
+        'Ditolak' => 'danger',
         'Selesai' => 'success'
     );
     return isset($map[$status]) ? $map[$status] : 'dark';

@@ -9,10 +9,48 @@ class Surat extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        is_logged_in();
+        // Halaman verifikasi QR dokumen bersifat publik (hasil pindai tanpa login).
+        if (strtolower($this->router->fetch_method()) !== 'verifikasi') {
+            is_logged_in();
+        }
         $this->load->helper(array('surat', 'download'));
         $this->load->model(array('Surat_model', 'Surat_lampiran_model', 'Surat_disposisi_model', 'Surat_log_model'));
         $this->load->library(array('form_validation', 'upload'));
+    }
+
+    public function verifikasi($id = 0, $kode = '')
+    {
+        header('X-Robots-Tag: noindex, nofollow', true);
+        $surat = $this->Surat_model->get((int) $id);
+        $kode_valid = $surat && !empty($surat->kode_verifikasi)
+            && is_string($kode) && $kode !== ''
+            && hash_equals((string) $surat->kode_verifikasi, (string) $kode);
+        $sah = $kode_valid && in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai'), TRUE);
+
+        $penandatangan = NULL;
+        $tanggal_ttd = NULL;
+        if ($kode_valid) {
+            $log = $this->db->select('l.created_at, u.name AS user_name')
+                ->from('surat_log l')
+                ->join('users u', 'u.id = l.id_user', 'left')
+                ->where('l.id_surat', (int) $id)
+                ->where('l.aksi', 'Surat ditandatangani')
+                ->order_by('l.id', 'DESC')
+                ->limit(1)
+                ->get()->row();
+            if ($log) {
+                $penandatangan = $log->user_name;
+                $tanggal_ttd = $log->created_at;
+            }
+        }
+
+        $this->load->view('surat/verifikasi', array(
+            'surat' => $kode_valid ? $surat : NULL,
+            'sah' => $sah,
+            'penandatangan' => $penandatangan,
+            'tanggal_ttd' => $tanggal_ttd,
+            'tgl' => date('d/m/Y H:i'),
+        ));
     }
 
     private function role()
@@ -85,7 +123,24 @@ class Surat extends CI_Controller
 
     public function download($id, $type = 'draft', $file = '')
     {
-        $surat = $this->Surat_model->get($id); if (!$surat) show_404(); $path = $type === 'draft' ? $surat->file_draft : ($type === 'numbered' ? $surat->file_ber_nomor : ($surat->file_final ?: ($surat->file_ber_nomor ?: $surat->file_draft))); if (!$path) show_404(); if (!is_file(FCPATH . $path)) show_404(); force_download(FCPATH . $path, NULL);
+        $surat = $this->Surat_model->get($id);
+        if (!$surat) show_404();
+        if ($this->role() === 'user') {
+            $uid = (int) $this->session->userdata('id');
+            $boleh_akses = (int) $surat->id_pemohon === $uid
+                || $this->db->where('id_surat', (int) $id)->where('ke_user', $uid)->count_all_results('surat_disposisi') > 0;
+            if (!$boleh_akses) show_error('Anda tidak memiliki akses ke dokumen ini.', 403);
+            if ($type !== 'final') show_error('Anda hanya dapat mengunduh dokumen final.', 403);
+            if (!in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai'), TRUE)) {
+                show_error('Dokumen final belum tersedia. Surat masih dalam proses atau ditolak.', 403);
+            }
+            $path = $surat->file_final ?: $surat->file_ber_nomor;
+        } else {
+            $path = $type === 'draft' ? $surat->file_draft : ($type === 'numbered' ? $surat->file_ber_nomor : ($surat->file_final ?: ($surat->file_ber_nomor ?: $surat->file_draft)));
+        }
+        if (!$path) show_404();
+        if (!is_file(FCPATH . $path)) show_404();
+        force_download(FCPATH . $path, NULL);
     }
 
     public function download_lampiran($id)

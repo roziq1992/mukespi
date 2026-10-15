@@ -6,7 +6,7 @@ $steps = array(
     array('label' => 'Diteruskan ke Direktur', 'icon' => 'fa-share-square'),
     array('label' => 'Finalisasi', 'icon' => 'fa-signature')
 );
-$status_step = array('Diajukan' => 0, 'Diproses Sekretaris' => 1, 'Sudah Diberi Nomor' => 2, 'Diteruskan ke Direktur' => 3, 'Ditandatangani' => 4, 'Didisposisikan' => 4, 'Selesai' => 4);
+$status_step = array('Diajukan' => 0, 'Diproses Sekretaris' => 1, 'Sudah Diberi Nomor' => 2, 'Diteruskan ke Direktur' => 3, 'Ditandatangani' => 4, 'Didisposisikan' => 4, 'Ditolak' => 3, 'Selesai' => 4);
 $active_step = isset($status_step[$surat->status]) ? $status_step[$surat->status] : 0;
 ?>
 <style>
@@ -66,9 +66,39 @@ $active_step = isset($status_step[$surat->status]) ? $status_step[$surat->status
         <div class="eo-actions"><a href="<?php echo site_url('surat'); ?>" class="btn btn-light"><i class="fas fa-arrow-left"></i> Kembali</a><?php if ((int) $this->session->userdata('role_id') === 1): ?><form method="post" action="<?php echo site_url('surat/hapus/' . $surat->id); ?>" onsubmit="return confirm('Hapus surat ini beserta seluruh riwayat dan file?');" style="display:inline"><button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button></form><?php endif; ?></div>
     </div>
 
+    <?php if ($surat->status === 'Ditolak'): ?>
+    <div class="alert alert-danger d-flex align-items-start" role="alert">
+        <i class="fas fa-times-circle mr-2" style="font-size:1.2rem;"></i>
+        <div>
+            <strong>Surat ditolak oleh Direktur.</strong>
+            <?php if (isset($surat->alasan_tolak) && $surat->alasan_tolak !== ''): ?><div class="mt-1">Alasan: <?php echo html_escape($surat->alasan_tolak); ?></div><?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="eo-panel"><div class="eo-panel-head"><div><h2>Progress Pengajuan</h2><p>Perjalanan surat dari pengajuan hingga finalisasi</p></div><span class="badge badge-<?php echo surat_status_class($surat->status); ?>">Status aktif</span></div><div class="eo-panel-body"><div class="eo-tracker"><?php foreach ($steps as $index => $step): ?><div class="eo-track-step <?php echo $index < $active_step ? 'done' : ''; ?> <?php echo $index === $active_step ? 'current done' : ''; ?>"><div class="eo-track-icon"><i class="fas <?php echo $step['icon']; ?>"></i></div><span class="eo-track-label"><?php echo $step['label']; ?></span></div><?php endforeach; ?></div></div></div>
 
-    <div class="eo-panel"><div class="eo-panel-head"><div><h2>Informasi Surat</h2><p>Ringkasan metadata dan dokumen terkait</p></div></div><div class="eo-panel-body"><div class="eo-info-grid"><div class="eo-info"><span class="eo-info-label">Nomor Surat</span><span class="eo-info-value"><?php echo html_escape($surat->no_surat ?: 'Belum bernomor'); ?></span></div><div class="eo-info"><span class="eo-info-label">Pemohon</span><span class="eo-info-value"><?php echo html_escape(isset($surat->pemohon) ? $surat->pemohon : '-'); ?></span></div><div class="eo-info"><span class="eo-info-label">Update Terakhir</span><span class="eo-info-value"><?php echo html_escape($surat->updated_at); ?></span></div></div><div class="mt-3"><span class="eo-info-label">Dokumen Surat</span><ul class="eo-file-list"><?php if ($surat->file_draft): ?><li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/draft'); ?>"><i class="fas fa-file-word"></i> Draft</a></li><?php endif; ?><?php if ($surat->file_ber_nomor): ?><li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>"><i class="fas fa-file-alt"></i> Bernomor</a></li><?php endif; ?><?php if ($surat->file_final): ?><li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/final'); ?>"><i class="fas fa-file-signature"></i> Final</a></li><?php endif; ?></ul></div><?php if ($lampiran): ?><div class="mt-3"><span class="eo-info-label">Lampiran</span><ul class="eo-file-list"><?php foreach ($lampiran as $file): ?><li><a class="eo-file" href="<?php echo site_url('surat/lampiran/' . $file->id); ?>"><i class="fas fa-paperclip"></i> <?php echo html_escape($file->nama_file); ?></a></li><?php endforeach; ?></ul></div><?php endif; ?></div></div>
+    <div class="eo-panel"><div class="eo-panel-head"><div><h2>Informasi Surat</h2><p>Ringkasan metadata dan dokumen terkait</p></div></div><div class="eo-panel-body"><div class="eo-info-grid"><div class="eo-info"><span class="eo-info-label">Nomor Surat</span><span class="eo-info-value"><?php echo html_escape($surat->no_surat ?: 'Belum bernomor'); ?></span></div><div class="eo-info"><span class="eo-info-label">Pemohon</span><span class="eo-info-value"><?php echo html_escape(isset($surat->pemohon) ? $surat->pemohon : '-'); ?></span></div><div class="eo-info"><span class="eo-info-label">Update Terakhir</span><span class="eo-info-value"><?php echo html_escape($surat->updated_at); ?></span></div></div><?php $final_ready = in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai'), TRUE); ?>
+<div class="mt-3"><span class="eo-info-label">Dokumen Surat</span>
+<?php if ($role === 'user'): ?>
+    <ul class="eo-file-list">
+        <?php if ($final_ready && ($surat->file_final || $surat->file_ber_nomor)): ?>
+            <li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/final'); ?>"><i class="fas fa-file-signature"></i> Dokumen Final</a></li>
+        <?php endif; ?>
+    </ul>
+    <?php if ($surat->status === 'Ditolak'): ?>
+        <small class="text-muted d-block mt-2"><i class="fas fa-lock mr-1"></i> Surat ditolak oleh Direktur. Dokumen final tidak tersedia untuk diunduh.</small>
+    <?php elseif (!$final_ready): ?>
+        <small class="text-muted d-block mt-2"><i class="fas fa-clock mr-1"></i> Dokumen final akan tersedia untuk diunduh setelah surat ditandatangani atau didisposisikan oleh Direktur.</small>
+    <?php elseif (!($surat->file_final || $surat->file_ber_nomor)): ?>
+        <small class="text-muted d-block mt-2"><i class="fas fa-clock mr-1"></i> Dokumen final sedang disiapkan.</small>
+    <?php else: ?>
+        <small class="text-muted d-block mt-2"><i class="fas fa-check-circle mr-1"></i> Dokumen final telah tersedia dan dapat diunduh.</small>
+    <?php endif; ?>
+<?php else: ?>
+    <ul class="eo-file-list"><?php if ($surat->file_draft): ?><li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/draft'); ?>"><i class="fas fa-file-word"></i> Draft</a></li><?php endif; ?><?php if ($surat->file_ber_nomor): ?><li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>"><i class="fas fa-file-alt"></i> Bernomor</a></li><?php endif; ?><?php if ($surat->file_final): ?><li><a class="eo-file" href="<?php echo site_url('surat/download/' . $surat->id . '/final'); ?>"><i class="fas fa-file-signature"></i> Final</a></li><?php endif; ?></ul>
+<?php endif; ?>
+</div><?php if ($lampiran): ?><div class="mt-3"><span class="eo-info-label">Lampiran</span><ul class="eo-file-list"><?php foreach ($lampiran as $file): ?><li><a class="eo-file" href="<?php echo site_url('surat/lampiran/' . $file->id); ?>"><i class="fas fa-paperclip"></i> <?php echo html_escape($file->nama_file); ?></a></li><?php endforeach; ?></ul></div><?php endif; ?></div></div>
 
     <div class="row"><div class="col-lg-7"><div class="eo-panel"><div class="eo-panel-head"><div><h2>Riwayat Aktivitas</h2><p>Catatan perubahan status surat</p></div><i class="fas fa-route text-primary"></i></div><div class="eo-panel-body"><div class="eo-timeline"><?php if (!$logs): ?><div class="eo-empty">Belum ada riwayat aktivitas.</div><?php endif; ?><?php foreach ($logs as $log): ?><div class="eo-event"><div class="eo-event-title"><?php echo html_escape($log->aksi); ?></div><div class="eo-event-meta"><i class="fas fa-user-circle mr-1"></i><?php echo html_escape($log->user_name ?: 'System'); ?> <span class="mx-1">·</span> <?php echo html_escape($log->created_at); ?></div><?php if ($log->keterangan): ?><div class="eo-event-note"><?php echo html_escape($log->keterangan); ?></div><?php endif; ?></div><?php endforeach; ?></div></div></div></div><div class="col-lg-5"><div class="eo-panel"><div class="eo-panel-head"><div><h2>Disposisi</h2><p>Instruksi dan tindak lanjut</p></div><i class="fas fa-share text-warning"></i></div><div class="eo-panel-body"><?php if (!$disposisi): ?><div class="eo-empty">Belum ada disposisi.</div><?php endif; ?><?php foreach ($disposisi as $item): ?><div class="eo-disposition"><strong><?php echo html_escape($item->dari_nama); ?> &rarr; <?php echo html_escape($item->ke_nama ?: $item->ke_bagian); ?></strong><?php if ($item->ke_jabatan): ?><br><small class="text-muted"><?php echo html_escape($item->ke_jabatan); ?></small><?php endif; ?><br><?php echo html_escape($item->catatan); ?><br><span class="badge badge-secondary mt-1"><?php echo html_escape($item->status); ?></span><?php if ($item->status !== 'Selesai' && ((int) $item->ke_user === (int) $this->session->userdata('id') || (int) $this->session->userdata('role_id') === 1)): ?><form method="post" action="<?php echo site_url('surat/disposisi/selesai/' . $item->id); ?>" class="mt-2"><button class="btn btn-sm btn-success"><i class="fas fa-check"></i> Tandai Selesai</button></form><?php endif; ?></div><?php endforeach; ?></div></div></div></div>
 </div>

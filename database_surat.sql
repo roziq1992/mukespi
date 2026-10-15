@@ -12,7 +12,9 @@ CREATE TABLE IF NOT EXISTS surat (
   file_draft VARCHAR(255) NULL,
   file_ber_nomor VARCHAR(255) NULL,
   file_final VARCHAR(255) NULL,
+  kode_verifikasi VARCHAR(64) NULL,
   status VARCHAR(50) NOT NULL DEFAULT 'Diajukan',
+  alasan_tolak TEXT NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id), KEY idx_surat_status (status), KEY idx_surat_tanggal (tanggal_pengajuan), KEY idx_surat_pemohon (id_pemohon),
@@ -39,6 +41,13 @@ CREATE TABLE IF NOT EXISTS surat_log (
 
 -- Perbaiki instalasi lama yang membuat id log tanpa AUTO_INCREMENT.
 ALTER TABLE surat_log MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+-- Perbaiki instalasi lama yang membuat id disposisi/lampiran tanpa AUTO_INCREMENT.
+SET @next_disposisi_id = (SELECT COALESCE(MAX(id), 0) + 1 FROM surat_disposisi WHERE id > 0);
+UPDATE surat_disposisi SET id = @next_disposisi_id WHERE id = 0;
+ALTER TABLE surat_disposisi MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+SET @next_lampiran_id = (SELECT COALESCE(MAX(id), 0) + 1 FROM surat_lampiran WHERE id > 0);
+UPDATE surat_lampiran SET id = @next_lampiran_id WHERE id = 0;
+ALTER TABLE surat_lampiran MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
 -- Pastikan ID surat baru dibuat otomatis pada instalasi lama.
 SET @next_surat_id = (SELECT COALESCE(MAX(id), 0) + 1 FROM surat);
 SET FOREIGN_KEY_CHECKS = 0;
@@ -47,6 +56,11 @@ UPDATE surat_lampiran SET id_surat = @next_surat_id WHERE id_surat = 0 AND EXIST
 UPDATE surat_disposisi SET id_surat = @next_surat_id WHERE id_surat = 0 AND EXISTS (SELECT 1 FROM surat WHERE id = 0);
 ALTER TABLE surat MODIFY id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Kolom alasan penolakan surat (untuk instalasi lama).
+ALTER TABLE surat ADD COLUMN IF NOT EXISTS alasan_tolak TEXT NULL AFTER status;
+-- Kolom token verifikasi dokumen surat (QR keaslian tanda tangan).
+ALTER TABLE surat ADD COLUMN IF NOT EXISTS kode_verifikasi VARCHAR(64) NULL AFTER file_final;
 
 -- Tambahkan role direktur bila instalasi memakai role_id terpisah (sesuaikan implementasi roles Anda).
 ALTER TABLE surat MODIFY status VARCHAR(50) NOT NULL DEFAULT 'Diajukan';

@@ -29,9 +29,9 @@ class Surat_model extends CI_Model
     public function pending_count($role, $user_id) {
         $this->db->from('surat');
         if ($role === 'user') {
-            $this->db->where("( (id_pemohon = " . (int) $user_id . " AND status NOT IN ('Selesai', 'Ditandatangani')) OR EXISTS (SELECT 1 FROM surat_disposisi sd WHERE sd.id_surat = surat.id AND sd.ke_user = " . (int) $user_id . " AND sd.status <> 'Selesai') )", NULL, FALSE);
+            $this->db->where("( (id_pemohon = " . (int) $user_id . " AND status NOT IN ('Selesai', 'Ditandatangani', 'Ditolak')) OR EXISTS (SELECT 1 FROM surat_disposisi sd WHERE sd.id_surat = surat.id AND sd.ke_user = " . (int) $user_id . " AND sd.status <> 'Selesai') )", NULL, FALSE);
         }
-        if ($role === 'admin') $this->db->where_not_in('status', array('Selesai', 'Ditandatangani'));
+        if ($role === 'admin') $this->db->where_not_in('status', array('Selesai', 'Ditandatangani', 'Ditolak'));
         if ($role === 'sekretaris') $this->db->where_in('status', array('Diajukan', 'Diproses Sekretaris'));
         if ($role === 'direktur') $this->db->where_in('status', array('Sudah Diberi Nomor', 'Diteruskan ke Direktur'));
         return $this->db->count_all_results();
