@@ -4,7 +4,6 @@ application/config/email.php
 application/config/config.php
 
 # Runtime and uploaded files #
-/vendor/
 application/cache/*
 !application/cache/index.html
 application/logs/*
