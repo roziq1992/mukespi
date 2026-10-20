@@ -672,7 +672,7 @@ $tanggal = date("Y-m-d");
 						<td data-label="Nilai Capaian"><?php echo $v_capaian ?></td>
 						<td data-label="Status"><span class="badge-capaian <?php echo $v_class ?>"><span class="dot"></span><?php echo $v_valid ? 'Valid' : 'Tidak Valid' ?></span></td>
 						<td data-label="Validator"><?php echo html_escape($v->nama_validator ?: '-') ?></td>
-						<td data-label="Tanggal Validasi" class="txt-mono"><?php echo $v->created_at ? date('d M Y H:i', strtotime($v->created_at)) : '-' ?></td>
+						<td data-label="Tanggal Validasi" class="txt-mono"><?php echo !empty($v->tanggal_validasi) ? date('d M Y', strtotime($v->tanggal_validasi)) : ($v->created_at ? date('d M Y H:i', strtotime($v->created_at)) : '-') ?></td>
 						<td data-label="Aksi">
 							<div class="action-group">
 								<?php echo anchor(site_url('mutu_indikator/validasi_detail?idvalidasi='.$v->id_validasi.'&id='.$this->input->get('id').'&judul='.urlencode($this->input->get('judul'))), '<i class="fa fa-eye"></i> Lihat', 'class="link-update"'); ?>
@@ -785,6 +785,11 @@ $tanggal = date("Y-m-d");
 							<small class="text-muted">Tanggal akhir</small>
 						</div>
 					</div>
+				</div>
+				<div class="form-group">
+					<label class="font-weight-bold">Tanggal Validasi</label>
+					<input type="date" name="tanggal_validasi" id="val_tanggal_validasi" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
+					<small class="text-muted">Tanggal pelaksanaan validasi oleh validator.</small>
 				</div>
 				<div class="form-group">
 					<label class="font-weight-bold">Rata-rata Capaian Indikator (num)</label>
