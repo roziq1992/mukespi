@@ -2,7 +2,7 @@
 -- Jalankan setelah tabel users tersedia.
 CREATE TABLE IF NOT EXISTS surat (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  jenis ENUM('internal','eksternal') NOT NULL,
+  jenis ENUM('internal','eksternal','disposisi') NOT NULL,
   perihal VARCHAR(255) NOT NULL,
   tujuan VARCHAR(255) NOT NULL,
   tanggal_pengajuan DATE NOT NULL,

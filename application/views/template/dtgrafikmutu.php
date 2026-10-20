@@ -15,20 +15,25 @@
                                     //  echo  $tahun ;
                                     //  echo  $bulan ;
                                      
-                                  $mutuindikator=$this->db->query('SELECT 
-                                	year( mutu_indikator.tanggal ) AS tahun,
-                                	MONTHNAME( mutu_indikator.tanggal ) AS bulan,
-                                	SUM(mutu_indikator.num) as num,
-                                	sum(mutu_indikator.demu) as demu,
-                                    case when list_indikator.jenis <> "PPI"  then SUM(mutu_indikator.num)/SUM(mutu_indikator.demu)*100
-                                	else SUM(mutu_indikator.num)/SUM(mutu_indikator.demu)*1000 end
-                                	as capaian,
+                                   $mutuindikator=$this->db->query('SELECT 
+                                	mutu_indikator.tanggal,
+                                	mutu_indikator.num,
+                                	mutu_indikator.demu,
+                                	list_indikator.jenis,
+                                	list_indikator.judul,
+                                	CASE
+                                		WHEN mutu_indikator.num <= 0 THEN 0
+                                		WHEN list_indikator.judul = "Kepuasan Pasien" THEN ROUND(mutu_indikator.num * 25, 2)
+                                		WHEN mutu_indikator.demu <= 0 THEN 0
+                                		WHEN list_indikator.jenis = "PPI" THEN ROUND(mutu_indikator.num / mutu_indikator.demu * 1000, 1)
+                                		ELSE ROUND(mutu_indikator.num / mutu_indikator.demu * 100, 1)
+                                	END AS capaian,
                                 	mutu_indikator.target
-                                	from mutu_indikator inner join list_indikator on mutu_indikator.id_indikator=list_indikator.id_indikator
-                                	where  mutu_indikator.tanggal  between  "'.$tanggal1.'"  and "'.$tanggal2.'" and mutu_indikator.id_indikator="'.$idindikator.'"
-                                	group by month( mutu_indikator.tanggal ) 
-                                    ORDER BY
-                                	MONTH ( mutu_indikator.tanggal ) ASC')->result();
+                                	FROM mutu_indikator
+                                	INNER JOIN list_indikator ON mutu_indikator.id_indikator = list_indikator.id_indikator
+                                	WHERE mutu_indikator.tanggal BETWEEN "' . $tanggal1 . '" AND "' . $tanggal2 . '"
+                                	AND mutu_indikator.id_indikator = "' . $idindikator . '"
+                                	ORDER BY mutu_indikator.tanggal ASC')->result();
                                 	$tnum=0;
                                 	$tdenum=0;
                                 	$rcapaian=0;

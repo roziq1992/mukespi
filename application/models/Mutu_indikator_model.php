@@ -230,10 +230,38 @@ class Mutu_indikator_model extends CI_Model
             $this->db->where('tanggal <=', $akhir);
         }
         $row = $this->db->get($this->table)->row();
+
+        // Hitung rata-rata capaian per baris harian (sama dengan avg_capaian_range)
+        $indikator = $this->db
+            ->select('jenis, judul')
+            ->where('id_indikator', (int) $id_indikator)
+            ->get('list_indikator')
+            ->row();
+        $jenis = $indikator ? $indikator->jenis : '';
+        $judul = $indikator ? $indikator->judul : '';
+
+        $this->db->where('id_indikator', (int) $id_indikator);
+        if ($awal !== NULL && $awal !== '') {
+            $this->db->where('tanggal >=', $awal);
+        }
+        if ($akhir !== NULL && $akhir !== '') {
+            $this->db->where('tanggal <=', $akhir);
+        }
+        $rows = $this->db->get($this->table)->result();
+
+        $avg_capaian = 0;
+        if (!empty($rows)) {
+            $total_capaian = 0;
+            foreach ($rows as $r) {
+                $total_capaian += $this->hitung_capaian($r->num, $r->demu, $jenis, $judul);
+            }
+            $avg_capaian = round($total_capaian / count($rows), 2);
+        }
+
         return array(
             'num'         => $row ? (float) $row->num : 0,
             'demu'        => $row ? (float) $row->demu : 0,
-            'avg_capaian' => $this->avg_capaian_range($id_indikator, $awal, $akhir),
+            'avg_capaian' => $row->demu > 0 ? round($row->num / $row->demu * 100, 2) : 0, // fallback to avoid division by zero
         );
     }
 

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Panduan Tata Cara Pengajuan Surat - SI-OFFICE RS Airlangga</title>
+<style>
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
+  @page { size: A4; margin: 14mm 13mm 16mm 13mm; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; color: #1f2d3d; font-size: 10.5pt; line-height: 1.55; }
+  h1, h2, h3, h4 { color: #102a43; line-height: 1.25; }
+  h2 { font-size: 16pt; margin: 0 0 4px; padding-bottom: 6px; border-bottom: 3px solid #2563eb; }
+  h3 { font-size: 12.5pt; margin: 16px 0 6px; color: #1f4e79; }
+  h4 { font-size: 11pt; margin: 12px 0 4px; color: #28527a; }
+  p { margin: 6px 0; }
+  a { color: #2563eb; text-decoration: none; }
+  ul, ol { margin: 6px 0 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+  code { background: #eef2f7; border: 1px solid #dbe3ee; border-radius: 4px; padding: 0 4px; font-family: Consolas, monospace; font-size: 9pt; color: #b03060; }
+  .section { page-break-before: always; }
+  .avoid { page-break-inside: avoid; }
+  .small { font-size: 9pt; }
+  .muted { color: #64748b; }
+
+  /* Cover */
+  .cover { height: 266mm; border-radius: 14px; overflow: hidden; position: relative; color: #fff;
+           background: linear-gradient(150deg, #0b1f38 0%, #143a63 45%, #1f6f8b 100%); page-break-after: always; }
+  .cover:after { content: ''; position: absolute; right: -70px; top: -80px; width: 300px; height: 300px; border: 34px solid rgba(255,255,255,.07); border-radius: 50%; }
+  .cover:before { content: ''; position: absolute; left: -90px; bottom: -110px; width: 340px; height: 340px; border: 40px solid rgba(255,255,255,.05); border-radius: 50%; }
+  .cover-inner { position: relative; z-index: 2; padding: 44mm 22mm 0; }
+  .cover .kicker { text-transform: uppercase; letter-spacing: .22em; font-size: 10pt; font-weight: 800; opacity: .78; }
+  .cover h1 { color: #fff; font-size: 30pt; line-height: 1.15; margin: 12px 0 10px; font-weight: 800; }
+  .cover .subtitle { font-size: 13pt; opacity: .92; max-width: 140mm; }
+  .cover .rule { width: 90px; height: 5px; background: #4fc3f7; border-radius: 3px; margin: 22px 0; }
+  .cover .meta { position: absolute; left: 22mm; right: 22mm; bottom: 26mm; z-index: 2; font-size: 10.5pt; opacity: .9; display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.25); padding-top: 12px; }
+  .emblem { width: 62px; height: 62px; border-radius: 16px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.35); display: flex; align-items: center; justify-content: center; font-size: 26pt; font-weight: 800; margin-bottom: 26px; }
+
+  /* Callouts */
+  .callout { border-radius: 8px; padding: 10px 13px; margin: 10px 0; font-size: 10pt; border-left: 5px solid; }
+  .callout .t { font-weight: 800; display: block; margin-bottom: 2px; }
+  .callout.info { background: #eef6ff; border-color: #2563eb; }
+  .callout.tip { background: #eafaf1; border-color: #0f9f72; }
+  .callout.warn { background: #fff7e6; border-color: #e38b27; }
+  .callout.danger { background: #fdeceb; border-color: #d64545; }
+
+  /* Tables */
+  table.tbl { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.6pt; }
+  table.tbl th { background: #102a43; color: #fff; text-align: left; padding: 7px 9px; font-weight: 700; }
+  table.tbl td { border: 1px solid #dbe3ee; padding: 7px 9px; vertical-align: top; }
+  table.tbl tr:nth-child(even) td { background: #f7f9fc; }
+
+  /* Status badges */
+  .st { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 8.6pt; font-weight: 800; white-space: nowrap; }
+  .st.primary { background: #e8f0ff; color: #2456b8; }
+  .st.warning { background: #fff5d9; color: #986b00; }
+  .st.info { background: #e2f5fa; color: #08758c; }
+  .st.secondary { background: #eef1f5; color: #536273; }
+  .st.success { background: #e4f8ef; color: #087f5b; }
+  .st.danger { background: #fde9e8; color: #b53030; }
+
+  .roles td .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:middle; }
+
+  /* Diagram */
+  .diagram { border: 1px solid #dbe3ee; border-radius: 10px; padding: 8px; background: #fbfcfe; break-inside: avoid; }
+  .diagram svg { width: 100%; height: auto; display: block; margin: 0 auto; }
+  .diagram.compact svg { width: 76%; }
+  .diagram.wide svg { width: 92%; }
+  .figcap { font-size: 9pt; color: #64748b; text-align: center; margin: 5px 0 14px; }
+
+  /* Mockup */
+  .mock { border: 1px solid #cdd8e6; border-radius: 10px; overflow: hidden; margin: 12px 0; box-shadow: 0 6px 18px rgba(16,42,67,.10); break-inside: avoid; }
+  .mock-bar { background: #eef2f7; border-bottom: 1px solid #dbe3ee; padding: 6px 10px; display: flex; align-items: center; gap: 6px; }
+  .mock-bar .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .mock-bar .d1 { background: #ff5f57; } .mock-bar .d2 { background: #febc2e; } .mock-bar .d3 { background: #28c840; }
+  .mock-bar .url { margin-left: 8px; font-size: 8pt; color: #64748b; background: #fff; border: 1px solid #dbe3ee; border-radius: 6px; padding: 1px 8px; }
+  .mock-body { padding: 14px; background: #f4f6fa; }
+  .card-mock { background: #fff; border: 1px solid #e4eaf2; border-radius: 10px; box-shadow: 0 4px 14px rgba(23,43,77,.06); overflow: hidden; }
+  .card-mock .head { padding: 12px 16px; border-bottom: 1px solid #e4eaf2; font-weight: 800; color: #172b4d; font-size: 10.5pt; }
+  .card-mock .body { padding: 14px 16px; }
+  .hero-mock { background: linear-gradient(135deg,#102a43,#1f4e79 65%,#2c7a9d); color:#fff; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .hero-mock .eyebrow { font-size: 7.5pt; text-transform: uppercase; letter-spacing:.12em; opacity:.72; font-weight:800; }
+  .hero-mock h1 { color:#fff; font-size: 14pt; margin: 4px 0; }
+  .hero-mock p { font-size: 8.6pt; opacity:.86; margin:0; }
+  .lbl { display:block; font-size: 8.3pt; font-weight: 800; color: #52657d; margin: 8px 0 3px; }
+  .inp { border: 1px solid #dce4ee; border-radius: 7px; background:#fff; height: 28px; display:flex; align-items:center; padding: 0 9px; font-size: 8.6pt; color:#334; }
+  .inp.ta { height: 46px; align-items: flex-start; padding-top: 5px; color:#94a3b8; }
+  .inp.ph { color:#94a3b8; }
+  .btn-mock { display:inline-block; border-radius: 7px; padding: 6px 13px; font-size: 8.6pt; font-weight: 800; }
+  .btn-primary { background: #2563eb; color:#fff; }
+  .btn-light { background:#eef2f7; color:#334; border:1px solid #dbe3ee; }
+  .btn-outline { background:#fff; color:#2563eb; border:1px solid #bcd3f5; }
+  .btn-green { background:#0f9f72; color:#fff; }
+  .btn-danger { background:#d64545; color:#fff; }
+  .btn-gray { background:#fff; color:#536273; border:1px solid #dbe3ee; }
+  .row2 { display:flex; gap: 12px; }
+  .row2 > * { flex:1; }
+  .type-opt { border:1px solid #e4eaf2; border-radius:8px; padding:8px 10px; font-size:8.6pt; display:flex; gap:8px; align-items:center; }
+  .type-opt.on { border-color:#2563eb; background:#f2f6ff; color:#1f54b5; box-shadow:0 0 0 2px rgba(37,99,235,.1); }
+  .up { border:1px dashed #b9c8d8; background:#f8fafc; border-radius:8px; padding:10px; font-size:8.3pt; color:#52657d; }
+  .up b { color:#172b4d; }
+  .tbl-mock { width:100%; border-collapse:collapse; font-size:8.5pt; }
+  .tbl-mock th { text-align:left; color:#7b8a9d; font-size:7.5pt; text-transform:uppercase; letter-spacing:.06em; padding:6px 8px; border-bottom:1px solid #e4eaf2; }
+  .tbl-mock td { padding:8px; border-bottom:1px solid #edf1f5; vertical-align:middle; }
+  .tbl-mock tr:nth-child(even) td { background:#fbfcfe; }
+  .alert-mock { border-radius:7px; padding:8px 11px; font-size:8.4pt; margin:8px 0; }
+  .alert-mock.info { background:#eef6ff; border:1px solid #cfe0fb; color:#1f4e79; }
+  .alert-mock.warn { background:#fff7e6; border:1px solid #f6e0b3; color:#8a5a00; }
+  .alert-mock.danger { background:#fdeceb; border:1px solid #f5c9c6; color:#a13030; }
+  .alert-mock.success { background:#eafaf1; border:1px solid #c3ecda; color:#0b7357; }
+  .tracker { display:flex; align-items:flex-start; gap:2px; margin:6px 0; }
+  .tracker .t { flex:1; text-align:center; font-size:7.6pt; color:#8a98aa; font-weight:700; position:relative; }
+  .tracker .t .ic { width:26px; height:26px; border-radius:50%; background:#f1f4f8; color:#9aa8b8; border:2px solid #fff; box-shadow:0 0 0 1px #e4eaf2; display:flex; align-items:center; justify-content:center; margin:0 auto 4px; font-size:11px; }
+  .tracker .t.done .ic { background:#0f9f72; color:#fff; box-shadow:0 0 0 1px #0f9f72; }
+  .tracker .t.cur .ic { background:#2563eb; color:#fff; box-shadow:0 0 0 4px rgba(37,99,235,.15); }
+  .tracker .t.done { color:#172b4d; } .tracker .t.cur { color:#172b4d; }
+  .info-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .info-box { background:#f7f9fc; border-radius:8px; padding:9px 11px; }
+  .info-box .k { font-size:7pt; text-transform:uppercase; letter-spacing:.06em; color:#718096; font-weight:800; display:block; }
+  .info-box .v { font-size:9pt; font-weight:700; color:#172b4d; }
+  .tl { list-style:none; padding:0; margin:0; }
+  .tl li { border-left:2px solid #dce6f0; margin-left:4px; padding:0 0 10px 14px; position:relative; font-size:8.6pt; }
+  .tl li:before { content:''; position:absolute; left:-6px; top:3px; width:9px; height:9px; border-radius:50%; background:#2563eb; border:2px solid #dceafe; }
+  .tl li b { color:#172b4d; }
+  .qr-box { display:flex; gap:12px; align-items:flex-start; }
+  .qr-box .qr { width:86px; height:86px; border:1px solid #cdd8e6; border-radius:8px; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .toc li { margin: 5px 0; }
+  .toc .n { display:inline-block; width:22px; font-weight:800; color:#2563eb; }
+  .numlist { counter-reset: step; list-style:none; padding-left:0; }
+  .numlist > li { position:relative; padding: 6px 0 6px 34px; margin: 2px 0; }
+  .numlist > li:before { counter-increment: step; content: counter(step); position:absolute; left:0; top:5px; width:23px; height:23px; border-radius:50%; background:#2563eb; color:#fff; font-weight:800; font-size:9pt; display:flex; align-items:center; justify-content:center; }
+  .kbd { font-family: Consolas, monospace; background:#102a43; color:#fff; border-radius:4px; padding:0 5px; font-size:9pt; }
+  .footer-note { margin-top: 18px; border-top: 1px solid #dbe3ee; padding-top: 8px; font-size: 8.6pt; color: #64748b; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="emblem">RSA</div>
+    <div class="kicker">Rumah Sakit Airlangga &middot; Sistem Informasi</div>
+    <h1>Panduan Tata Cara<br>Pengajuan Surat</h1>
+    <div class="rule"></div>
+    <div class="subtitle">Modul <strong>SI-OFFICE (E-Office)</strong> &mdash; alur pengajuan surat mulai dari Pemohon/User, diproses oleh Sekretaris, hingga ditandatangani atau didisposisikan oleh Direktur, lengkap dengan verifikasi keaslian dokumen melalui QR Code.</div>
+  </div>
+  <div class="meta">
+    <span>Versi Dokumen 1.0</span>
+    <span>Oktober 2026</span>
+  </div>
+</div>
+
+<!-- DAFTAR ISI -->
+<div class="avoid">
+  <h2>Daftar Isi</h2>
+  <ol class="toc">
+    <li><span class="n">1</span> Pendahuluan</li>
+    <li><span class="n">2</span> Peran Pengguna (Hak Akses)</li>
+    <li><span class="n">3</span> Alur Singkat Pengajuan Surat <span class="muted small">(diagram)</span></li>
+    <li><span class="n">4</span> Mengenal Status Surat <span class="muted small">(diagram)</span></li>
+    <li><span class="n">5</span> Langkah 1 &mdash; Pemohon Membuat Pengajuan Surat</li>
+    <li><span class="n">6</span> Langkah 2 &mdash; Sekretaris Memberi Nomor &amp; Meneruskan</li>
+    <li><span class="n">7</span> Langkah 3 &mdash; Direktur Menandatangani / Disposisi / Menolak</li>
+    <li><span class="n">8</span> Langkah 4 &mdash; Penerima Disposisi Menindaklanjuti</li>
+    <li><span class="n">9</span> Langkah 5 &mdash; Mengunduh &amp; Verifikasi Dokumen (QR)</li>
+    <li><span class="n">10</span> Notifikasi Email</li>
+    <li><span class="n">11</span> Penanganan Masalah (Troubleshooting)</li>
+    <li><span class="n">12</span> Pertanyaan Umum (FAQ)</li>
+  </ol>
+  <div class="callout info"><span class="t">Tentang dokumen ini</span>Panduan ini menjelaskan tata cara penggunaan menu <strong>SI-OFFICE</strong> di aplikasi RS Airlangga sesuai alur yang berlaku saat ini. Gambar pada panduan ini adalah ilustrasi antarmuka (mockup) dan diagram alur.</div>
+</div>
+
+<!-- 1 PENDAHULUAN -->
+<div class="section">
+  <h2>1. Pendahuluan</h2>
+  <p><strong>SI-OFFICE</strong> (E-Office) adalah modul pada aplikasi RS Airlangga untuk mengelola <strong>surat internal dan eksternal</strong> secara terpusat dan digital. Modul ini mencatat setiap tahapan pengajuan surat, mulai dari pembuatan draft oleh pemohon, pemberian nomor surat oleh Sekretaris, hingga tanda tangan dan disposisi oleh Direktur.</p>
+
+  <h3>Manfaat</h3>
+  <ul>
+    <li>Pengajuan surat tercatat rapi dan mudah dilacak (tracking) posisinya.</li>
+    <li>Nomor surat dibuat otomatis dengan format standar RS.</li>
+    <li>Tanda tangan dan disposisi Direktur dilakukan langsung pada dokumen PDF.</li>
+    <li>Dokumen final dilindungi <strong>QR Code verifikasi keaslian</strong> yang dapat dipindai siapa saja.</li>
+    <li>Notifikasi otomatis dikirim melalui email ke pihak yang berkepentingan.</li>
+  </ul>
+
+  <h3>Istilah yang dipakai</h3>
+  <table class="tbl">
+    <tr><th>Istilah</th><th>Arti</th></tr>
+    <tr><td>Draft Surat</td><td>Berkas konsep surat yang diunggah Pemohon (DOC/DOCX/PDF, maks 5 MB).</td></tr>
+    <tr><td>Dokumen Bernomor</td><td>Berkas surat yang sudah diberi nomor oleh Sekretaris (wajib PDF agar dapat ditandatangani).</td></tr>
+    <tr><td>Dokumen Final</td><td>Surat hasil akhir (hasil tanda tangan / hasil TTD yang diunggah) yang siap diunduh.</td></tr>
+    <tr><td>Disposisi</td><td>Intruksi Direktur kepada satu atau beberapa pegawai untuk menindaklanjuti surat.</td></tr>
+    <tr><td>QR Verifikasi</td><td>Kode QR yang ditempel pada dokumen final; jika dipindai menampilkan halaman keaslian dokumen.</td></tr>
+  </table>
+</div>
+
+<!-- 2 PERAN -->
+<div class="section">
+  <h2>2. Peran Pengguna (Hak Akses)</h2>
+  <p>Setiap pengguna masuk (login) dengan akunnya masing-masing. Menu dan tombol yang tampil menyesuaikan <strong>peran (role)</strong> pengguna. Berikut ringkasan peran pada SI-OFFICE:</p>
+  <table class="tbl roles avoid">
+    <tr><th>Peran</th><th>Menu Utama</th><th>Tugas / Kewenangan</th></tr>
+    <tr>
+      <td><span class="dot" style="background:#2563eb"></span><strong>Pemohon / User</strong></td>
+      <td>SI-OFFICE &rarr; <em>Surat Saya</em>, <em>Pengajuan Baru</em></td>
+      <td>Membuat pengajuan surat, memantau status, menerima disposisi, dan mengunduh dokumen final.</td>
+    </tr>
+    <tr>
+      <td><span class="dot" style="background:#e38b27"></span><strong>Sekretaris</strong></td>
+      <td>SI-OFFICE &rarr; <em>Surat Masuk Sekretaris</em></td>
+      <td>Memproses surat masuk: memberi nomor surat, mengunggah dokumen bernomor PDF, lalu meneruskan ke Direktur.</td>
+    </tr>
+    <tr>
+      <td><span class="dot" style="background:#0f9f72"></span><strong>Direktur</strong></td>
+      <td>SI-OFFICE &rarr; <em>TTD &amp; Disposisi</em></td>
+      <td>Mereview berkas, lalu <strong>Menandatangani</strong>, <strong>Mendisposisikan</strong>, atau <strong>Menolak</strong> surat.</td>
+    </tr>
+    <tr>
+      <td><span class="dot" style="background:#7c3aed"></span><strong>Penerima Disposisi</strong></td>
+      <td>SI-OFFICE &rarr; <em>Surat Saya</em></td>
+      <td>Menindaklanjuti surat yang didisposisikan kepadanya dan menandainya <em>Selesai</em>.</td>
+    </tr>
+    <tr>
+      <td><span class="dot" style="background:#475569"></span><strong>Admin</strong></td>
+      <td>SI-OFFICE &rarr; <em>Kelola Semua Surat</em></td>
+      <td>Melihat seluruh surat, menghapus surat beserta file &amp; riwayatnya, dan dapat bertindak pada semua tahap.</td>
+    </tr>
+  </table>
+  <div class="callout warn"><span class="t">Penting</span>Pastikan peran (role) akun Anda sudah benar. Bila menu SI-OFFICE tidak muncul atau tombol tidak sesuai, hubungi Admin untuk memeriksa pengaturan role akun.</div>
+</div>
+
+<!-- 3 ALUR SINGKAT (DIAGRAM 1) -->
+<div class="section">
+  <h2>3. Alur Singkat Pengajuan Surat</h2>
+  <p>Secara garis besar, sebuah surat melewati lima tahap utama: <strong>Pengajuan</strong> &rarr; <strong>Pemberian Nomor (Sekretaris)</strong> &rarr; <strong>Aksi Direktur</strong> &rarr; <strong>Tindak Lanjut Disposisi</strong> &rarr; <strong>Dokumen Final</strong>. Diagram berikut menggambarkan alur tersebut beserta warna peran.</p>
+
+  <div class="diagram compact">
+  <svg viewBox="0 0 900 1200" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+    <defs>
+      <marker id="ar" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+        <path d="M0,0 L9,4 L0,8 z" fill="#64748b"></path>
+      </marker>
+    </defs>
+    <style>
+      .nd { stroke-width:2; rx:10; ry:10; }
+      .tx { font-size:14px; fill:#102a43; text-anchor:middle; font-weight:600; }
+      .txs { font-size:12px; fill:#475569; text-anchor:middle; }
+      .ln { stroke:#64748b; stroke-width:2; fill:none; marker-end:url(#ar); }
+      .lbl { font-size:11px; font-weight:800; text-anchor:middle; }
+      .lane { font-size:12px; font-weight:800; fill:#334155; text-anchor:middle; }
+    </style>
+
+    <!-- 1 -->
+    <rect class="nd" x="220" y="16" width="460" height="54" fill="#e8f0ff" stroke="#2563eb"></rect>
+    <text class="tx" x="450" y="40">1. Login &amp; buka menu <tspan font-weight="800">SI-OFFICE</tspan></text>
+    <text class="txs" x="450" y="58">Pemohon / User</text>
+    <line class="ln" x1="450" y1="70" x2="450" y2="104"></line>
+
+    <!-- 2 -->
+    <rect class="nd" x="220" y="104" width="460" height="54" fill="#e8f0ff" stroke="#2563eb"></rect>
+    <text class="tx" x="450" y="128">2. Pilih <tspan font-weight="800">Buat Pengajuan Surat</tspan></text>
+    <text class="txs" x="450" y="146">menu: SI-OFFICE &rarr; Pengajuan Baru</text>
+    <line class="ln" x1="450" y1="158" x2="450" y2="192"></line>
+
+    <!-- 3 -->
+    <rect class="nd" x="180" y="192" width="540" height="64" fill="#e8f0ff" stroke="#2563eb"></rect>
+    <text class="tx" x="450" y="216">3. Isi data surat &amp; unggah berkas</text>
+    <text class="txs" x="450" y="234">jenis, perihal, tujuan, tanggal &middot; Draft Surat (wajib) &middot; lampiran (opsional)</text>
+    <line class="ln" x1="450" y1="256" x2="450" y2="288"></line>
+
+    <!-- 4 -->
+    <rect class="nd" x="220" y="288" width="460" height="54" fill="#e8f0ff" stroke="#2563eb"></rect>
+    <text class="tx" x="450" y="312">4. Klik <tspan font-weight="800">Ajukan Surat</tspan></text>
+    <text class="txs" x="450" y="330">status berubah menjadi &ldquo;Diajukan&rdquo;</text>
+    <line class="ln" x1="450" y1="342" x2="450" y2="376"></line>
+
+    <!-- 5 -->
+    <rect class="nd" x="180" y="376" width="540" height="64" fill="#fff5d9" stroke="#e38b27"></rect>
+    <text class="tx" x="450" y="400">5. Sekretaris membuka <tspan font-weight="800">Surat Masuk Sekretaris</tspan></text>
+    <text class="txs" x="450" y="418">klik Proses &rarr; status: &ldquo;Diproses Sekretaris&rdquo;</text>
+    <line class="ln" x1="450" y1="440" x2="450" y2="472"></line>
+
+    <!-- 6 -->
+    <rect class="nd" x="180" y="472" width="540" height="64" fill="#fff5d9" stroke="#e38b27"></rect>
+    <text class="tx" x="450" y="496">6. Isi / <tspan font-weight="800">Generate Nomor Surat</tspan> lalu unggah dokumen bernomor (PDF)</text>
+    <text class="txs" x="450" y="514">dokumen wajib PDF agar dapat ditandatangani Direktur</text>
+    <line class="ln" x1="450" y1="536" x2="450" y2="568"></line>
+
+    <!-- 7 -->
+    <rect class="nd" x="180" y="568" width="540" height="64" fill="#fff5d9" stroke="#e38b27"></rect>
+    <text class="tx" x="450" y="592">7. Klik <tspan font-weight="800">Simpan &amp; Teruskan ke Direktur</tspan></text>
+    <text class="txs" x="450" y="610">status: &ldquo;Diteruskan ke Direktur&rdquo; &middot; email notifikasi terkirim</text>
+    <line class="ln" x1="450" y1="632" x2="450" y2="664"></line>
+
+    <!-- 8 -->
+    <rect class="nd" x="220" y="664" width="460" height="54" fill="#e4f8ef" stroke="#0f9f72"></rect>
+    <text class="tx" x="450" y="688">8. Direktur: <tspan font-weight="800">TTD &amp; Disposisi</tspan> &rarr; review berkas PDF</text>
+    <text class="txs" x="450" y="706">lalu pilih salah satu aksi di bawah ini</text>
+
+    <!-- bus lines -->
+    <line class="ln" x1="450" y1="718" x2="450" y2="742" marker-end="none"></line>
+    <line class="ln" x1="165" y1="742" x2="735" y2="742" marker-end="none"></line>
+    <line class="ln" x1="165" y1="742" x2="165" y2="760"></line>
+    <line class="ln" x1="450" y1="742" x2="450" y2="760"></line>
+    <line class="ln" x1="735" y1="742" x2="735" y2="760"></line>
+
+    <!-- branch A -->
+    <rect class="nd" x="30" y="760" width="270" height="112" fill="#e4f8ef" stroke="#0f9f72"></rect>
+    <text class="tx" x="165" y="792" font-weight="800">A. Tanda Tangani</text>
+    <text class="txs" x="165" y="814">Bubuhkan tanda tangan pada PDF</text>
+    <text class="txs" x="165" y="832">status: &ldquo;Ditandatangani&rdquo;</text>
+    <text class="txs" x="165" y="850" fill="#0b7357" font-weight="700">QR verifikasi ditempel ke PDF</text>
+
+    <!-- branch B -->
+    <rect class="nd" x="315" y="760" width="270" height="112" fill="#e4f8ef" stroke="#0f9f72"></rect>
+    <text class="tx" x="450" y="792" font-weight="800">B. Disposisi</text>
+    <text class="txs" x="450" y="814">Pilih satu/lebih penerima + catatan</text>
+    <text class="txs" x="450" y="832">status: &ldquo;Didisposisikan&rdquo;</text>
+    <text class="txs" x="450" y="850" fill="#0b7357" font-weight="700">email ke penerima terkirim</text>
+
+    <!-- branch C -->
+    <rect class="nd" x="600" y="760" width="270" height="112" fill="#fdeceb" stroke="#d64545"></rect>
+    <text class="tx" x="735" y="792" font-weight="800" fill="#a13030">C. Tolak</text>
+    <text class="txs" x="735" y="814">Isi alasan penolakan (wajib)</text>
+    <text class="txs" x="735" y="832">status: &ldquo;Ditolak&rdquo;</text>
+    <text class="txs" x="735" y="850" fill="#a13030" font-weight="700">alasan dikirim ke pemohon</text>
+
+    <!-- A -> final -->
+    <line class="ln" x1="165" y1="872" x2="165" y2="1004"></line>
+    <line class="ln" x1="165" y1="1004" x2="250" y2="1004"></line>
+    <line class="ln" x1="250" y1="1004" x2="250" y2="1016"></line>
+
+    <!-- B -> 9 -->
+    <line class="ln" x1="450" y1="872" x2="450" y2="910"></line>
+
+    <!-- 9 -->
+    <rect class="nd" x="315" y="910" width="270" height="64" fill="#f0e9ff" stroke="#7c3aed"></rect>
+    <text class="tx" x="450" y="934">9. Penerima disposisi</text>
+    <text class="txs" x="450" y="952">menindaklanjuti &rarr; Tandai Selesai</text>
+
+    <!-- 9 -> 10 -->
+    <line class="ln" x1="450" y1="974" x2="450" y2="1016"></line>
+
+    <!-- 10 -->
+    <rect class="nd" x="180" y="1016" width="540" height="60" fill="#e8f0ff" stroke="#2563eb"></rect>
+    <text class="tx" x="450" y="1040">10. Pemohon / Penerima mengunduh <tspan font-weight="800">Dokumen Final</tspan></text>
+    <text class="txs" x="450" y="1058">status akhir: &ldquo;Selesai&rdquo; setelah semua disposisi tuntas</text>
+
+    <!-- 10 -> 11 -->
+    <line class="ln" x1="450" y1="1076" x2="450" y2="1108"></line>
+
+    <!-- 11 -->
+    <rect class="nd" x="180" y="1108" width="540" height="64" fill="#102a43" stroke="#102a43"></rect>
+    <text class="tx" x="450" y="1132" fill="#ffffff">11. Keaslian dokumen diverifikasi lewat <tspan font-weight="800">QR Code</tspan></text>
+    <text class="txs" x="450" y="1150" fill="#cbd8e6">pindai QR &rarr; halaman verifikasi menampilkan status &amp; penandatangan</text>
+  </svg>
+  </div>
+  <div class="figcap">Gambar 1. Alur pengajuan surat dari Pemohon/User, Sekretaris, Direktur, hingga dokumen final.</div>
+
+  <div class="callout info"><span class="t">Keterangan warna</span>
+    <span class="st primary">Biru</span> Pemohon/User &nbsp;
+    <span class="st warning">Kuning</span> Sekretaris &nbsp;
+    <span class="st success">Hijau</span> Direktur &nbsp;
+    <span class="st danger">Merah</span> Tolak/Ditolak &nbsp;
+    <span style="background:#f0e9ff;color:#6d28d9" class="st">Ungu</span> Penerima Disposisi
+  </div>
+</div>
+
+<!-- 4 STATUS (DIAGRAM 2) -->
+<div class="section">
+  <h2>4. Mengenal Status Surat</h2>
+  <p>Setiap surat memiliki satu status yang menunjukkan posisinya dalam alur. Status berubah otomatis sesuai aksi yang dilakukan.</p>
+
+  <div class="diagram wide">
+  <svg viewBox="0 0 900 470" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+    <defs>
+      <marker id="ar2" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+        <path d="M0,0 L9,4 L0,8 z" fill="#64748b"></path>
+      </marker>
+      <marker id="ar2r" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
+        <path d="M0,0 L9,4 L0,8 z" fill="#d64545"></path>
+      </marker>
+    </defs>
+    <style>
+      .pill { rx:22; ry:22; stroke-width:2; }
+      .pt { font-size:13px; font-weight:700; text-anchor:middle; }
+      .lnx { stroke:#64748b; stroke-width:2; fill:none; marker-end:url(#ar2); }
+      .lnr { stroke:#d64545; stroke-width:2; fill:none; marker-end:url(#ar2r); }
+      .dash { stroke:#94a3b8; stroke-width:2; fill:none; stroke-dasharray:5 4; marker-end:url(#ar2); }
+    </style>
+
+    <!-- row 1 -->
+    <rect class="pill" x="16" y="40" width="150" height="50" fill="#e8f0ff" stroke="#2563eb"></rect>
+    <text class="pt" x="91" y="70" fill="#2456b8">Diajukan</text>
+    <line class="lnx" x1="166" y1="65" x2="196" y2="65"></line>
+
+    <rect class="pill" x="198" y="40" width="176" height="50" fill="#fff5d9" stroke="#e38b27"></rect>
+    <text class="pt" x="286" y="70" fill="#986b00">Diproses Sekretaris</text>
+    <line class="lnx" x1="374" y1="65" x2="404" y2="65"></line>
+
+    <rect class="pill" x="406" y="40" width="170" height="50" fill="#e2f5fa" stroke="#0891b2"></rect>
+    <text class="pt" x="491" y="70" fill="#08758c">Sudah Diberi Nomor</text>
+    <line class="lnx" x1="576" y1="65" x2="606" y2="65"></line>
+
+    <rect class="pill" x="608" y="40" width="200" height="50" fill="#eef1f5" stroke="#64748b"></rect>
+    <text class="pt" x="708" y="70" fill="#475569">Diteruskan ke Direktur</text>
+
+    <!-- bus to outcomes -->
+    <line class="lnx" x1="708" y1="90" x2="708" y2="120" marker-end="none"></line>
+    <line class="lnx" x1="150" y1="120" x2="708" y2="120" marker-end="none"></line>
+    <line class="lnx" x1="150" y1="120" x2="150" y2="150"></line>
+    <line class="lnx" x1="450" y1="120" x2="450" y2="150"></line>
+    <line class="lnr" x1="708" y1="120" x2="708" y2="150"></line>
+
+    <!-- outcomes -->
+    <rect class="pill" x="50" y="150" width="200" height="50" fill="#e4f8ef" stroke="#0f9f72"></rect>
+    <text class="pt" x="150" y="180" fill="#0b7357">Ditandatangani</text>
+
+    <rect class="pill" x="350" y="150" width="200" height="50" fill="#e4f8ef" stroke="#0f9f72"></rect>
+    <text class="pt" x="450" y="180" fill="#0b7357">Didisposisikan</text>
+
+    <rect class="pill" x="608" y="150" width="200" height="50" fill="#fdeceb" stroke="#d64545"></rect>
+    <text class="pt" x="708" y="180" fill="#a13030">Ditolak</text>
+
+    <!-- to selesai -->
+    <line class="lnx" x1="450" y1="200" x2="450" y2="300"></line>
+    <line class="dash" x1="150" y1="200" x2="150" y2="300"></line>
+
+    <rect class="pill" x="350" y="300" width="200" height="50" fill="#e4f8ef" stroke="#0f9f72"></rect>
+    <text class="pt" x="450" y="330" fill="#0b7357">Selesai</text>
+
+    <!-- dashed join -->
+    <line class="dash" x1="150" y1="300" x2="340" y2="300" marker-end="none"></line>
+    <line class="dash" x1="340" y1="300" x2="340" y2="325" marker-end="none"></line>
+    <line class="dash" x1="340" y1="325" x2="350" y2="325"></line>
+
+    <!-- terminal note -->
+    <text x="608" y="245" font-size="12" fill="#a13030" font-weight="700">Ditolak = status akhir</text>
+    <text x="608" y="262" font-size="12" fill="#64748b">pemohon tidak dapat mengunduh final</text>
+    <text x="60" y="360" font-size="12" fill="#64748b">garis putus-putus: jalur opsional (jika surat ditandatangani lalu didisposisikan/diselesaikan)</text>
+  </svg>
+  </div>
+  <div class="figcap">Gambar 2. Perpindahan status surat pada SI-OFFICE.</div>
+
+  <table class="tbl avoid">
+    <tr><th>Status</th><th>Artinya</th><th>Ditimbulkan oleh</th></tr>
+    <tr><td><span class="st primary">Diajukan</span></td><td>Surat baru dibuat Pemohon, menunggu Sekretaris.</td><td>Pemohon (Ajukan Surat)</td></tr>
+    <tr><td><span class="st warning">Diproses Sekretaris</span></td><td>Sekretaris sudah membuka dan mulai memproses surat.</td><td>Sekretaris (Proses)</td></tr>
+    <tr><td><span class="st info">Sudah Diberi Nomor</span></td><td>Nomor surat sudah diisi/disimpan, belum dikirim ke Direktur.</td><td>Sekretaris (Simpan Nomor)</td></tr>
+    <tr><td><span class="st secondary">Diteruskan ke Direktur</span></td><td>Surat masuk antrian Direktur untuk direview.</td><td>Sekretaris (Simpan &amp; Teruskan)</td></tr>
+    <tr><td><span class="st success">Ditandatangani</span></td><td>Direktur menandatangani dokumen (QR verifikasi ditempel).</td><td>Direktur (Tanda Tangani)</td></tr>
+    <tr><td><span class="st danger">Didisposisikan</span></td><td>Direktur memberi instruksi kepada pegawai tertentu.</td><td>Direktur (Disposisi)</td></tr>
+    <tr><td><span class="st danger">Ditolak</span></td><td>Surat tidak disetujui; disertai alasan. Status akhir.</td><td>Direktur (Tolak)</td></tr>
+    <tr><td><span class="st success">Selesai</span></td><td>Semua penerima disposisi sudah menandai selesai.</td><td>Penerima Disposisi (Tandai Selesai)</td></tr>
+  </table>
+</div>
+
+<!-- 5 LANGKAH 1 -->
+<div class="section">
+  <h2>5. Langkah 1 &mdash; Pemohon Membuat Pengajuan Surat</h2>
+  <p>Dilakukan oleh <strong>Pemohon / User</strong> (dan juga bisa oleh Sekretaris atau Admin).</p>
+
+  <ol class="numlist">
+    <li><strong>Login</strong> ke aplikasi RS Airlangga dengan NIP/email dan kata sandi Anda.</li>
+    <li>Buka menu <strong>SI-OFFICE</strong> pada sidebar, lalu pilih <strong>Pengajuan Baru</strong> (atau <em>Buat Pengajuan Surat</em>).</li>
+    <li>Lengkapi <strong>Informasi Pengajuan</strong>:
+      <ul>
+        <li><strong>Jenis Surat</strong> &mdash; pilih <em>Internal</em> (kebutuhan dalam RS) atau <em>Eksternal</em> (pihak luar RS).</li>
+        <li><strong>Perihal Surat</strong> &mdash; ringkasan isi surat (contoh: &ldquo;Permohonan kerja sama&rdquo;).</li>
+        <li><strong>Tanggal Pengajuan</strong> &mdash; terisi otomatis hari ini, dapat diubah.</li>
+        <li><strong>Tujuan Surat</strong> &mdash; nama unit/instansi/penerima surat.</li>
+        <li><strong>Keterangan Tambahan</strong> (opsional).</li>
+      </ul>
+    </li>
+    <li><strong>Unggah Draft Surat</strong> (wajib): format DOC, DOCX, atau PDF, maksimal <strong>5 MB</strong>.</li>
+    <li><strong>Lampiran</strong> (opsional): dapat beberapa file sekaligus (PDF/DOC/DOCX/XLS/XLSX/JPG/PNG, maks 10 MB per file).</li>
+    <li>Klik <strong>Ajukan Surat</strong>. Surat tersimpan dengan status <span class="st primary">Diajukan</span> dan Anda diarahkan ke halaman tracking.</li>
+  </ol>
+
+  <div class="mock avoid">
+    <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">localhost/mukespi/index.php/surat/create</span></div>
+    <div class="mock-body">
+      <div class="hero-mock">
+        <div class="eyebrow">E-OFFICE RSA / Surat</div>
+        <h1>Pengajuan Surat Baru</h1>
+        <p>Lengkapi informasi surat dan unggah draft untuk memulai proses administrasi.</p>
+      </div>
+      <div class="card-mock">
+        <div class="head">Informasi Pengajuan</div>
+        <div class="body">
+          <span class="lbl">Jenis Surat</span>
+          <div class="row2">
+            <div class="type-opt on"><b>Internal</b> <span class="muted small">Untuk kebutuhan dalam RS</span></div>
+            <div class="type-opt"><b>Eksternal</b> <span class="muted small">Untuk pihak di luar RS</span></div>
+          </div>
+          <div class="row2">
+            <div><span class="lbl">Perihal Surat</span><div class="inp ph">Contoh: Permohonan kerja sama</div></div>
+            <div><span class="lbl">Tanggal Pengajuan</span><div class="inp">2026-10-15</div></div>
+          </div>
+          <span class="lbl">Tujuan Surat</span>
+          <div class="inp ph">Nama unit, instansi, atau penerima surat</div>
+          <span class="lbl">Keterangan Tambahan (opsional)</span>
+          <div class="inp ta">Tambahkan informasi yang perlu diketahui sekretaris atau direktur</div>
+          <div class="row2" style="margin-top:10px;">
+            <div class="up"><b>Draft Surat *</b><br>Format: DOC, DOCX, PDF. Maks 5 MB.<br>[ pilih file ]</div>
+            <div class="up"><b>Lampiran (opsional)</b><br>PDF, DOC, DOCX, XLS, XLSX, JPG, PNG. Maks 10 MB.<br>[ pilih file ]</div>
+          </div>
+          <div style="margin-top:12px;"><span class="btn-mock btn-primary">Ajukan Surat</span> <span class="btn-mock btn-light">Batal</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="figcap">Gambar 3. Halaman Pengajuan Surat Baru.</div>
+
+  <div class="callout tip"><span class="t">Tips</span>Gunakan perihal yang jelas dan spesifik agar Sekretaris dan Direktur cepat memahami isi surat.</div>
+</div>
+
+<!-- 6 LANGKAH 2 -->
+<div class="section">
+  <h2>6. Langkah 2 &mdash; Sekretaris Memberi Nomor &amp; Meneruskan</h2>
+  <p>Dilakukan oleh <strong>Sekretaris</strong> pada menu <strong>Surat Masuk Sekretaris</strong>.</p>
+
+  <ol class="numlist">
+    <li>Buka <strong>SI-OFFICE &rarr; Surat Masuk Sekretaris</strong>. Angka pada badge menunjukkan jumlah surat yang menunggu.</li>
+    <li>Cari surat berstatus <span class="st primary">Diajukan</span> pada tabel, lalu klik tombol <strong>Proses</strong>.</li>
+    <li>Sistem otomatis mengubah status menjadi <span class="st warning">Diproses Sekretaris</span>. Buka/unduh <strong>draft</strong> untuk memeriksa isi surat.</li>
+    <li>Isi <strong>Nomor Surat</strong> secara manual, atau klik <strong>Generate Nomor</strong> untuk pembuatan otomatis dengan format <code>001/RSA/INT/VIII/2026</code> (kode <code>INT</code> untuk internal, <code>EXT</code> untuk eksternal).</li>
+    <li><strong>Unggah berkas bernomor</strong> pada kolom dokumen. <span class="muted">Untuk diteruskan ke Direktur, berkas <strong>wajib berformat PDF</strong> agar dapat dipratinjau dan ditandatangani.</span></li>
+    <li>Pilih salah satu tombol:
+      <ul>
+        <li><strong>Simpan Nomor</strong> &mdash; menyimpan nomor saja (status <span class="st info">Sudah Diberi Nomor</span>), surat belum dikirim ke Direktur.</li>
+        <li><strong>Simpan &amp; Teruskan ke Direktur</strong> &mdash; mengirim surat ke antrian Direktur (status <span class="st secondary">Diteruskan ke Direktur</span>) dan mengirim email notifikasi.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <div class="mock avoid">
+    <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">localhost/mukespi/index.php/surat_masuk</span></div>
+    <div class="mock-body">
+      <div style="font-weight:800;color:#172b4d;font-size:11pt;margin-bottom:8px;">Antrian Sekretaris <span class="st warning">3 pending</span></div>
+      <div class="card-mock">
+        <div class="body">
+          <table class="tbl-mock">
+            <tr><th>Surat</th><th>Jenis</th><th>Status</th><th>Aksi</th></tr>
+            <tr>
+              <td><b>Permohonan kerja sama</b><br><span class="muted small">Belum bernomor &middot; RSUD Surabaya</span></td>
+              <td><span class="st success">internal</span></td>
+              <td><span class="st primary">Diajukan</span></td>
+              <td><span class="btn-mock btn-outline">Detail</span> <span class="btn-mock btn-primary">Proses</span></td>
+            </tr>
+            <tr>
+              <td><b>Undangan rapat koordinasi</b><br><span class="muted small">Belum bernomor &middot; Dinas Kesehatan</span></td>
+              <td><span class="st danger">eksternal</span></td>
+              <td><span class="st primary">Diajukan</span></td>
+              <td><span class="btn-mock btn-outline">Detail</span> <span class="btn-mock btn-primary">Proses</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="figcap">Gambar 4. Antrian Sekretaris: pilih surat &rarr; klik Proses.</div>
+
+  <div class="mock avoid">
+    <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">localhost/mukespi/index.php/surat_sekretaris/proses/13</span></div>
+    <div class="mock-body">
+      <div class="card-mock">
+        <div class="head">Proses Nomor Surat</div>
+        <div class="body">
+          <p style="margin:0 0 6px"><b>Permohonan kerja sama</b><br><span class="muted small">RSUD Surabaya</span></p>
+          <p style="margin:0 0 8px" class="small">Status: <span class="st warning">Diproses Sekretaris</span> &nbsp; <a href="#">Download draft</a></p>
+          <div class="alert-mock info">
+            <b>Informasi pengisian:</b>
+            <ol style="margin:5px 0 0;padding-left:18px;font-size:8.4pt">
+              <li>Isi <b>Nomor Surat</b> manual atau klik <em>Generate Nomor</em>.</li>
+              <li>Unggah <b>berkas yang sudah ditandatangani</b> (dokumen bernomor). Untuk diteruskan, wajib PDF.</li>
+              <li>Klik <b>Simpan &amp; Teruskan ke Direktur</b>.</li>
+            </ol>
+          </div>
+          <span class="lbl">Nomor Surat</span>
+          <div class="inp">013/RSA/INT/X/2026</div>
+          <span class="lbl">Berkas bernomor (.doc/.docx/.pdf)</span>
+          <div class="inp ph">[ pilih file PDF ]</div>
+          <div style="margin-top:12px;">
+            <span class="btn-mock btn-gray">Generate Nomor</span>
+            <span class="btn-mock btn-primary">Simpan &amp; Teruskan ke Direktur</span>
+            <span class="btn-mock btn-light">Simpan Nomor</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="figcap">Gambar 5. Halaman Proses Nomor Surat oleh Sekretaris.</div>
+
+  <div class="callout warn"><span class="t">Perhatian</span>Bila tombol <strong>Simpan &amp; Teruskan ke Direktur</strong> ditekan tanpa mengunggah dokumen PDF, sistem akan menolak. Pastikan dokumen bernomor sudah berformat PDF.</div>
+</div>
+
+<!-- 7 LANGKAH 3 -->
+<div class="section">
+  <h2>7. Langkah 3 &mdash; Direktur Menandatangani / Disposisi / Menolak</h2>
+  <p>Dilakukan oleh <strong>Direktur</strong> pada menu <strong>TTD &amp; Disposisi</strong>. Direktur terlebih dahulu <strong>mereview berkas PDF</strong> dari Sekretaris, lalu memilih salah satu aksi.</p>
+
+  <div class="alert-mock info avoid" style="border-radius:8px"><b>Info unduhan:</b> <b>Tanda Tangani</b> &rarr; dokumen final dapat diunduh pemohon. <b>Disposisi</b> &rarr; dokumen final dapat diunduh penerima. <b>Tolak</b> &rarr; pemohon tidak dapat mengunduh dokumen final.</div>
+
+  <h3>7a. Aksi: Tanda Tangani</h3>
+  <ol class="numlist">
+    <li>Pada dropdown <strong>Aksi</strong>, pilih <strong>Tanda Tangani</strong>.</li>
+    <li>Pada pratinjau PDF, <strong>bubuhkan tanda tangan</strong> dengan menggambar di area halaman yang diinginkan (sentuh/klik dan seret).</li>
+    <li>Tanda tangan dapat <strong>digeser (drag)</strong> untuk mengatur posisinya. Untuk berpindah halaman, hapus lalu bubuhkan kembali pada halaman yang dituju.</li>
+    <li>Panel <strong>QR verifikasi dokumen</strong> menampilkan QR yang akan otomatis ditempel pada dokumen final.</li>
+    <li>Klik <strong>Simpan Aksi</strong>. Status menjadi <span class="st success">Ditandatangani</span>; sistem menempelkan tanda tangan dan QR ke PDF, lalu mengirim email ke pemohon.</li>
+  </ol>
+  <div class="callout tip"><span class="t">Opsional</span>Tanda tangan pada sistem <strong>tidak wajib</strong>. Jika tidak digambar, dokumen final diambil dari <strong>dokumen hasil TTD yang diunggah</strong> atau <strong>dokumen bernomor</strong> dari Sekretaris.</div>
+
+  <h3>7b. Aksi: Disposisi</h3>
+  <ol class="numlist">
+    <li>Pilih <strong>Disposisi</strong> pada dropdown Aksi.</li>
+    <li>Pada <strong>Cari tujuan disposisi</strong>, centang satu atau lebih penerima (nama, jabatan, email tampil pada daftar).</li>
+    <li>Tulis <strong>Catatan / instruksi</strong> (wajib). Dapat juga mengunggah dokumen final (opsional).</li>
+    <li>Klik <strong>Simpan Aksi</strong>. Status menjadi <span class="st danger">Didisposisikan</span> dan email notifikasi dikirim ke para penerima.</li>
+  </ol>
+
+  <h3>7c. Aksi: Tolak</h3>
+  <ol class="numlist">
+    <li>Pilih <strong>Tolak</strong> pada dropdown Aksi.</li>
+    <li>Isi <strong>Alasan penolakan</strong> (wajib).</li>
+    <li>Klik <strong>Simpan Aksi</strong>. Status menjadi <span class="st danger">Ditolak</span> dan alasan dikirim ke pemohon.</li>
+  </ol>
+
+  <div class="mock avoid">
+    <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">localhost/mukespi/index.php/surat_direktur/proses/13</span></div>
+    <div class="mock-body">
+      <div class="card-mock">
+        <div class="head">Aksi Direktur</div>
+        <div class="body">
+          <p style="margin:0 0 8px"><b>013/RSA/INT/X/2026</b><br><span class="small muted">Permohonan kerja sama | RSUD Surabaya</span></p>
+          <span class="btn-mock btn-outline" style="margin-bottom:8px;display:inline-block">Download dokumen bernomor</span>
+          <span class="lbl">Pratinjau dan area tanda tangan PDF</span>
+          <div style="background:#e9ecef;border:1px solid #d1d3e2;border-radius:6px;height:120px;display:flex;align-items:center;justify-content:center;position:relative;">
+            <div style="background:#fff;width:70%;height:88%;border:1px solid #ccd;position:relative;">
+              <div style="position:absolute;right:14px;bottom:16px;font-style:italic;color:#334;border-bottom:1px solid #999;padding:2px 10px;font-size:9pt;">tanda tangan...</div>
+              <div style="position:absolute;right:8px;bottom:4px;width:26px;height:26px;border:1px solid #999;font-size:6pt;display:flex;align-items:center;justify-content:center;">QR</div>
+            </div>
+          </div>
+          <div class="row2" style="margin-top:10px;">
+            <div><span class="lbl">Aksi</span><div class="inp">Tanda Tangani &#9662;</div></div>
+            <div><span class="lbl">Catatan tanda tangan (opsional)</span><div class="inp ph">Catatan...</div></div>
+          </div>
+          <span class="lbl">QR verifikasi dokumen</span>
+          <div class="qr-box">
+            <div class="qr"><div style="width:60px;height:60px;background:repeating-conic-gradient(#111 0% 25%,#fff 0% 50%) 0/12px 12px;"></div></div>
+            <div class="small muted">QR ini otomatis ditempel pada dokumen final saat surat ditandatangani.<br><a href="#">localhost/mukespi/index.php/surat/verifikasi/13/&hellip;</a></div>
+          </div>
+          <div style="margin-top:12px;"><span class="btn-mock btn-primary">Simpan Aksi</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="figcap">Gambar 6. Halaman Aksi Direktur (contoh aksi Tanda Tangani + panel QR verifikasi).</div>
+</div>
+
+<!-- 8 LANGKAH 4 -->
+<div class="section">
+  <h2>8. Langkah 4 &mdash; Penerima Disposisi Menindaklanjuti</h2>
+  <p>Dilakukan oleh <strong>pegawai yang menerima disposisi</strong>.</p>
+  <ol class="numlist">
+    <li>Buka <strong>SI-OFFICE &rarr; Surat Saya</strong>. Surat yang didisposisikan kepada Anda akan tampil.</li>
+    <li>Klik <strong>Detail</strong> untuk membuka halaman tracking, kemudian baca <strong>Disposisi</strong> dan <strong>catatan/instruksi</strong> dari Direktur.</li>
+    <li>Setelah pekerjaan/instruksi selesai, klik <strong>Tandai Selesai</strong> pada kartu disposisi.</li>
+    <li>Bila <strong>semua</strong> penerima disposisi sudah menandai selesai, status surat otomatis menjadi <span class="st success">Selesai</span>.</li>
+  </ol>
+
+  <div class="mock avoid">
+    <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">localhost/mukespi/index.php/surat/detail/13</span></div>
+    <div class="mock-body">
+      <div class="hero-mock" style="margin-bottom:10px;">
+        <div class="eyebrow">E-OFFICE RSA / Tracking Surat #13</div>
+        <h1 style="font-size:13pt;">Permohonan kerja sama</h1>
+        <div style="font-size:8.4pt;opacity:.9;">RSUD Surabaya &middot; 2026-10-15 &middot; Internal</div>
+        <div style="margin-top:8px;"><span style="background:#fff;color:#172b4d;border-radius:999px;padding:3px 10px;font-size:8pt;font-weight:800;">Didisposisikan</span></div>
+      </div>
+      <div class="card-mock" style="margin-bottom:10px;">
+        <div class="body">
+          <div class="tracker">
+            <div class="t done"><div class="ic">&#9993;</div>Diajukan</div>
+            <div class="t done"><div class="ic">&#128229;</div>Diproses</div>
+            <div class="t done"><div class="ic">#</div>Bernomor</div>
+            <div class="t done"><div class="ic">&#10148;</div>Diteruskan</div>
+            <div class="t cur"><div class="ic">&#9997;</div>Finalisasi</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-mock">
+        <div class="head" style="font-size:9.5pt;">Disposisi</div>
+        <div class="body">
+          <div style="border-left:3px solid #e38b27;background:#fffaf3;border-radius:0 8px 8px 0;padding:9px 11px;font-size:8.5pt;">
+            <b>Direktur RS Airlangga &rarr; Bagian Umum</b><br>
+            Mohon ditindaklanjuti dan koordinasikan dengan unit terkait.<br>
+            <span class="st secondary">Menunggu Tindak Lanjut</span>
+            <div style="margin-top:8px;"><span class="btn-mock btn-green">Tandai Selesai</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="figcap">Gambar 7. Halaman Tracking Surat: progress, disposisi, dan tombol Tandai Selesai.</div>
+</div>
+
+<!-- 9 LANGKAH 5 + QR -->
+<div class="section">
+  <h2>9. Langkah 5 &mdash; Mengunduh &amp; Verifikasi Dokumen (QR)</h2>
+
+  <h3>9a. Mengunduh dokumen</h3>
+  <ul>
+    <li><strong>Pemohon</strong> dapat mengunduh <strong>Dokumen Final</strong> pada halaman tracking <em>setelah</em> surat berstatus <span class="st success">Ditandatangani</span>, <span class="st danger">Didisposisikan</span>, atau <span class="st success">Selesai</span>.</li>
+    <li><strong>Penerima disposisi</strong> juga dapat mengunduh dokumen final pada rentang status yang sama.</li>
+    <li>Bila surat <span class="st danger">Ditolak</span>, dokumen final <strong>tidak tersedia</strong> untuk diunduh.</li>
+    <li>Sekretaris/Direktur/Admin dapat mengunduh <em>Draft</em>, <em>Bernomor</em>, dan <em>Final</em> sesuai kebutuhan.</li>
+  </ul>
+
+  <h3>9b. Verifikasi keaslian lewat QR</h3>
+  <p>Setiap dokumen final yang ditandatangani melalui sistem akan otomatis memiliki <strong>QR Code</strong> di sudut kanan bawah disertai keterangan &ldquo;Pindai untuk verifikasi keaslian&rdquo;.</p>
+  <ol class="numlist">
+    <li>Pindai QR memakai kamera ponsel atau aplikasi pemindai QR.</li>
+    <li>Anda akan diarahkan ke <strong>halaman verifikasi publik</strong> (tanpa perlu login) dengan alamat <code>/surat/verifikasi/{id}/{kode}</code>.</li>
+    <li>Halaman menampilkan badge <span class="st success">Dokumen Asli &amp; Terverifikasi</span> beserta informasi: nomor surat, perihal, tujuan, jenis, tanggal pengajuan, penandatangan, dan tanggal tanda tangan.</li>
+    <li>Jika kode tidak cocok, halaman menampilkan <span class="st danger">Dokumen Tidak Valid</span>.</li>
+  </ol>
+
+  <div class="mock avoid">
+    <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="url">localhost/mukespi/index.php/surat/verifikasi/13/&hellip;</span></div>
+    <div class="mock-body">
+      <div class="card-mock">
+        <div class="body" style="text-align:center;">
+          <div class="alert-mock success" style="font-weight:800;">&#10004; Dokumen Asli &amp; Terverifikasi</div>
+          <div style="text-align:left;margin-top:10px;">
+            <div class="info-grid">
+              <div class="info-box"><span class="k">Nomor Surat</span><span class="v">013/RSA/INT/X/2026</span></div>
+              <div class="info-box"><span class="k">Jenis</span><span class="v">Internal</span></div>
+              <div class="info-box"><span class="k">Tanggal Pengajuan</span><span class="v">2026-10-15</span></div>
+              <div class="info-box"><span class="k">Penandatangan</span><span class="v">dr. Direktur, MARS</span></div>
+              <div class="info-box"><span class="k">Tanggal TTD</span><span class="v">2026-10-15 11:20</span></div>
+              <div class="info-box"><span class="k">Status</span><span class="v">Ditandatangani</span></div>
+            </div>
+            <p class="small muted" style="margin-top:8px;">Perihal: Permohonan kerja sama &middot; Tujuan: RSUD Surabaya</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="figcap">Gambar 8. Halaman verifikasi publik saat QR dipindai.</div>
+
+  <div class="callout info"><span class="t">Catatan</span>QR verifikasi hanya berlaku untuk surat yang ditandatangani <strong>melalui sistem</strong> setelah fitur ini aktif. Surat lama yang ditandatangani sebelum fitur tersedia mungkin belum memiliki kode verifikasi.</div>
+</div>
+
+<!-- 10 NOTIFIKASI -->
+<div class="section">
+  <h2>10. Notifikasi Email</h2>
+  <p>Sistem mengirim email otomatis pada beberapa momen penting:</p>
+  <table class="tbl avoid">
+    <tr><th>Kejadian</th><th>Penerima Email</th></tr>
+    <tr><td>Pengajuan surat baru dibuat</td><td>Sekretaris &amp; Direktur</td></tr>
+    <tr><td>Surat diteruskan ke Direktur</td><td>Direktur</td></tr>
+    <tr><td>Surat ditandatangani</td><td>Pemohon</td></tr>
+    <tr><td>Surat didisposisikan</td><td>Pegawai penerima disposisi</td></tr>
+    <tr><td>Surat ditolak</td><td>Pemohon (beserta alasan penolakan)</td></tr>
+  </table>
+  <div class="callout info"><span class="t">Isi email</span>Setiap email berisi ringkasan surat dan tautan <em>&ldquo;Login ke sistem E-OFFICE RSA&rdquo;</em> untuk membuka detail surat setelah masuk.</div>
+</div>
+
+<!-- 11 TROUBLESHOOTING -->
+<div class="section">
+  <h2>11. Penanganan Masalah (Troubleshooting)</h2>
+  <table class="tbl">
+    <tr><th>Gejala</th><th>Penyebab</th><th>Solusi</th></tr>
+    <tr>
+      <td>&ldquo;Draft surat wajib diunggah.&rdquo;</td>
+      <td>Belum memilih berkas Draft Surat.</td>
+      <td>Pilih berkas draft (DOC/DOCX/PDF, maks 5 MB) lalu ajukan kembali.</td>
+    </tr>
+    <tr>
+      <td>&ldquo;Dokumen harus berformat PDF...&rdquo; saat meneruskan</td>
+      <td>Berkas bernomor bukan PDF.</td>
+      <td>Unggah ulang dokumen bernomor dalam format PDF.</td>
+    </tr>
+    <tr>
+      <td>&ldquo;Library PDF belum tersedia. Jalankan composer install...&rdquo;</td>
+      <td>Folder <code>vendor/</code> (library PDF) tidak ada di server.</td>
+      <td>Pastikan folder <code>vendor/</code> ikut ter-deploy (via <code>git pull</code>) atau jalankan <code>composer install --no-dev</code> di server. Perlu ekstensi <code>zlib</code> aktif.</td>
+    </tr>
+    <tr>
+      <td>&ldquo;Duplicate entry '0' for key 'PRIMARY'&rdquo; saat disposisi</td>
+      <td>Kolom <code>id</code> tabel disposisi tidak <em>AUTO_INCREMENT</em>.</td>
+      <td>Hubungi Admin/TI untuk menjalankan perbaikan skema (<code>ALTER TABLE ... MODIFY id ... AUTO_INCREMENT</code>); sudah ditangani pada versi basis data terbaru.</td>
+    </tr>
+    <tr>
+      <td>Tanda tangan tidak menempel pada PDF</td>
+      <td>Dokumen sumber bukan PDF, atau tanda tangan tidak digambar.</td>
+      <td>Pastikan dokumen bernomor berformat PDF. Bila tidak menggambar tanda tangan, sistem memakai dokumen hasil TTD yang diunggah / dokumen bernomor sebagai final.</td>
+    </tr>
+    <tr>
+      <td>Menu SI-OFFICE tidak muncul</td>
+      <td>Role akun belum sesuai.</td>
+      <td>Minta Admin memeriksa pengaturan role akun Anda.</td>
+    </tr>
+    <tr>
+      <td>Pemohon tidak bisa mengunduh dokumen final</td>
+      <td>Status surat belum ditandatangani/didisposisikan, atau surat ditolak.</td>
+      <td>Tunggu hingga Direktur memproses. Bila ditolak, dokumen final memang tidak tersedia.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 12 FAQ -->
+<div class="section">
+  <h2>12. Pertanyaan Umum (FAQ)</h2>
+  <h4>Apakah saya bisa mengajukan lebih dari satu surat?</h4>
+  <p>Ya. Setiap pengajuan dibuat terpisah dan memiliki nomor tracking sendiri.</p>
+  <h4>Bisakah draf diperbaiki setelah diajukan?</h4>
+  <p>Draft tidak dapat diubah setelah diajukan. Ajukan surat baru bila ada perbaikan, atau koordinasikan dengan Sekretaris.</p>
+  <h4>Siapa yang menandatangani surat?</h4>
+  <p>Direktur, melalui menu <strong>TTD &amp; Disposisi</strong>, dengan membubuhkan tanda tangan pada dokumen PDF.</p>
+  <h4>Apakah tanda tangan pada sistem sah secara hukum?</h4>
+  <p>Tanda tangan pada sistem bersifat <strong>visual</strong> dan bukan merupakan tanda tangan elektronik tersertifikasi (VIDA TTE). Keaslian dokumen dibantu melalui QR verifikasi keaslian.</p>
+  <h4>Bagaimana mengetahui surat sudah selesai?</h4>
+  <p>Perhatikan status pada halaman tracking. Surat berstatus <span class="st success">Selesai</span> berarti seluruh disposisi telah ditindaklanjuti.</p>
+  <h4>Apakah penerima disposisi bisa lebih dari satu?</h4>
+  <p>Ya. Direktur dapat memilih beberapa penerima sekaligus saat melakukan disposisi.</p>
+
+  <div class="footer-note">
+    <strong>Panduan Tata Cara Pengajuan Surat &mdash; SI-OFFICE (E-Office) RS Airlangga.</strong> Versi Dokumen 1.0, Oktober 2026.
+    Dokumen ini disusun berdasarkan alur sistem yang berlaku. Untuk perubahan alur atau kendala teknis, hubungi bagian TI/Admin Sistem.
+  </div>
+</div>
+
+</body>
+</html>

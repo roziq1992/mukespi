@@ -76,20 +76,26 @@ class Surat extends CI_Controller
 
     public function create()
     {
-        $data = array('title' => 'Pengajuan Surat Baru');
+        $data = array('title' => 'Pengajuan Surat Baru', 'can_disposisi' => in_array((int) $this->session->userdata('role_id'), array(1, $this->role_sekretaris), TRUE));
         $this->load->view('template/header', $data); $this->load->view('surat/form_pengajuan', $data); $this->load->view('template/footer');
     }
 
     public function store()
     {
-        $this->form_validation->set_rules('jenis', 'Jenis surat', 'required|in_list[internal,eksternal]');
+        $this->form_validation->set_rules('jenis', 'Jenis surat', 'required|in_list[internal,eksternal,disposisi]');
         $this->form_validation->set_rules('perihal', 'Perihal', 'required|trim|max_length[255]');
         $this->form_validation->set_rules('tujuan', 'Tujuan', 'required|trim|max_length[255]');
         $this->form_validation->set_rules('tanggal_pengajuan', 'Tanggal', 'required');
         if (!$this->form_validation->run()) { $this->create(); return; }
+        $jenis = $this->input->post('jenis', TRUE);
+        if ($jenis === 'disposisi' && !in_array((int) $this->session->userdata('role_id'), array(1, $this->role_sekretaris), TRUE)) {
+            $this->session->set_flashdata('message', 'Hanya sekretaris dan admin yang dapat mengajukan surat disposisi.');
+            redirect('surat/create'); return;
+        }
         if (empty($_FILES['file_draft']['name'])) { $this->session->set_flashdata('message', 'Draft surat wajib diunggah.'); redirect('surat/create'); return; }
         $base = FCPATH . 'uploads/surat/';
-        $data = array('jenis' => $this->input->post('jenis', TRUE), 'perihal' => $this->input->post('perihal', TRUE), 'tujuan' => $this->input->post('tujuan', TRUE), 'tanggal_pengajuan' => $this->input->post('tanggal_pengajuan', TRUE), 'keterangan' => $this->input->post('keterangan', TRUE), 'id_pemohon' => $this->session->userdata('id'), 'status' => 'Diajukan', 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s'));
+        $status_awal = $jenis === 'disposisi' ? 'Diteruskan ke Direktur' : 'Diajukan';
+        $data = array('jenis' => $jenis, 'perihal' => $this->input->post('perihal', TRUE), 'tujuan' => $this->input->post('tujuan', TRUE), 'tanggal_pengajuan' => $this->input->post('tanggal_pengajuan', TRUE), 'keterangan' => $this->input->post('keterangan', TRUE), 'id_pemohon' => $this->session->userdata('id'), 'status' => $status_awal, 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s'));
         if (!empty($_FILES['file_draft']['name'])) {
             $config = array('upload_path' => $base . 'pending/', 'allowed_types' => 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
             if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0755, TRUE);
@@ -97,13 +103,16 @@ class Surat extends CI_Controller
             if (!$this->upload->do_upload('file_draft')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat/create'); return; }
             $data['file_draft'] = 'uploads/surat/pending/' . $this->upload->data('file_name');
         }
-        $this->db->trans_start(); $id = $this->Surat_model->insert($data); log_surat($id, 'Pengajuan dibuat', 'Surat diajukan oleh pemohon.');
+        $this->db->trans_start(); $id = $this->Surat_model->insert($data);
+        log_surat($id, 'Pengajuan dibuat', $jenis === 'disposisi' ? 'Surat disposisi diajukan dan langsung diteruskan ke Direktur.' : 'Surat diajukan oleh pemohon.');
         $folder = $base . $id . '/lampiran/'; if (!is_dir($folder)) mkdir($folder, 0755, TRUE);
         if (!empty($_FILES['lampiran']['name'][0])) foreach ($_FILES['lampiran']['name'] as $key => $name) { $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]); $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 10240, 'encrypt_name' => TRUE)); if ($this->upload->do_upload('one_lampiran')) { $f = $this->upload->data(); $this->Surat_lampiran_model->insert(array('id_surat' => $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s'))); } }
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) show_error('Pengajuan surat gagal disimpan.', 500);
         $penerima = $this->db->where_in('role_id', array(4, 5))->order_by('id', 'ASC')->get('users')->result();
-        $pesan = 'Terdapat pengajuan surat baru yang perlu ditindaklanjuti.<br><br>'
+        $pesan = $jenis === 'disposisi'
+            ? 'Terdapat pengajuan surat disposisi baru yang langsung diteruskan ke Direktur untuk ditindaklanjuti.<br><br>'
+            : 'Terdapat pengajuan surat baru yang perlu ditindaklanjuti.<br><br>'
             . '<strong>Perihal:</strong> ' . htmlspecialchars($data['perihal'], ENT_QUOTES, 'UTF-8') . '<br>'
             . '<strong>Jenis:</strong> ' . htmlspecialchars(ucfirst($data['jenis']), ENT_QUOTES, 'UTF-8') . '<br>'
             . '<strong>Tujuan:</strong> ' . htmlspecialchars($data['tujuan'], ENT_QUOTES, 'UTF-8');

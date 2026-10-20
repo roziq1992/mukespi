@@ -30,6 +30,10 @@ class Surat_sekretaris extends CI_Controller
     {
         $surat = $this->Surat_model->get($id);
         if (!$surat) show_404();
+        if ($surat->jenis === 'disposisi') {
+            $this->session->set_flashdata('message', 'Surat disposisi langsung diproses oleh Direktur dan tidak perlu diberi nomor oleh sekretaris.');
+            redirect('surat_sekretaris'); return;
+        }
         if ($surat->status === 'Diajukan') {
             $this->Surat_model->update($id, array('status' => 'Diproses Sekretaris', 'updated_at' => date('Y-m-d H:i:s')));
             log_surat($id, 'Surat diproses sekretaris', 'Surat masuk ke antrian sekretaris.');
@@ -45,6 +49,10 @@ class Surat_sekretaris extends CI_Controller
     {
         $surat = $this->Surat_model->get($id);
         if (!$surat) show_404();
+        if ($surat->jenis === 'disposisi') {
+            $this->session->set_flashdata('message', 'Surat disposisi langsung diproses oleh Direktur dan tidak perlu diberi nomor oleh sekretaris.');
+            redirect('surat_sekretaris'); return;
+        }
         $nomor = trim($this->input->post('no_surat', TRUE));
         if ($this->input->post('generate')) $nomor = $this->_generate($surat->jenis);
         if ($nomor === '') { $this->session->set_flashdata('message', 'Nomor surat wajib diisi.'); redirect('surat_sekretaris/proses/' . $id); return; }
