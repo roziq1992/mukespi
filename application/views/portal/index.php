@@ -28,6 +28,8 @@
 .portal-sheet .portal-icon { background:linear-gradient(135deg,#16a34a,#15803d); }
 /* SIASSET - Sistem Informasi Aset */
 .portal-siasset .portal-icon { background:linear-gradient(135deg,#7c3aed,#5b21b6); }
+/* E-Library - Portal Penemuan Literatur */
+.portal-elibrary .portal-icon { background:linear-gradient(135deg,#1b7a6b,#0f4f45); }
 @media(max-width:1100px){.portal-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:650px){.portal-hero{padding:15px}.portal-hero h1{font-size:1rem}.portal-grid{grid-template-columns:1fr 1fr;gap:8px}.portal-card{min-height:120px;padding:11px}}
 @media(max-width:420px){.portal-grid{grid-template-columns:1fr}}
@@ -74,7 +76,17 @@
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
-        
+
+        <?php if (is_menu_accessible('e_library')) { ?>
+        <!-- E-LIBRARY -->
+        <a class="portal-card portal-elibrary" href="<?php echo site_url('e_library'); ?>">
+            <span class="portal-icon"><i class="fas fa-book-open"></i></span>
+            <h3>E-LIBRARY</h3>
+            <p>Portal penemuan literatur untuk telaah dan pengembangan mutu.</p>
+            <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <?php } ?>
+
         <?php if (is_menu_accessible('data_inventaris')) { ?>
         <!-- SIASSET - Sistem Informasi Aset (BARU) -->
         <a class="portal-card portal-siasset" href="<?php echo site_url('data_inventaris'); ?>">

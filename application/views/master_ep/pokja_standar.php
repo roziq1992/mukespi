@@ -49,8 +49,11 @@
         border-radius: 20px;
         white-space: nowrap;
         text-decoration: none;
+        margin-left: 6px;
     }
     .psx-aksi a:hover { background: #e9dbf7; color: #6a3ea1; text-decoration: none; }
+    .psx-aksi a.dl { background: #e7f6ec; border-color: #b9e0c7; color: #1e7e34; }
+    .psx-aksi a.dl:hover { background: #d5f0df; color: #1e7e34; }
     @media (max-width: 768px) {
         .psx-head-row { padding-right: 16px; padding-top: 44px; }
         .psx-aksi { top: 10px; right: 12px; }
@@ -236,6 +239,10 @@
             <?php endif; ?>
         </div>
         <div>
+            <a href="<?php echo site_url('master_ep/pokja_ep_excel/' . $pokja->id) . ($hanya_aktif ? '' : '?semua=1'); ?>"
+               class="btn btn-sm btn-success" title="Unduh semua EP dalam BAB <?php echo html_escape($pokja->bab); ?> ke Excel">
+                <i class="fas fa-file-excel"></i> Download semua EP (<?php echo html_escape($pokja->bab); ?>)
+            </a>
             <a href="<?php echo site_url('master_ep/pokja_form/' . $pokja->id); ?>" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-edit"></i> Edit Pokja
             </a>
@@ -270,9 +277,13 @@
                 <div class="psx-item<?php echo $is_open ? ' open' : ''; ?><?php echo $s->active !== 'Y' ? ' nonaktif' : ''; ?>">
                     <?php if ($jml_ep > 0): ?>
                         <span class="psx-aksi">
+                            <a href="<?php echo site_url('master_ep/standar_ep_excel/' . $s->id_standar) . ($hanya_aktif ? '' : '?semua=1'); ?>"
+                               class="dl" title="Unduh EP standar ini ke Excel">
+                                &#11015; Excel
+                            </a>
                             <a href="<?php echo site_url('master_ep/rapikan_urutan/' . $s->id_standar); ?>"
                                title="Rapikan nomor tampilan EP jadi 1, 2, 3, ... tanpa celah. Nomor resmi tidak diubah.">
-                                ✨ Rapikan nomor
+                                &#10024; Rapikan nomor
                             </a>
                         </span>
                     <?php endif; ?>

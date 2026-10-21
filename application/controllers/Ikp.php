@@ -41,6 +41,7 @@ class Ikp extends CI_Controller
             'pagination' => $this->pagination->create_links(),
             'total_rows' => $config['total_rows'],
             'start' => $start,
+            'modul' => 'ikp',
         );
          $this->load->view('template/header',$data);
          $this->load->view('ikp/ikp_list');
@@ -82,6 +83,7 @@ class Ikp extends CI_Controller
 		'jam_lapor' => $row->jam_lapor,
 		'grading_resiko' => $row->grading_resiko,
 	    );
+            $data['modul'] = 'ikp';
             $this->load->view('template/header',$data);
             $this->load->view('ikp/ikp_read', $data);
             $this->load->view('template/footer');

@@ -22,12 +22,39 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Standar</label>
-                            <select class="form-control" name="id_standar" required>
+                            <input type="text" id="cari_standar" class="form-control form-control-sm" placeholder="Cari nomor / isi standar..." autocomplete="off">
+                            <select class="form-control form-control-sm mt-1" name="id_standar" id="pilih_standar" required>
                                 <option value="">-- Pilih Standar --</option>
-                                <?php foreach ($standar_list as $s): ?>
-                                    <option value="<?php echo (int)$s->id_standar; ?>" <?php echo ($id_standar == $s->id_standar) ? 'selected' : ''; ?>><?php echo html_escape($s->no_standar . ' - ' . $s->isi_standar); ?></option>
-                                <?php endforeach; ?>
+                                <?php
+                                $bab_nama = array();
+                                foreach ((isset($bab_list) ? $bab_list : array()) as $b) {
+                                    $bab_nama[$b->bab] = $b->ket;
+                                }
+                                $grup_bab = null;
+                                foreach ($standar_list as $s):
+                                    $bab = strtoupper((string)$s->bab);
+                                    if ($grup_bab !== $bab) {
+                                        if ($grup_bab !== null) {
+                                            echo '</optgroup>';
+                                        }
+                                        $judul = $bab . (!empty($bab_nama[$bab]) ? ' - ' . $bab_nama[$bab] : '');
+                                        echo '<optgroup label="' . html_escape($judul) . '">';
+                                        $grup_bab = $bab;
+                                    }
+                                    $label = $s->no_standar . ' - ' . $s->isi_standar;
+                                    if ($s->active !== 'Y') {
+                                        $label .= ' (Nonaktif)';
+                                    }
+                                    ?>
+                                    <option value="<?php echo (int)$s->id_standar; ?>" data-search="<?php echo html_escape($s->bab . ' ' . $label); ?>" <?php echo ($id_standar == $s->id_standar) ? 'selected' : ''; ?>><?php echo html_escape($label); ?></option>
+                                    <?php
+                                endforeach;
+                                if ($grup_bab !== null) {
+                                    echo '</optgroup>';
+                                }
+                                ?>
                             </select>
+                            <small class="form-text text-muted" id="info_standar"></small>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -78,3 +105,14 @@
         </div>
     </div>
 </div>
+
+<script src="<?php echo base_url('assets/js/master-ep.js'); ?>"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        MasterEp.initStandarPicker({
+            input: '#cari_standar',
+            select: '#pilih_standar',
+            info: '#info_standar'
+        });
+    });
+</script>

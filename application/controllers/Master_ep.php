@@ -310,21 +310,60 @@ class Master_ep extends CI_Controller
 
     // ================= ELEMEN PENILAIAN =================
 
+    /**
+     * Filter EP dari query string: BAB (pokja), standar terpilih, jenis bukti.
+     * Dipakai bersama oleh halaman daftar dan export Excel agar hasilnya sama.
+     */
+    protected function _filter_ep()
+    {
+        return array(
+            'bab' => trim((string)$this->input->get('bab', TRUE)),
+            'id_standar' => (int)$this->input->get('standar', TRUE),
+            'jenis_bukti' => trim((string)$this->input->get('jenis_bukti', TRUE)),
+        );
+    }
+
+    /**
+     * Query string filter aktif (untuk link export & tombol reset).
+     */
+    protected function _filter_ep_query($status, $q, $filter)
+    {
+        $params = array('status' => $status);
+        if (trim($q) !== '') {
+            $params['q'] = $q;
+        }
+        if (!empty($filter['bab'])) {
+            $params['bab'] = $filter['bab'];
+        }
+        if (!empty($filter['id_standar'])) {
+            $params['standar'] = (int)$filter['id_standar'];
+        }
+        if (!empty($filter['jenis_bukti'])) {
+            $params['jenis_bukti'] = $filter['jenis_bukti'];
+        }
+        return $params;
+    }
+
     public function elemen($status = 'aktif')
     {
-        $status = in_array($status, array('aktif', 'nonaktif'), TRUE) ? $status : 'aktif';
+        $status = in_array($status, array('aktif', 'nonaktif', 'all'), TRUE) ? $status : 'aktif';
         $q = trim($this->input->get('q', TRUE));
+        $filter = $this->_filter_ep();
         $user_id = (int)$this->session->userdata('id');
         $is_admin = ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN);
+        $scope = $is_admin ? NULL : $user_id;
 
         $data = array(
             'title' => 'Data Elemen Penilaian',
             'status' => $status,
             'q' => $q,
-            'rows' => $this->Master_ep_model->get_elemen($status, $q, $is_admin ? NULL : $user_id),
+            'filter' => $filter,
+            'rows' => $this->Master_ep_model->get_elemen($status, $q, $scope, $filter),
+            'bab_list' => $this->Master_ep_model->get_daftar_bab($scope),
+            'standar_filter_list' => $this->Master_ep_model->get_standar_filter($filter['bab'], $scope),
             'stats' => array(
-                'aktif' => $this->Master_ep_model->count_elemen('aktif', $is_admin ? NULL : $user_id),
-                'nonaktif' => $this->Master_ep_model->count_elemen('nonaktif', $is_admin ? NULL : $user_id),
+                'aktif' => $this->Master_ep_model->count_elemen('aktif', $scope),
+                'nonaktif' => $this->Master_ep_model->count_elemen('nonaktif', $scope),
             ),
         );
 
@@ -337,6 +376,8 @@ class Master_ep extends CI_Controller
     {
         $id = (int)$id;
         $row = $id > 0 ? $this->Master_ep_model->get_elemen_by_id($id) : NULL;
+        $user_id = (int)$this->session->userdata('id');
+        $is_admin = ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN);
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('id_standar', 'Standar', 'trim|required|integer');
@@ -350,7 +391,8 @@ class Master_ep extends CI_Controller
             $data = array(
                 'title' => $id > 0 ? 'Ubah Elemen Penilaian' : 'Tambah Elemen Penilaian',
                 'row' => $row,
-                'standar_list' => $this->Master_ep_model->get_standar('aktif', '', (int)$this->session->userdata('id')),
+                'standar_list' => $this->Master_ep_model->get_standar_filter('', $is_admin ? NULL : $user_id, FALSE),
+                'bab_list' => $this->Master_ep_model->get_daftar_bab($is_admin ? NULL : $user_id),
             );
             $this->load->view('template/header', $data);
             $this->load->view('master_ep/elemen_form');
@@ -397,6 +439,207 @@ class Master_ep extends CI_Controller
         $active = $active === 'N' ? 'N' : 'Y';
         $this->Master_ep_model->set_elemen_active($id, $active);
         redirect(site_url('master_ep/elemen'));
+    }
+
+    // ================= EXPORT EXCEL =================
+
+    /**
+     * Unduh daftar EP sesuai filter yang aktif (BAB / standar / kata kunci /
+     * jenis bukti / status). Format: .xls (Excel) atau .csv.
+     */
+    public function elemen_excel()
+    {
+        $status = $this->input->get('status', TRUE);
+        $status = in_array($status, array('aktif', 'nonaktif', 'all'), TRUE) ? $status : 'aktif';
+        $q = trim((string)$this->input->get('q', TRUE));
+        $filter = $this->_filter_ep();
+        $format = $this->input->get('format', TRUE) === 'csv' ? 'csv' : 'xls';
+
+        $user_id = (int)$this->session->userdata('id');
+        $is_admin = ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN);
+        $scope = $is_admin ? NULL : $user_id;
+
+        $rows = $this->Master_ep_model->get_elemen($status, $q, $scope, $filter);
+
+        $ket = array();
+        if (!empty($filter['bab'])) {
+            $ket[] = 'BAB ' . $filter['bab'];
+        }
+        if (!empty($filter['id_standar'])) {
+            $std = $this->Master_ep_model->get_standar_by_id($filter['id_standar']);
+            $ket[] = 'Standar ' . ($std ? $std->no_standar . ' - ' . $std->isi_standar : $filter['id_standar']);
+        }
+        if (trim($q) !== '') {
+            $ket[] = 'Kata kunci "' . $q . '"';
+        }
+        if (!empty($filter['jenis_bukti'])) {
+            $ket[] = 'Jenis bukti ' . $filter['jenis_bukti'];
+        }
+        if ($status === 'aktif') {
+            $ket[] = 'Status Aktif';
+        } elseif ($status === 'nonaktif') {
+            $ket[] = 'Status Nonaktif';
+        } else {
+            $ket[] = 'Semua status';
+        }
+
+        $nama = 'elemen_penilaian';
+        if (!empty($filter['bab'])) {
+            $nama .= '_' . strtoupper($filter['bab']);
+        }
+        $nama .= '_' . date('Ymd_His');
+
+        $this->_export_ep($rows, $nama, implode(' | ', $ket), $format);
+    }
+
+    /**
+     * Unduh EP satu standar (dipakai dari halaman Standar & EP).
+     */
+    public function standar_ep_excel($id = 0)
+    {
+        $id = (int)$id;
+        $user_id = (int)$this->session->userdata('id');
+        $is_admin = ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN);
+
+        $standar = $this->Master_ep_model->get_standar_by_id($id);
+        if (!$standar) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Standar tidak ditemukan.</div>');
+            redirect(site_url('master_ep/standar'));
+            return;
+        }
+
+        $boleh = $this->Master_ep_model->get_pokja_boleh_lihat_by_bab($standar->bab, $user_id, $is_admin);
+        if (!$boleh) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Anda tidak punya akses ke BAB ' . html_escape($standar->bab) . '.</div>');
+            redirect(site_url('master_ep/standar'));
+            return;
+        }
+
+        $format = $this->input->get('format', TRUE) === 'csv' ? 'csv' : 'xls';
+        $hanya_aktif = $this->input->get('semua', TRUE) !== '1';
+        $rows = $this->Master_ep_model->get_elemen($hanya_aktif ? 'aktif' : 'all', '', $is_admin ? NULL : $user_id, array('id_standar' => $id));
+
+        $nama = 'EP_standar_' . preg_replace('/[^A-Za-z0-9]+/', '_', (string)$standar->no_standar) . '_' . date('Ymd_His');
+        $ket = 'BAB ' . $standar->bab . ' | Standar ' . $standar->no_standar . ' - ' . $standar->isi_standar . ' | ' . ($hanya_aktif ? 'EP aktif saja' : 'semua EP');
+
+        $this->_export_ep($rows, $nama, $ket, $format);
+    }
+
+    /**
+     * Unduh semua EP dalam satu BAB / pokja (mis. semua EP MRMIK).
+     */
+    public function pokja_ep_excel($id = 0)
+    {
+        $id = (int)$id;
+        $user_id = (int)$this->session->userdata('id');
+        $is_admin = ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN);
+
+        $pokja = $this->Master_ep_model->get_pokja_boleh_lihat($id, $user_id, $is_admin);
+        if (!$pokja) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Pokja tidak ditemukan atau Anda tidak punya akses ke pokja tersebut.</div>');
+            redirect(site_url('master_ep/pokja'));
+            return;
+        }
+
+        $hanya_aktif = $this->input->get('semua', TRUE) !== '1';
+        $format = $this->input->get('format', TRUE) === 'csv' ? 'csv' : 'xls';
+
+        $rows = $this->Master_ep_model->get_elemen_by_bab($pokja->bab, $is_admin ? NULL : $user_id, $hanya_aktif);
+
+        $nama = 'EP_' . strtoupper($pokja->bab) . '_' . date('Ymd_His');
+        $ket = 'BAB ' . $pokja->bab . ' (' . $pokja->ket . ') - ' . ($hanya_aktif ? 'EP aktif saja' : 'semua EP');
+
+        $this->_export_ep($rows, $nama, $ket, $format);
+    }
+
+    /**
+     * Tulis data EP ke file .xls (helper exportexcel) atau .csv.
+     */
+    protected function _export_ep($rows, $nama_file, $keterangan, $format = 'xls')
+    {
+        $header = array('No', 'BAB', 'Standar', 'Isi Standar', 'No. EP', 'No. Urut', 'Isi EP', 'Jenis Bukti', 'Skor Maks', 'TDD', 'Status');
+
+        $data = array();
+        $no = 1;
+        foreach ($rows as $r) {
+            $data[] = array(
+                (string)$no,
+                (string)$r->bab,
+                (string)$r->no_standar,
+                (string)$r->isi_standar,
+                (string)$r->no_ep,
+                ($r->no_urut === NULL) ? '' : (string)$r->no_urut,
+                (string)$r->isi_ep,
+                (string)$r->jenis_bukti,
+                (string)$r->skor_maks,
+                ($r->tdd === 'Y') ? 'Ya' : '',
+                ($r->active === 'Y') ? 'Aktif' : 'Nonaktif',
+            );
+            $no++;
+        }
+
+        if ($format === 'csv') {
+            $this->_export_ep_csv($header, $data, $nama_file, $keterangan);
+            return;
+        }
+
+        $this->load->helper('exportexcel');
+
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="' . $nama_file . '.xls"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        xlsBOF();
+        xlsWriteLabel(0, 0, 'DATA ELEMEN PENILAIAN (EP)');
+        xlsWriteLabel(1, 0, $keterangan);
+        xlsWriteLabel(2, 0, 'Total ' . count($data) . ' EP - dicetak ' . date('d-m-Y H:i:s'));
+
+        $col = 0;
+        foreach ($header as $h) {
+            xlsWriteLabel(4, $col, $h);
+            $col++;
+        }
+
+        $row = 5;
+        foreach ($data as $baris) {
+            $col = 0;
+            foreach ($baris as $nilai) {
+                if ($col === 0) {
+                    xlsWriteNumber($row, $col, (float)$nilai);
+                } else {
+                    xlsWriteLabel($row, $col, (string)$nilai);
+                }
+                $col++;
+            }
+            $row++;
+        }
+        xlsEOF();
+        exit;
+    }
+
+    /**
+     * Ekspor CSV (UTF-8 BOM) — aman untuk teks non-ASCII dan bisa dibuka di Excel.
+     */
+    protected function _export_ep_csv($header, $data, $nama_file, $keterangan)
+    {
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $nama_file . '.csv"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, array('DATA ELEMEN PENILAIAN (EP)'));
+        fputcsv($out, array($keterangan));
+        fputcsv($out, array('Total ' . count($data) . ' EP - dicetak ' . date('d-m-Y H:i:s')));
+        fputcsv($out, array(''));
+        fputcsv($out, $header);
+        foreach ($data as $baris) {
+            fputcsv($out, $baris);
+        }
+        fclose($out);
+        exit;
     }
 }
 

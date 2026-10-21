@@ -169,6 +169,7 @@
     }
 </style>
 
+<?php $ikp_modul = (isset($modul) && $modul !== '') ? $modul : 'ikp'; ?>
 <div class="container-fluid py-3">
 
     <div class="card ikp-card">
@@ -186,16 +187,16 @@
             <!-- Filter & Action Controls -->
             <div class="row align-items-center mb-3">
                 <div class="col-md-6 mb-2 mb-md-0 d-flex align-items-center gap-2">
-                    <?php echo anchor(site_url('ikp/create'), '<i class="fas fa-plus mr-1"></i> Tambah Data', 'class="btn btn-primary btn-rounded px-4 shadow-sm" style="border-radius: 20px;"'); ?>
-                    <?php echo anchor(site_url('ikp/excel'), '<i class="fas fa-file-excel mr-1"></i> Export Excel', 'class="btn btn-success btn-rounded px-3 ml-2 shadow-sm" style="border-radius: 20px;"'); ?>
+                    <?php echo anchor(site_url($ikp_modul . '/create'), '<i class="fas fa-plus mr-1"></i> Tambah Data', 'class="btn btn-primary btn-rounded px-4 shadow-sm" style="border-radius: 20px;"'); ?>
+                    <?php echo anchor(site_url($ikp_modul . '/excel'), '<i class="fas fa-file-excel mr-1"></i> Export Excel', 'class="btn btn-success btn-rounded px-3 ml-2 shadow-sm" style="border-radius: 20px;"'); ?>
                 </div>
                 <div class="col-md-6">
-                    <form action="<?php echo site_url('ikp/index'); ?>" method="get">
+                    <form action="<?php echo site_url($ikp_modul . '/index'); ?>" method="get">
                         <div class="input-group ikp-search-group">
                             <input type="text" class="form-control" name="q" placeholder="Cari data pasien, insiden..." value="<?php echo $q; ?>">
                             <div class="input-group-append">
                                 <?php if ($q <> ''): ?>
-                                    <a href="<?php echo site_url('ikp'); ?>" class="btn btn-outline-secondary px-3" style="border-radius: 0;">Reset</a>
+                                    <a href="<?php echo site_url($ikp_modul); ?>" class="btn btn-outline-secondary px-3" style="border-radius: 0;">Reset</a>
                                 <?php endif; ?>
                                 <button class="btn btn-primary btn-search" type="submit">
                                     <i class="fas fa-search"></i>
@@ -303,13 +304,13 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="<?php echo site_url('ikp/read/'.$ikp->id_ikp); ?>" class="btn btn-action btn-info text-white" title="Detail">
+                                        <a href="<?php echo site_url($ikp_modul . '/read/' . $ikp->id_ikp); ?>" class="btn btn-action btn-info text-white" title="Detail">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="<?php echo site_url('ikp/update/'.$ikp->id_ikp); ?>" class="btn btn-action btn-warning text-white" title="Edit">
+                                        <a href="<?php echo site_url($ikp_modul . '/update/' . $ikp->id_ikp); ?>" class="btn btn-action btn-warning text-white" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="<?php echo site_url('ikp/delete/'.$ikp->id_ikp); ?>" onclick="javascript: return confirm('Apakah Anda yakin ingin menghapus data ini?')" class="btn btn-action btn-danger" title="Hapus">
+                                        <a href="<?php echo site_url($ikp_modul . '/delete/' . $ikp->id_ikp); ?>" onclick="javascript: return confirm('Apakah Anda yakin ingin menghapus data ini?')" class="btn btn-action btn-danger" title="Hapus">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>

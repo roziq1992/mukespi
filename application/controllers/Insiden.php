@@ -40,6 +40,7 @@ class insiden extends CI_Controller
             'pagination' => $this->pagination->create_links(),
             'total_rows' => $config['total_rows'],
             'start' => $start,
+            'modul' => 'insiden',
         );
          $this->load->view('template/header',$data);
          $this->load->view('ikp/ikp_list');
@@ -80,6 +81,7 @@ class insiden extends CI_Controller
 		'tgl_lapor' => $row->tgl_lapor,
 		'grading_resiko' => $row->grading_resiko,
 	    );
+            $data['modul'] = 'insiden';
             $this->load->view('template/header',$data);
             $this->load->view('ikp/ikp_read', $data);
             $this->load->view('template/footer');

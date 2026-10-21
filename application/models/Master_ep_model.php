@@ -22,6 +22,52 @@ class Master_ep_model extends CI_Model
         }, $rows);
     }
 
+    /**
+     * Id pokja milik user, diambil dengan query langsung.
+     *
+     * PENTING: pakai $this->db->query() (bukan Query Builder) supaya state
+     * Query Builder tidak ter-reset di tengah penyusunan query utama.
+     * Selalu panggil helper ini SEBELUM from()/where() query utama.
+     *
+     * @return array|NULL NULL = tanpa pembatasan (admin), array = daftar id pokja
+     */
+    private function _pokja_ids_user($id_user)
+    {
+        if (empty($id_user) || $this->_is_admin_user($id_user)) {
+            return NULL;
+        }
+
+        $rows = $this->db->query('SELECT id_pokja FROM user_pokja_ep WHERE id_user = ' . (int)$id_user)->result();
+        $ids = array();
+        foreach ($rows as $row) {
+            $ids[] = (int)$row->id_pokja;
+        }
+        return $ids;
+    }
+
+    /**
+     * Kode BAB yang boleh diakses user.
+     *
+     * @return array|NULL NULL = tanpa pembatasan (admin), array = daftar BAB
+     */
+    private function _bab_user($id_user)
+    {
+        $ids = $this->_pokja_ids_user($id_user);
+        if ($ids === NULL) {
+            return NULL;
+        }
+        if (empty($ids)) {
+            return array();
+        }
+
+        $rows = $this->db->query('SELECT bab FROM pokja WHERE id IN (' . implode(',', $ids) . ')')->result();
+        $babs = array();
+        foreach ($rows as $row) {
+            $babs[] = $row->bab;
+        }
+        return $babs;
+    }
+
     // ================= POKJA =================
 
     private function _is_admin_user($id_user)
@@ -31,6 +77,11 @@ class Master_ep_model extends CI_Model
 
     public function get_pokja($status = 'aktif', $q = '', $id_user = NULL)
     {
+        $ids = $this->_pokja_ids_user($id_user);
+        if ($ids !== NULL && empty($ids)) {
+            return array();
+        }
+
         $this->db->from('pokja');
         if ($status === 'aktif') {
             $this->db->where('active', 'Y');
@@ -38,11 +89,7 @@ class Master_ep_model extends CI_Model
             $this->db->where('active', 'N');
         }
 
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $ids = $this->get_user_pokja_ids($id_user);
-            if (empty($ids)) {
-                return array();
-            }
+        if ($ids !== NULL) {
             $this->db->where_in('id', $ids);
         }
 
@@ -67,8 +114,13 @@ class Master_ep_model extends CI_Model
             $this->db->where('id', (int)$id)->update('pokja', $data);
             return (int)$id;
         }
+
+        // id bukan AUTO_INCREMENT -> hitung manual.
+        $next = $this->db->select('MAX(id) AS m')->get('pokja')->row();
+        $data['id'] = ((int)$next->m) + 1;
+
         $this->db->insert('pokja', $data);
-        return (int)$this->db->insert_id();
+        return (int)$data['id'];
     }
 
     public function set_pokja_active($id, $active)
@@ -198,6 +250,11 @@ class Master_ep_model extends CI_Model
 
     public function count_pokja($status = 'all', $id_user = NULL)
     {
+        $ids = $this->_pokja_ids_user($id_user);
+        if ($ids !== NULL && empty($ids)) {
+            return 0;
+        }
+
         $this->db->from('pokja');
         if ($status === 'aktif') {
             $this->db->where('active', 'Y');
@@ -205,11 +262,7 @@ class Master_ep_model extends CI_Model
             $this->db->where('active', 'N');
         }
 
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $ids = $this->get_user_pokja_ids($id_user);
-            if (empty($ids)) {
-                return 0;
-            }
+        if ($ids !== NULL) {
             $this->db->where_in('id', $ids);
         }
 
@@ -220,6 +273,11 @@ class Master_ep_model extends CI_Model
 
     public function get_standar($status = 'aktif', $q = '', $id_user = NULL)
     {
+        $babs = $this->_bab_user($id_user);
+        if ($babs !== NULL && empty($babs)) {
+            return array();
+        }
+
         $this->db->from('standar');
         if ($status === 'aktif') {
             $this->db->where('active', 'Y');
@@ -227,19 +285,7 @@ class Master_ep_model extends CI_Model
             $this->db->where('active', 'N');
         }
 
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $pokja_ids = $this->get_user_pokja_ids($id_user);
-            if (empty($pokja_ids)) {
-                return array();
-            }
-            $bab_rows = $this->db->select('bab')->from('pokja')->where_in('id', $pokja_ids)->get()->result();
-            $babs = array();
-            foreach ($bab_rows as $row) {
-                $babs[] = $row->bab;
-            }
-            if (empty($babs)) {
-                return array();
-            }
+        if ($babs !== NULL) {
             $this->db->where_in('bab', $babs);
         }
 
@@ -266,8 +312,13 @@ class Master_ep_model extends CI_Model
             $this->db->where('id_standar', (int)$id)->update('standar', $data);
             return (int)$id;
         }
+
+        // id_standar bukan AUTO_INCREMENT -> hitung manual.
+        $next = $this->db->select('MAX(id_standar) AS m')->get('standar')->row();
+        $data['id_standar'] = ((int)$next->m) + 1;
+
         $this->db->insert('standar', $data);
-        return (int)$this->db->insert_id();
+        return (int)$data['id_standar'];
     }
 
     public function set_standar_active($id, $active)
@@ -281,6 +332,11 @@ class Master_ep_model extends CI_Model
 
     public function count_standar($status = 'all', $id_user = NULL)
     {
+        $babs = $this->_bab_user($id_user);
+        if ($babs !== NULL && empty($babs)) {
+            return 0;
+        }
+
         $this->db->from('standar');
         if ($status === 'aktif') {
             $this->db->where('active', 'Y');
@@ -288,19 +344,7 @@ class Master_ep_model extends CI_Model
             $this->db->where('active', 'N');
         }
 
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $pokja_ids = $this->get_user_pokja_ids($id_user);
-            if (empty($pokja_ids)) {
-                return 0;
-            }
-            $bab_rows = $this->db->select('bab')->from('pokja')->where_in('id', $pokja_ids)->get()->result();
-            $babs = array();
-            foreach ($bab_rows as $row) {
-                $babs[] = $row->bab;
-            }
-            if (empty($babs)) {
-                return 0;
-            }
+        if ($babs !== NULL) {
             $this->db->where_in('bab', $babs);
         }
 
@@ -309,12 +353,13 @@ class Master_ep_model extends CI_Model
 
     public function get_pokja_options($id_user = NULL)
     {
+        $ids = $this->_pokja_ids_user($id_user);
+        if ($ids !== NULL && empty($ids)) {
+            return array();
+        }
+
         $this->db->select('id, bab, ket')->where('active', 'Y')->order_by('id', 'ASC');
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $ids = $this->get_user_pokja_ids($id_user);
-            if (empty($ids)) {
-                return array();
-            }
+        if ($ids !== NULL) {
             $this->db->where_in('id', $ids);
         }
         return $this->db->get('pokja')->result();
@@ -322,8 +367,34 @@ class Master_ep_model extends CI_Model
 
     // ================= ELEMEN PENILAIAN =================
 
-    public function get_elemen($status = 'aktif', $q = '', $id_user = NULL)
+    /**
+     * Filter tambahan untuk daftar EP (dipakai juga untuk ekspor Excel).
+     * array(
+     *   'bab'         => 'MRMIK',        // kode BAB (pokja)
+     *   'id_standar'  => 12,             // id standar terpilih
+     *   'jenis_bukti' => 'Dokumen',      // jenis bukti
+     * )
+     */
+    private function _apply_filter_elemen($filter = array())
     {
+        if (!empty($filter['bab'])) {
+            $this->db->where('s.bab', $filter['bab']);
+        }
+        if (!empty($filter['id_standar'])) {
+            $this->db->where('ep.id_standar', (int)$filter['id_standar']);
+        }
+        if (!empty($filter['jenis_bukti'])) {
+            $this->db->where('ep.jenis_bukti', $filter['jenis_bukti']);
+        }
+    }
+
+    public function get_elemen($status = 'aktif', $q = '', $id_user = NULL, $filter = array())
+    {
+        $babs = $this->_bab_user($id_user);
+        if ($babs !== NULL && empty($babs)) {
+            return array();
+        }
+
         $this->db->from('elemen_penilaian ep');
         $this->db->join('standar s', 's.id_standar = ep.id_standar', 'left');
         if ($status === 'aktif') {
@@ -332,21 +403,11 @@ class Master_ep_model extends CI_Model
             $this->db->where('ep.active', 'N');
         }
 
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $pokja_ids = $this->get_user_pokja_ids($id_user);
-            if (empty($pokja_ids)) {
-                return array();
-            }
-            $bab_rows = $this->db->select('bab')->from('pokja')->where_in('id', $pokja_ids)->get()->result();
-            $babs = array();
-            foreach ($bab_rows as $row) {
-                $babs[] = $row->bab;
-            }
-            if (empty($babs)) {
-                return array();
-            }
+        if ($babs !== NULL) {
             $this->db->where_in('s.bab', $babs);
         }
+
+        $this->_apply_filter_elemen($filter);
 
         if (trim($q) !== '') {
             $this->db->group_start();
@@ -374,8 +435,14 @@ class Master_ep_model extends CI_Model
             $this->db->where('id_ep', (int)$id)->update('elemen_penilaian', $data);
             return (int)$id;
         }
+
+        // id_ep bukan AUTO_INCREMENT, jadi harus dihitung manual.
+        // Tanpa ini insert baru selalu kena id_ep = 0 (lalu bentrok di insert kedua).
+        $next = $this->db->select('MAX(id_ep) AS m')->get('elemen_penilaian')->row();
+        $data['id_ep'] = ((int)$next->m) + 1;
+
         $this->db->insert('elemen_penilaian', $data);
-        return (int)$this->db->insert_id();
+        return (int)$data['id_ep'];
     }
 
     public function set_elemen_active($id, $active)
@@ -393,11 +460,14 @@ class Master_ep_model extends CI_Model
     // no_urut = nomor tampilan tanpa celah, boleh di-rapikan.
 
     // Assign no_urut = no_ep untuk satu standar (dipakai saat tambah EP baru).
+    // Pakai SQL langsung: kolom sumber (no_ep) harus disalin apa adanya,
+    // bukan dianggap sebagai string.
     public function set_no_urut_sama_dengan_no_ep($id_standar)
     {
-        $this->db->where('id_standar', (int)$id_standar);
-        $this->db->where('no_urut', NULL, FALSE);
-        $this->db->update('elemen_penilaian', array('no_urut' => 'no_ep'), FALSE);
+        $this->db->query(
+            'UPDATE elemen_penilaian SET no_urut = no_ep'
+            . ' WHERE id_standar = ' . (int)$id_standar . ' AND no_urut IS NULL'
+        );
     }
 
     // Rencana penomoran ulang: EP aktif satu standar, diurutkan dari no_urut
@@ -454,8 +524,13 @@ class Master_ep_model extends CI_Model
         return TRUE;
     }
 
-    public function count_elemen($status = 'all', $id_user = NULL)
+    public function count_elemen($status = 'all', $id_user = NULL, $filter = array())
     {
+        $babs = $this->_bab_user($id_user);
+        if ($babs !== NULL && empty($babs)) {
+            return 0;
+        }
+
         $this->db->from('elemen_penilaian ep');
         $this->db->join('standar s', 's.id_standar = ep.id_standar', 'left');
         if ($status === 'aktif') {
@@ -464,23 +539,89 @@ class Master_ep_model extends CI_Model
             $this->db->where('ep.active', 'N');
         }
 
-        if (!empty($id_user) && !$this->_is_admin_user($id_user)) {
-            $pokja_ids = $this->get_user_pokja_ids($id_user);
-            if (empty($pokja_ids)) {
-                return 0;
-            }
-            $bab_rows = $this->db->select('bab')->from('pokja')->where_in('id', $pokja_ids)->get()->result();
-            $babs = array();
-            foreach ($bab_rows as $row) {
-                $babs[] = $row->bab;
-            }
-            if (empty($babs)) {
-                return 0;
-            }
+        if ($babs !== NULL) {
             $this->db->where_in('s.bab', $babs);
         }
 
+        $this->_apply_filter_elemen($filter);
+
         return (int)$this->db->count_all_results();
+    }
+
+    // ================= FILTER / DROPDOWN =================
+
+    /**
+     * Daftar BAB (pokja) untuk dropdown filter, lengkap dengan nama.
+     * @param mixed $id_user NULL = semua (admin), selain itu dibatasi pokja user.
+     */
+    public function get_daftar_bab($id_user = NULL)
+    {
+        $ids = $this->_pokja_ids_user($id_user);
+        if ($ids !== NULL && empty($ids)) {
+            return array();
+        }
+
+        $this->db->from('pokja');
+        if ($ids !== NULL) {
+            $this->db->where_in('id', $ids);
+        }
+        $this->db->order_by('bab', 'ASC');
+        return $this->db->get()->result();
+    }
+
+    /**
+     * Daftar standar untuk dropdown filter / form EP.
+     * @param string $bab         filter BAB (kosong = semua)
+     * @param mixed  $id_user     NULL = semua (admin)
+     * @param bool   $hanya_aktif true = hanya standar aktif
+     */
+    public function get_standar_filter($bab = '', $id_user = NULL, $hanya_aktif = FALSE)
+    {
+        $babs = $this->_bab_user($id_user);
+        if ($babs !== NULL && empty($babs)) {
+            return array();
+        }
+
+        $this->db->from('standar');
+        if ($hanya_aktif) {
+            $this->db->where('active', 'Y');
+        }
+        if (trim($bab) !== '') {
+            $this->db->where('bab', $bab);
+        }
+
+        if ($babs !== NULL) {
+            $this->db->where_in('bab', $babs);
+        }
+
+        $this->db->order_by('bab', 'ASC');
+        $this->db->order_by('no_standar + 0', 'ASC', FALSE);
+        $this->db->order_by('id_standar', 'ASC');
+        return $this->db->get()->result();
+    }
+
+    /**
+     * Ambil satu standar + info pokja-nya (dipakai untuk judul & filter export).
+     */
+    public function get_standar_dengan_pokja($id_standar)
+    {
+        $row = $this->db->select('s.*, p.id AS id_pokja, p.ket AS ket_pokja')
+            ->from('standar s')
+            ->join('pokja p', 'p.bab = s.bab', 'left')
+            ->where('s.id_standar', (int)$id_standar)
+            ->get()
+            ->row();
+        return $row;
+    }
+
+    /**
+     * Semua EP pada satu BAB (pokja), untuk export "download semua EP MRK/MRMIK".
+     */
+    public function get_elemen_by_bab($bab, $id_user = NULL, $hanya_aktif = FALSE)
+    {
+        $filter = array('bab' => $bab);
+        $status = $hanya_aktif ? 'aktif' : 'all';
+        return $this->get_elemen($status, '', $id_user, $filter);
     }
 }
 

@@ -73,6 +73,7 @@
     .icon-akses        { background: linear-gradient(135deg, #c0392b, #922b21); }
     .icon-monitoring   { background: linear-gradient(135deg, #16a085, #0e6655); }
     .icon-pegawai      { background: linear-gradient(135deg, #4f46e5, #312e81); }
+    .icon-elibrary     { background: linear-gradient(135deg, #1b7a6b, #0f4f45); }
 
     /* 1. Paksa Modal & Backdrop Bootstrap selalu berada di z-index paling atas */
     .modal-backdrop {
@@ -281,6 +282,31 @@
             <a class="collapse-item" href="<?=site_url('master_ep/pokja');?>"><i class="fas fa-users"></i> Pokja <span class="nav-badge-admin">Admin</span></a>
             <a class="collapse-item" href="<?=site_url('master_ep/standar');?>"><i class="fas fa-list-ol"></i> Standar <span class="nav-badge-admin">Admin</span></a>
             <a class="collapse-item" href="<?=site_url('master_ep/elemen');?>"><i class="fas fa-tasks"></i> Element Penilaian <span class="nav-badge-admin">Admin</span></a>
+            <?php } ?>
+        </div>
+    </div>
+</li>
+<?php } ?>
+
+<!-- ================= E-LIBRARY ================= -->
+<?php if (is_menu_accessible('e_library')) { ?>
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseELibrary"
+       aria-expanded="false" aria-controls="collapseELibrary"
+       data-tooltip="true" data-placement="right"
+       title="E-Library - Portal Penemuan Literatur">
+        <i class="nav-icon-badge icon-elibrary fas fa-book-open"></i>
+        <span>E-Library</span>
+    </a>
+    <div id="collapseELibrary" class="collapse" aria-labelledby="headingELibrary" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="<?=base_url();?>index.php/e_library"><i class="fas fa-book-open"></i> Katalog Literatur</a>
+            <?php if ((int)$this->session->userdata('role_id') == 1) { ?>
+            <a class="collapse-item" href="<?=base_url();?>index.php/e_library/manage"><i class="fas fa-layer-group"></i> Kelola Entri</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/e_library/import"><i class="fas fa-file-import"></i> Impor CSV</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/e_library/source"><i class="fas fa-bookmark"></i> Kelola Sumber</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/e_library/subject"><i class="fas fa-tags"></i> Kelola Subjek</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/e_library/access_log"><i class="fas fa-chart-line"></i> Log Akses</a>
             <?php } ?>
         </div>
     </div>

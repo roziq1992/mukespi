@@ -24,6 +24,8 @@ if (strpos($ikp_jns, 'knc') !== false || strpos($ikp_jns, 'near miss') !== false
 $ikp_ulang = strtolower((string) $kejadian_terulang) === 'ya';
 $ikp_ulang_badge = $ikp_ulang ? 'kuning' : 'netral';
 
+$ikp_modul = (isset($modul) && $modul !== '') ? $modul : 'ikp';
+
 // Selisih hari antara masuk RS dan kejadian insiden
 $ikp_gap = NULL;
 if (!empty($tgl_masuk) && !empty($tgl_kejadian)) {
@@ -98,10 +100,10 @@ if (!empty($tgl_masuk) && !empty($tgl_kejadian)) {
     <!-- ============================ ACTION BAR ========================== -->
     <div class="ikp-actions">
         <div class="ikp-actions__group">
-            <a href="<?= site_url('ikp'); ?>" class="ikp-btn ikp-btn--ghost">
+            <a href="<?= site_url($ikp_modul); ?>" class="ikp-btn ikp-btn--ghost">
                 <i class="fas fa-arrow-left"></i> Kembali ke Daftar
             </a>
-            <a href="<?= site_url('ikp/update/' . $id_ikp); ?>" class="ikp-btn ikp-btn--primary">
+            <a href="<?= site_url($ikp_modul . '/update/' . $id_ikp); ?>" class="ikp-btn ikp-btn--primary">
                 <i class="fas fa-pen"></i> Ubah Data
             </a>
         </div>
@@ -109,7 +111,7 @@ if (!empty($tgl_masuk) && !empty($tgl_kejadian)) {
             <button type="button" class="ikp-btn ikp-btn--ghost" onclick="window.print();">
                 <i class="fas fa-print"></i> Cetak
             </button>
-            <a href="<?= site_url('ikp/delete/' . $id_ikp); ?>"
+            <a href="<?= site_url($ikp_modul . '/delete/' . $id_ikp); ?>"
                class="ikp-btn ikp-btn--danger"
                onclick="return confirm('Hapus data IKP ini? Tindakan ini tidak dapat dibatalkan.');">
                 <i class="fas fa-trash"></i> Hapus
