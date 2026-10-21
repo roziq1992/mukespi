@@ -10,6 +10,7 @@ class Ikp extends CI_Controller
         parent::__construct();
          is_logged_in();
         $this->load->model('Ikp_model');
+        $this->load->helper('ikp');
         $this->load->library('form_validation');
     }
 
@@ -81,7 +82,9 @@ class Ikp extends CI_Controller
 		'jam_lapor' => $row->jam_lapor,
 		'grading_resiko' => $row->grading_resiko,
 	    );
+            $this->load->view('template/header',$data);
             $this->load->view('ikp/ikp_read', $data);
+            $this->load->view('template/footer');
         } else {
             $this->session->set_flashdata('message', 'Record Not Found');
             redirect(site_url('ikp'));
@@ -93,6 +96,7 @@ class Ikp extends CI_Controller
         $data = array(
             'button' => 'Save',
             'action' => site_url('ikp/create_action'),
+            'cancel_url' => site_url('ikp'),
 	    'id_ikp' => set_value('id_ikp'),
 	    'nm_pasien' => set_value('nm_pasien'),
 	    'rm' => set_value('rm'),
@@ -182,6 +186,7 @@ class Ikp extends CI_Controller
             $data = array(
                 'button' => 'Update',
                 'action' => site_url('ikp/update_action'),
+                'cancel_url' => site_url('ikp'),
 		'id_ikp' => set_value('id_ikp', $row->id_ikp),
 		'nm_pasien' => set_value('nm_pasien', $row->nm_pasien),
 		'rm' => set_value('rm', $row->rm),
@@ -304,7 +309,7 @@ class Ikp extends CI_Controller
 	$this->form_validation->set_rules('tindakan', 'tindakan', 'trim|required');
 	$this->form_validation->set_rules('tindakan_oleh', 'tindakan oleh', 'trim|required');
 	$this->form_validation->set_rules('kejadian_terulang', 'kejadian terulang', 'trim|required');
-	$this->form_validation->set_rules('ket_kejadian_terulang', 'ket kejadian terulang', 'trim|required');
+	$this->form_validation->set_rules('ket_kejadian_terulang', 'ket kejadian terulang', 'trim|callback_cek_ket_kejadian_terulang');
 	$this->form_validation->set_rules('pelapor', 'pelapor', 'trim|required');
 	$this->form_validation->set_rules('penerima', 'penerima', 'trim|required');
 	$this->form_validation->set_rules('tgl_lapor', 'tgl lapor', 'trim|required');
@@ -313,6 +318,21 @@ class Ikp extends CI_Controller
 
 	$this->form_validation->set_rules('id_ikp', 'id_ikp', 'trim');
 	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+    /**
+     * Keterangan kejadian terulang hanya wajib diisi bila kejadian terulang = Ya.
+     */
+    public function cek_ket_kejadian_terulang($value)
+    {
+        if ($this->input->post('kejadian_terulang', TRUE) === 'Ya' && trim((string) $value) === '') {
+            $this->form_validation->set_message(
+                'cek_ket_kejadian_terulang',
+                'Keterangan kejadian terulang wajib diisi bila kejadian terulang = Ya.'
+            );
+            return FALSE;
+        }
+        return TRUE;
     }
 
     public function excel()

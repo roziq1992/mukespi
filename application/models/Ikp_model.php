@@ -7,8 +7,9 @@ class Ikp_model extends CI_Model
 {
 
     public $table = 'ikp';
-    public $id = 'tgl_kejadian';
+    public $id = 'id_ikp';
     public $order = 'DESC';
+    public $order_by = 'tgl_kejadian';
 
     function __construct()
     {
@@ -18,7 +19,7 @@ class Ikp_model extends CI_Model
     // get all
     function get_all()
     {
-        $this->db->order_by($this->id, $this->order);
+        $this->db->order_by($this->order_by, $this->order);
         return $this->db->get($this->table)->result();
     }
 
@@ -65,7 +66,7 @@ class Ikp_model extends CI_Model
 
     // get data with limit and search
     function get_limit_data($limit, $start = 0, $q = NULL) {
-        $this->db->order_by($this->id, $this->order);
+        $this->db->order_by($this->order_by, $this->order);
         $this->db->like('id_ikp', $q);
 	$this->db->or_like('nm_pasien', $q);
 	$this->db->or_like('rm', $q);
