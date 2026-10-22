@@ -187,6 +187,42 @@ class Mutu_indikator_model extends CI_Model
         return round((float) $num / (float) $demu * 100, 1);
     }
 
+    /**
+     * Data grafik capaian satu indikator, dikelompokkan per bulan.
+     * Aturan perhitungan capaian sama dengan hitung_capaian(), hanya diterapkan
+     * pada agregasi bulanan, sehingga grafik dan kartu ringkasan selalu sama.
+     */
+    function grafik_bulanan($id_indikator, $tanggal_awal, $tanggal_akhir)
+    {
+        $this->db->select(
+            "MONTHNAME(mutu_indikator.tanggal) AS bulan,
+             SUM(mutu_indikator.num) AS num,
+             SUM(mutu_indikator.demu) AS demu,
+             CASE
+                WHEN SUM(mutu_indikator.num) <= 0 THEN 0
+                WHEN list_indikator.judul = 'Kepuasan Pasien' THEN ROUND(AVG(mutu_indikator.num) * 25, 2)
+                WHEN SUM(mutu_indikator.demu) <= 0 THEN 0
+                WHEN list_indikator.jenis = 'PPI' THEN ROUND(SUM(mutu_indikator.num) / SUM(mutu_indikator.demu) * 1000, 1)
+                ELSE ROUND(SUM(mutu_indikator.num) / SUM(mutu_indikator.demu) * 100, 1)
+             END AS capaian,
+             MAX(mutu_indikator.target) AS target",
+            FALSE
+        );
+        $this->db->from('mutu_indikator');
+        $this->db->join('list_indikator', 'list_indikator.id_indikator = mutu_indikator.id_indikator');
+        $this->db->where('mutu_indikator.id_indikator', (int) $id_indikator);
+        $this->db->where('mutu_indikator.tanggal >=', $tanggal_awal);
+        $this->db->where('mutu_indikator.tanggal <=', $tanggal_akhir);
+        $this->db->group_by(array(
+            'MONTHNAME(mutu_indikator.tanggal)',
+            'MONTH(mutu_indikator.tanggal)',
+            'list_indikator.jenis',
+            'list_indikator.judul',
+        ));
+        $this->db->order_by('MIN(mutu_indikator.tanggal)', 'ASC');
+        return $this->db->get()->result();
+    }
+
     // rata-rata capaian indikator dari inputan user pada rentang tanggal
     function avg_capaian_range($id_indikator, $awal = NULL, $akhir = NULL)
     {

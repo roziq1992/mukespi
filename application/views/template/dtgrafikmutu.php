@@ -1,58 +1,7 @@
  <?php
-                                        $start = 0;
-                                    $tanggal1=$this->input->get('tanggal');
-                                     $idindikator=$this->input->get('id');
-                                    $tanggal2=$this->input->get('tanggal2');
-                                    $jml=0;
-                                    if ($tanggal1==""){
-                                    $tanggal1 = date("Y-m-d");
-                                    $tanggal2 = date("Y-m-d");
-                                    }
-                                    if ($tanggal1==""){
-                                    $tanggal1 = date("Y-m-d");
-                                    $tanggal2 = date("Y-m-d");
-                                    }
-                                    //  echo  $tahun ;
-                                    //  echo  $bulan ;
-                                     
-                                   $mutuindikator=$this->db->query('SELECT 
-                                	mutu_indikator.tanggal,
-                                	mutu_indikator.num,
-                                	mutu_indikator.demu,
-                                	list_indikator.jenis,
-                                	list_indikator.judul,
-                                	CASE
-                                		WHEN mutu_indikator.num <= 0 THEN 0
-                                		WHEN list_indikator.judul = "Kepuasan Pasien" THEN ROUND(mutu_indikator.num * 25, 2)
-                                		WHEN mutu_indikator.demu <= 0 THEN 0
-                                		WHEN list_indikator.jenis = "PPI" THEN ROUND(mutu_indikator.num / mutu_indikator.demu * 1000, 1)
-                                		ELSE ROUND(mutu_indikator.num / mutu_indikator.demu * 100, 1)
-                                	END AS capaian,
-                                	mutu_indikator.target
-                                	FROM mutu_indikator
-                                	INNER JOIN list_indikator ON mutu_indikator.id_indikator = list_indikator.id_indikator
-                                	WHERE mutu_indikator.tanggal BETWEEN "' . $tanggal1 . '" AND "' . $tanggal2 . '"
-                                	AND mutu_indikator.id_indikator = "' . $idindikator . '"
-                                	ORDER BY mutu_indikator.tanggal ASC')->result();
-                                	$tnum=0;
-                                	$tdenum=0;
-                                	$rcapaian=0;
-                                	$no=0;
-                                	foreach ($mutuindikator as $data) {
-                                	   $tnum=$data->num+$tnum;
-                                       $tdenum=$data->demu+$tdenum;
-                                       $rcapaian=$data->capaian+$rcapaian;
-                                       $no++;
-                                    } 
-                                    if($rcapaian>0){
-                                    $rata2=$rcapaian/$no;
-                                    }else{
-                                        $rata2=0;
-                                    }
-                                	
-
-
-
+    // Data grafik (mutuindikator, tnum, tdenum, rata2) sudah disiapkan di
+    // controller Dashboard::mutugrafik() agar kartu ringkasan dan grafik
+    // memakai sumber data yang sama.
 ?>
 				</div>
 				<!-- /.container-fluid -->
@@ -155,9 +104,9 @@ var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: [<?php foreach ($mutuindikator as $mutuindikatorx) {
-         echo '"' . $mutuindikatorx->bulan . '",';
-    } ?>],
+    labels: [<?php if (!empty($mutuindikator)): foreach ($mutuindikator as $mutuindikatorx) {
+         echo '"' . addslashes($mutuindikatorx->bulan) . '",';
+    } endif; ?>],
     datasets: [{
       label: "Capaian Indikator",
       lineTension: 0.3,
@@ -171,9 +120,9 @@ var myLineChart = new Chart(ctx, {
       pointHoverBorderColor: "rgba(97, 175, 239, 1)",
       pointHitRadius: 10,
       pointBorderWidth: 2,
-      data: [<?php foreach ($mutuindikator as $mutuindikatorxx) {
+      data: [<?php if (!empty($mutuindikator)): foreach ($mutuindikator as $mutuindikatorxx) {
          echo '"' . $mutuindikatorxx->capaian . '",';
-    } ?>],
+    } endif; ?>],
       fill:false,
         
     },{
@@ -189,9 +138,9 @@ var myLineChart = new Chart(ctx, {
       pointHoverBorderColor: "rgba(255, 0, 46, 1)",
       pointHitRadius: 10,
       pointBorderWidth: 2,
-      data: [<?php foreach ($mutuindikator as $mutuindikatorxxx) {
+      data: [<?php if (!empty($mutuindikator)): foreach ($mutuindikator as $mutuindikatorxxx) {
          echo '"' . $mutuindikatorxxx->target . '",';
-    } ?>],
+    } endif; ?>],
      fill:false,
         
     }],
