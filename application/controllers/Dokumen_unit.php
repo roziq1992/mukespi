@@ -7,6 +7,7 @@ class Dokumen_unit extends CI_Controller
 {
     private $upload_folder = 'uploads/dokumen_unit/';
     private $ROLE_ID_ADMIN = 1;
+    private $ROLE_ID_SEKRETARIS = 5;
 
     function __construct()
     {
@@ -17,11 +18,11 @@ class Dokumen_unit extends CI_Controller
         $this->load->library('form_validation');
     }
 
-    // NULL = admin (tidak dibatasi), array = daftar id_unit yang boleh diakses
+    // NULL = admin & sekretaris (tidak dibatasi), array = daftar id_unit yang boleh diakses
     private function _get_allowed_units()
     {
-        $role_id = $this->session->userdata('role_id');
-        if ($role_id == $this->ROLE_ID_ADMIN) {
+        $role_id = (int) $this->session->userdata('role_id');
+        if ($role_id == $this->ROLE_ID_ADMIN || $role_id == $this->ROLE_ID_SEKRETARIS) {
             return NULL;
         }
         return $this->User_unit_model->get_unit_ids_by_user($this->session->userdata('id'));
