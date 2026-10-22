@@ -174,7 +174,7 @@
             <tr><td>Nama Barang</td><td><?php echo isset($inventaris) ? $inventaris->nm_barang : '-'; ?></td></tr>
             <tr><td>Merek</td><td><?php echo isset($inventaris) ? $inventaris->merek : '-'; ?></td></tr>
             <tr><td>Jenis</td><td><?php echo isset($inventaris) ? $inventaris->jenis : '-'; ?></td></tr>
-            <tr><td>Ruang</td><td><?php echo isset($inventaris) ? $inventaris->id_ruang : '-'; ?></td></tr>
+            <tr><td>Ruang</td><td><?php echo isset($inventaris) ? (!empty($inventaris->ruang_nm) ? $inventaris->ruang_nm . ' (' . $inventaris->ruang_kode . ')' : $inventaris->id_ruang) : '-'; ?></td></tr>
             <tr><td>Status</td>
                 <td>
                     <?php if (isset($inventaris)): ?>

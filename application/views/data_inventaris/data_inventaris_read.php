@@ -19,7 +19,7 @@
 	    <tr><td>Sn</td><td><?php echo $sn; ?></td></tr>
 	    <tr><td>Jenis</td><td><?php echo $jenis; ?></td></tr>
 	    <tr><td>Kondisi</td><td><?php echo $kondisi; ?></td></tr>
-	    <tr><td>Id Ruang</td><td><?php echo $id_ruang; ?></td></tr>
+	    <tr><td>Id Ruang</td><td><?php echo isset($ruang_nm) && $ruang_nm !== '' ? $ruang_nm . ' (' . (isset($ruang_kode) ? $ruang_kode : '') . ') [' . $id_ruang . ']' : $id_ruang; ?></td></tr>
 	    <tr><td>Harga</td><td><?php echo $harga; ?></td></tr>
 	    <tr><td>Stts</td><td><?php echo $stts; ?></td></tr>
 	    <tr><td></td><td><a href="<?php echo site_url('data_inventaris') ?>" class="btn btn-default">Cancel</a></td></tr>

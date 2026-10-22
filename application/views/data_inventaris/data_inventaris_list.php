@@ -397,6 +397,7 @@
             <div class="di-toolbar">
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <a href="<?php echo site_url('data_inventaris/create'); ?>" class="di-btn-add">+ Tambah Inventaris</a>
+                    <a href="<?php echo site_url('data_inventaris/ruang'); ?>" class="di-btn-add" style="background: #6f42c1;">🏢 Master Ruang</a>
                     <a href="<?php echo site_url('data_inventaris/maintenance_dashboard'); ?>" class="di-btn-add" style="background: #17a2b8;">🔧 Maintenance Asset</a>
                     <a href="<?php echo site_url('data_inventaris/maintenance_schedule'); ?>" class="di-btn-add" style="background: #6c757d;">📅 Jadwal</a>
                     <a href="<?php echo site_url('data_inventaris/maintenance_history'); ?>" class="di-btn-add" style="background: #28a745;">📋 Riwayat</a>
@@ -468,7 +469,14 @@
                                 <td data-label="SN"><?php echo $data_inventaris->sn; ?></td>
                                 <td data-label="Jenis"><?php echo $data_inventaris->jenis; ?></td>
                                 <td data-label="Kondisi"><span class="<?php echo $kondisi_class; ?>"><?php echo $data_inventaris->kondisi; ?></span></td>
-                                <td data-label="Ruang"><?php echo $data_inventaris->id_ruang; ?></td>
+                                <td data-label="Ruang">
+                                    <?php if (!empty($data_inventaris->ruang_nm)): ?>
+                                        <?php echo $data_inventaris->ruang_nm; ?>
+                                        <span class="di-code-chip"><?php echo $data_inventaris->ruang_kode; ?></span>
+                                    <?php else: ?>
+                                        <?php echo $data_inventaris->id_ruang <> '' ? $data_inventaris->id_ruang : '-'; ?>
+                                    <?php endif; ?>
+                                </td>
                                 <td data-label="Harga"><span class="di-harga">Rp <?php echo number_format((float) $data_inventaris->harga, 0, ',', '.'); ?></span></td>
                                 <td data-label="Status"><span class="di-badge <?php echo $stts_class; ?>"><?php echo ucfirst($data_inventaris->stts); ?></span></td>
                                 <td data-label="Aksi">
@@ -652,7 +660,7 @@ function renderTrackingModal(data) {
                 <div><span class="info-label">Merek:</span> <span class="info-value">${inv.merek || '-'}</span></div>
                 <div><span class="info-label">Jenis:</span> <span class="info-value">${inv.jenis || '-'}</span></div>
                 <div><span class="info-label">Kondisi:</span> <span class="info-value">${inv.kondisi || '-'}</span></div>
-                <div><span class="info-label">Ruang:</span> <span class="info-value">${inv.id_ruang || '-'}</span></div>
+                <div><span class="info-label">Ruang:</span> <span class="info-value">${inv.ruang_nm || inv.id_ruang || '-'}</span></div>
                 <div><span class="info-label">Status:</span> <span class="info-value">${inv.stts || '-'}</span></div>
                 <div><span class="info-label">Harga:</span> <span class="info-value">Rp ${formatNumber(inv.harga)}</span></div>
             </div>

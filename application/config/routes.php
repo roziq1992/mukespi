@@ -162,6 +162,14 @@ $route['data_inventaris/maintenance_history_form/(:any)'] = 'data_inventaris/mai
 $route['data_inventaris/maintenance_history_form'] = 'data_inventaris/maintenance_history_form';
 $route['data_inventaris/sparepart_delete/(:any)'] = 'data_inventaris/sparepart_delete/$1';
 
+// Master Ruang (lokasi inventaris) — CRUD + tambah langsung dari form inventaris
+$route['data_inventaris/ruang'] = 'data_inventaris/ruang';
+$route['data_inventaris/ruang_form'] = 'data_inventaris/ruang_form';
+$route['data_inventaris/ruang_form/(:any)'] = 'data_inventaris/ruang_form/$1';
+$route['data_inventaris/ruang_action'] = 'data_inventaris/ruang_action';
+$route['data_inventaris/ruang_delete/(:any)'] = 'data_inventaris/ruang_delete/$1';
+$route['data_inventaris/ruang_add_ajax'] = 'data_inventaris/ruang_add_ajax';
+
 // Survei Kepuasan Pasien — formulir publik (tanpa login)
 $route['survei'] = 'survei/index';
 $route['survei/kirim'] = 'survei/kirim';

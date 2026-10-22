@@ -23,43 +23,58 @@ class Data_inventaris_model extends CI_Model
     // get data by id
     function get_by_id($id)
     {
-        $this->db->where($this->id, $id);
-        return $this->db->get($this->table)->row();
+        $this->db->select('i.*');
+        $this->db->select('r.nm_ruang AS ruang_nm, r.nama_ruang AS ruang_nama, r.kode_ruang AS ruang_kode');
+        $this->db->from('data_inventaris i');
+        $this->db->join('data_ruang r', 'r.id_ruang = i.id_ruang', 'left');
+        $this->db->where('i.' . $this->id, $id);
+        return $this->db->get()->row();
     }
-    
+
     // get total rows
     function total_rows($q = NULL) {
-        $this->db->like('id_inven', $q);
-        $this->db->or_like('kode_inven', $q);
-        $this->db->or_like('nm_barang', $q);
-        $this->db->or_like('merek', $q);
-        $this->db->or_like('tipe', $q);
-        $this->db->or_like('sn', $q);
-        $this->db->or_like('jenis', $q);
-        $this->db->or_like('kondisi', $q);
-        $this->db->or_like('id_ruang', $q);
-        $this->db->or_like('harga', $q);
-        $this->db->or_like('stts', $q);
-        $this->db->from($this->table);
+        $this->db->like('i.id_inven', $q);
+        $this->db->or_like('i.kode_inven', $q);
+        $this->db->or_like('i.nm_barang', $q);
+        $this->db->or_like('i.merek', $q);
+        $this->db->or_like('i.tipe', $q);
+        $this->db->or_like('i.sn', $q);
+        $this->db->or_like('i.jenis', $q);
+        $this->db->or_like('i.kondisi', $q);
+        $this->db->or_like('i.id_ruang', $q);
+        $this->db->or_like('i.harga', $q);
+        $this->db->or_like('i.stts', $q);
+        $this->db->or_like('r.nm_ruang', $q);
+        $this->db->or_like('r.nama_ruang', $q);
+        $this->db->or_like('r.kode_ruang', $q);
+        $this->db->from('data_inventaris i');
+        $this->db->join('data_ruang r', 'r.id_ruang = i.id_ruang', 'left');
         return $this->db->count_all_results();
     }
-    
+
     // get data with limit and search
     function get_limit_data($limit, $start = 0, $q = NULL) {
-        $this->db->order_by($this->id, $this->order);
-        $this->db->like('id_inven', $q);
-        $this->db->or_like('kode_inven', $q);
-        $this->db->or_like('nm_barang', $q);
-        $this->db->or_like('merek', $q);
-        $this->db->or_like('tipe', $q);
-        $this->db->or_like('sn', $q);
-        $this->db->or_like('jenis', $q);
-        $this->db->or_like('kondisi', $q);
-        $this->db->or_like('id_ruang', $q);
-        $this->db->or_like('harga', $q);
-        $this->db->or_like('stts', $q);
+        $this->db->select('i.*');
+        $this->db->select('r.nm_ruang AS ruang_nm, r.nama_ruang AS ruang_nama, r.kode_ruang AS ruang_kode');
+        $this->db->from('data_inventaris i');
+        $this->db->join('data_ruang r', 'r.id_ruang = i.id_ruang', 'left');
+        $this->db->order_by('i.' . $this->id, $this->order);
+        $this->db->like('i.id_inven', $q);
+        $this->db->or_like('i.kode_inven', $q);
+        $this->db->or_like('i.nm_barang', $q);
+        $this->db->or_like('i.merek', $q);
+        $this->db->or_like('i.tipe', $q);
+        $this->db->or_like('i.sn', $q);
+        $this->db->or_like('i.jenis', $q);
+        $this->db->or_like('i.kondisi', $q);
+        $this->db->or_like('i.id_ruang', $q);
+        $this->db->or_like('i.harga', $q);
+        $this->db->or_like('i.stts', $q);
+        $this->db->or_like('r.nm_ruang', $q);
+        $this->db->or_like('r.nama_ruang', $q);
+        $this->db->or_like('r.kode_ruang', $q);
         $this->db->limit($limit, $start);
-        return $this->db->get($this->table)->result();
+        return $this->db->get()->result();
     }
     
     // insert data
@@ -85,15 +100,15 @@ class Data_inventaris_model extends CI_Model
     // Get all ruang for dropdown
     function get_all_ruang()
     {
-        $this->db->order_by('id_ruang', 'ASC');
-        return $this->db->get('data_ruang')->result();
+        $this->load->model('Data_ruang_model');
+        return $this->Data_ruang_model->get_all();
     }
     
     // Get ruang by id
     function get_ruang_by_id($id)
     {
-        $this->db->where('id_ruang', $id);
-        return $this->db->get('data_ruang')->row();
+        $this->load->model('Data_ruang_model');
+        return $this->Data_ruang_model->get_by_id($id);
     }
 }
 /* End of file Data_inventaris_model.php */

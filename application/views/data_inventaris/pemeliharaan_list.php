@@ -515,7 +515,7 @@ function renderTrackingModal(data) {
                 <div><span class="info-label">Merek:</span> <span class="info-value">${inv.merek || '-'}</span></div>
                 <div><span class="info-label">Jenis:</span> <span class="info-value">${inv.jenis || '-'}</span></div>
                 <div><span class="info-label">Kondisi:</span> <span class="info-value">${inv.kondisi || '-'}</span></div>
-                <div><span class="info-label">Ruang:</span> <span class="info-value">${inv.id_ruang || '-'}</span></div>
+                <div><span class="info-label">Ruang:</span> <span class="info-value">${inv.ruang_nm || inv.id_ruang || '-'}</span></div>
                 <div><span class="info-label">Status:</span> <span class="info-value">${inv.stts || '-'}</span></div>
                 <div><span class="info-label">Harga:</span> <span class="info-value">Rp ${formatNumber(inv.harga)}</span></div>
             </div>

@@ -7,55 +7,57 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 12px;
             background: #f8fafc;
         }
         .barcode-container {
-            max-width: 400px;
+            max-width: 320px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 12px;
-            padding: 30px 20px;
+            border-radius: 10px;
+            padding: 14px 16px;
             box-shadow: 0 4px 18px rgba(0,0,0,0.08);
             text-align: center;
         }
         .barcode-title {
-            font-size: 14px;
+            font-size: 11px;
             color: #6c757d;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
         }
         .barcode-code {
-            font-size: 28px;
+            font-size: 16px;
             font-weight: bold;
             color: #2c5f8a;
-            margin: 15px 0 5px;
-            letter-spacing: 2px;
+            margin: 8px 0 4px;
+            letter-spacing: 1px;
+            word-break: break-all;
         }
         .barcode-image {
-            margin: 15px 0;
-            padding: 15px;
+            margin: 8px 0;
+            padding: 8px;
             background: #fff;
             border: 1px solid #eef0f3;
-            border-radius: 8px;
+            border-radius: 6px;
         }
         .barcode-image img {
             max-width: 100%;
+            max-height: 55mm;
             height: auto;
         }
         .barcode-details {
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px solid #eef0f3;
         }
         .barcode-details table {
             width: 100%;
             text-align: left;
-            font-size: 13px;
+            font-size: 11px;
         }
         .barcode-details table td {
-            padding: 4px 0;
+            padding: 2px 0;
         }
         .barcode-details table td:first-child {
             color: #8a94a6;
@@ -64,24 +66,36 @@
         }
         .barcode-details table td:last-child {
             color: #33475b;
+            word-break: break-word;
         }
         .print-btn {
-            margin-top: 20px;
-            padding: 10px 30px;
+            margin-top: 12px;
+            padding: 8px 22px;
             background: #2c5f8a;
             color: #fff;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
         }
         .print-btn:hover {
             background: #1b3a5c;
         }
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
         @media print {
             body { background: #fff; padding: 0; }
-            .barcode-container { box-shadow: none; border: none; padding: 20px; }
+            .barcode-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                border-radius: 0;
+                padding: 10px;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
             .print-btn { display: none; }
             .no-print { display: none; }
         }
@@ -120,7 +134,7 @@
             </tr>
             <tr>
                 <td>Ruang</td>
-                <td>: <?php echo $inventaris->id_ruang; ?></td>
+                <td>: <?php echo (!empty($inventaris->ruang_nm) ? $inventaris->ruang_nm . ' (' . $inventaris->ruang_kode . ')' : $inventaris->id_ruang); ?></td>
             </tr>
             <tr>
                 <td>Status</td>

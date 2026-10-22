@@ -85,6 +85,24 @@
         padding: 10px 22px;
         font-weight: 600;
     }
+    .di-ruang-wrap {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+    }
+    .di-ruang-wrap .form-control { flex: 1; }
+    .di-ruang-wrap .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+    .di-hint {
+        font-size: 0.75rem;
+        color: #8a94a6;
+        margin-top: 5px;
+    }
+    .di-hint.is-warning { color: #b8860b; }
 </style>
 
 <div class="container-fluid">
@@ -172,18 +190,23 @@
                     </div>
                     <div class="col-12 col-md-6 mt-3 mt-md-0">
                         <label class="di-label" for="id_ruang">Ruang</label>
-                        <select class="form-control" name="id_ruang" id="id_ruang">
-                            <option value="">-- Pilih Ruang --</option>
-                            <?php 
-                            // Get ruang data from model
-                            $ruang_list = $this->Data_inventaris_model->get_all_ruang();
-                            foreach ($ruang_list as $ruang):
-                            ?>
-                                <option value="<?php echo $ruang->id_ruang; ?>" <?php echo ($id_ruang == $ruang->id_ruang) ? 'selected' : ''; ?>>
-                                    <?php echo $ruang->nama_ruang; ?> (<?php echo $ruang->kode_ruang; ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <?php $ruang_list = isset($ruang_list) ? $ruang_list : array(); ?>
+                        <div class="di-ruang-wrap">
+                            <select class="form-control" name="id_ruang" id="id_ruang">
+                                <option value="">-- Pilih Ruang --</option>
+                                <?php foreach ($ruang_list as $ruang): ?>
+                                    <option value="<?php echo $ruang->id_ruang; ?>" <?php echo ((string) $id_ruang === (string) $ruang->id_ruang) ? 'selected' : ''; ?>>
+                                        <?php echo ($ruang->nama_ruang !== '' ? $ruang->nama_ruang : $ruang->nm_ruang); ?> (<?php echo $ruang->kode_ruang; ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" class="btn btn-outline-primary" id="btnTambahRuang" data-toggle="modal" data-target="#modalTambahRuang">
+                                + Ruang
+                            </button>
+                        </div>
+                        <?php if (count($ruang_list) == 0): ?>
+                            <div class="di-hint is-warning">Belum ada data ruang. Klik "+ Ruang" untuk menambah ruang terlebih dahulu.</div>
+                        <?php endif; ?>
                         <?php echo form_error('id_ruang') ?>
                     </div>
                 </div>
@@ -222,8 +245,112 @@
                 <div class="di-actions">
                     <button type="submit" class="btn btn-primary"><?php echo $button ?></button>
                     <a href="<?php echo site_url('data_inventaris') ?>" class="btn btn-outline-secondary">Batal</a>
+                    <a href="<?php echo site_url('data_inventaris/ruang') ?>" class="btn btn-outline-primary">🏢 Kelola Ruang</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- ============================================ -->
+<!-- MODAL TAMBAH RUANG (dipakai saat ruang belum ada) -->
+<!-- ============================================ -->
+<div class="modal fade" id="modalTambahRuang" tabindex="-1" role="dialog" aria-labelledby="modalTambahRuangLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2c5f8a 0%, #1b3a5c 100%); color: #fff;">
+                <h5 class="modal-title" id="modalTambahRuangLabel">🏢 Tambah Ruang</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff; opacity:1;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formTambahRuang" autocomplete="off">
+                <div class="modal-body">
+                    <div id="ruangAjaxAlert"></div>
+                    <div class="form-row">
+                        <div class="form-group col-12 col-md-6">
+                            <label class="di-label" for="modal_nama_ruang">Nama Ruang</label>
+                            <input type="text" class="form-control" id="modal_nama_ruang" name="nama_ruang"
+                                   placeholder="Contoh: Ruang Rawat Inap Lt. 3" maxlength="100" />
+                        </div>
+                        <div class="form-group col-12 col-md-6">
+                            <label class="di-label" for="modal_kode_ruang">Kode Ruang</label>
+                            <input type="text" class="form-control" id="modal_kode_ruang" name="kode_ruang"
+                                   placeholder="Contoh: RINAP 3" maxlength="50" />
+                        </div>
+                        <div class="form-group col-12 col-md-6">
+                            <label class="di-label" for="modal_gedung">Gedung</label>
+                            <input type="text" class="form-control" id="modal_gedung" name="gedung"
+                                   placeholder="Contoh: Gedung B" maxlength="50" />
+                        </div>
+                        <div class="form-group col-12 col-md-6">
+                            <label class="di-label" for="modal_lantai">Lantai</label>
+                            <input type="text" class="form-control" id="modal_lantai" name="lantai"
+                                   placeholder="Contoh: 2" />
+                        </div>
+                        <div class="form-group col-12">
+                            <label class="di-label" for="modal_id_ruang">ID Ruang</label>
+                            <input type="text" class="form-control" id="modal_id_ruang" name="id_ruang"
+                                   placeholder="Kosongkan untuk dibuat otomatis (<?php echo isset($new_id_ruang) ? $new_id_ruang : ''; ?>)" maxlength="50" />
+                            <div class="di-hint">ID ruang menjadi primary key dan tidak bisa diubah setelah disimpan.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #eef0f3;">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" style="border-radius: 8px;">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="btnSimpanRuang" style="border-radius: 8px;">Simpan Ruang</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// jQuery dimuat oleh template/footer.php, jadi script ini dijalankan
+// setelah window load (bukan langsung) agar jQuery sudah tersedia.
+window.addEventListener('load', function () {
+    var $ = window.jQuery;
+    if (!$) { return; }
+
+    var $form = $('#formTambahRuang');
+    var $alert = $('#ruangAjaxAlert');
+    var $btn = $('#btnSimpanRuang');
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+
+        $alert.html('');
+        $btn.prop('disabled', true).text('Menyimpan...');
+
+        $.ajax({
+            url: '<?php echo site_url('data_inventaris/ruang_add_ajax'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: $form.serialize(),
+            success: function (res) {
+                if (res.status) {
+                    var $select = $('#id_ruang');
+                    // buang opsi lama bila id ruang sama, lalu tambahkan yang baru
+                    $select.find('option[value="' + res.id_ruang + '"]').remove();
+                    $select.append($('<option>', { value: res.id_ruang, text: res.option_label }));
+                    $select.val(res.id_ruang).trigger('change');
+
+                    $form[0].reset();
+                    $('#modalTambahRuang').modal('hide');
+
+                    // kosongkan peringatan "belum ada data ruang"
+                    $('.di-hint.is-warning').remove();
+                } else {
+                    $alert.html('<div class="alert alert-danger mb-0">' + (res.message || 'Gagal menambah ruang') + '</div>');
+                }
+            },
+            error: function () {
+                $alert.html('<div class="alert alert-danger mb-0">Gagal menghubungi server, silakan coba lagi.</div>');
+            },
+            complete: function () {
+                $btn.prop('disabled', false).text('Simpan Ruang');
+            }
+        });
+    });
+});
+</script>

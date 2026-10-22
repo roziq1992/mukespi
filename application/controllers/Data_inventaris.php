@@ -10,6 +10,7 @@ class Data_inventaris extends CI_Controller
         parent::__construct();
         is_logged_in();
         $this->load->model('Data_inventaris_model');
+        $this->load->model('Data_ruang_model'); // Master data ruang / lokasi
         $this->load->model('Pemeliharaan_model'); // Load pemeliharaan model
         $this->load->library('form_validation');
     }
@@ -65,6 +66,8 @@ class Data_inventaris extends CI_Controller
                 'jenis' => $row->jenis,
                 'kondisi' => $row->kondisi,
                 'id_ruang' => $row->id_ruang,
+                'ruang_nm' => isset($row->ruang_nm) ? $row->ruang_nm : '',
+                'ruang_kode' => isset($row->ruang_kode) ? $row->ruang_kode : '',
                 'harga' => $row->harga,
                 'stts' => $row->stts,
                 'maintenance_history' => $history,
@@ -95,6 +98,8 @@ class Data_inventaris extends CI_Controller
             'id_ruang' => set_value('id_ruang'),
             'harga' => set_value('harga'),
             'stts' => set_value('stts'),
+            'ruang_list' => $this->Data_ruang_model->get_all(),
+            'new_id_ruang' => $this->Data_ruang_model->generate_id(),
         );
 
         $this->load->view('template/header', $data);
@@ -147,6 +152,8 @@ class Data_inventaris extends CI_Controller
                 'id_ruang' => set_value('id_ruang', $row->id_ruang),
                 'harga' => set_value('harga', $row->harga),
                 'stts' => set_value('stts', $row->stts),
+                'ruang_list' => $this->Data_ruang_model->get_all(),
+                'new_id_ruang' => $this->Data_ruang_model->generate_id(),
             );
 
             $this->load->view('template/header', $data);
@@ -196,6 +203,256 @@ class Data_inventaris extends CI_Controller
             $this->session->set_flashdata('message', 'Record Not Found');
             redirect(site_url('data_inventaris'));
         }
+    }
+
+    // ==================== RUANG (MASTER LOKASI) ====================
+
+    /**
+     * Daftar master ruang / lokasi penyimpanan inventaris.
+     */
+    public function ruang()
+    {
+        $q = urldecode($this->input->get('q', TRUE));
+        $start = intval($this->input->get('start'));
+
+        $config['base_url'] = base_url() . 'index.php/data_inventaris/ruang';
+        $config['first_url'] = $config['base_url'];
+
+        if ($q <> '') {
+            $config['base_url'] .= '?q=' . urlencode($q);
+            $config['first_url'] .= '?q=' . urlencode($q);
+        }
+
+        $config['per_page'] = 10;
+        $config['page_query_string'] = TRUE;
+        $config['total_rows'] = $this->Data_ruang_model->total_rows($q);
+        $ruang = $this->Data_ruang_model->get_limit_data($config['per_page'], $start, $q);
+
+        $this->load->library('pagination');
+        $this->pagination->initialize($config);
+
+        $data = array(
+            'ruang_data' => $ruang,
+            'q' => $q,
+            'pagination' => $this->pagination->create_links(),
+            'total_rows' => $config['total_rows'],
+            'start' => $start,
+        );
+
+        $this->load->view('template/header', $data);
+        $this->load->view('data_inventaris/ruang_list', $data);
+        $this->load->view('template/footer');
+    }
+
+    /**
+     * Form tambah / edit ruang.
+     * Dipakai juga sebagai form create tanpa id (mode tambah baru).
+     */
+    public function ruang_form($id = null)
+    {
+        $data = array(
+            'button' => 'Create',
+            'action' => site_url('data_inventaris/ruang_action'),
+            'id_ruang' => set_value('id_ruang'),
+            'nama_ruang' => set_value('nama_ruang'),
+            'kode_ruang' => set_value('kode_ruang'),
+            'gedung' => set_value('gedung'),
+            'lantai' => set_value('lantai'),
+            'id_ruang_lama' => '',
+            'new_id_ruang' => $this->Data_ruang_model->generate_id(),
+        );
+
+        if ($id !== null && $id !== '') {
+            $row = $this->Data_ruang_model->get_by_id($id);
+
+            if (!$row) {
+                $this->session->set_flashdata('message', 'Record Not Found');
+                redirect(site_url('data_inventaris/ruang'));
+            }
+
+            $data['button'] = 'Update';
+            $data['id_ruang'] = set_value('id_ruang', $row->id_ruang);
+            $data['nama_ruang'] = set_value('nama_ruang', $row->nama_ruang);
+            $data['kode_ruang'] = set_value('kode_ruang', $row->kode_ruang);
+            $data['gedung'] = set_value('gedung', $row->gedung);
+            $data['lantai'] = set_value('lantai', $row->lantai);
+            $data['id_ruang_lama'] = $row->id_ruang;
+        }
+
+        $this->load->view('template/header', $data);
+        $this->load->view('data_inventaris/ruang_form', $data);
+        $this->load->view('template/footer');
+    }
+
+    /**
+     * Simpan data ruang (create / update).
+     */
+    public function ruang_action()
+    {
+        $id_lama = trim((string) $this->input->post('id_ruang_lama', TRUE));
+        $id_ruang = trim((string) $this->input->post('id_ruang', TRUE));
+
+        $this->form_validation->set_rules('id_ruang', 'id ruang', 'trim|max_length[50]');
+        $this->form_validation->set_rules('nama_ruang', 'nama ruang', 'trim|required|max_length[100]');
+        $this->form_validation->set_rules('kode_ruang', 'kode ruang', 'trim|max_length[50]');
+        $this->form_validation->set_rules('gedung', 'gedung', 'trim|max_length[50]');
+        $this->form_validation->set_rules('lantai', 'lantai', 'trim|callback_lantai');
+        $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->ruang_form($id_lama !== '' ? $id_lama : null);
+            return;
+        }
+
+        $data = $this->Data_ruang_model->normalize(array(
+            'id_ruang' => $id_ruang,
+            'nama_ruang' => $this->input->post('nama_ruang', TRUE),
+            'kode_ruang' => $this->input->post('kode_ruang', TRUE),
+            'gedung' => $this->input->post('gedung', TRUE),
+            'lantai' => $this->input->post('lantai', TRUE),
+        ));
+
+        if ($id_lama !== '') {
+            // Update: id_ruang adalah primary key, tidak boleh berubah
+            unset($data['id_ruang']);
+            $this->Data_ruang_model->update($id_lama, $data);
+            $this->session->set_flashdata('message', 'Update Record Success');
+        } else {
+            // id_ruang boleh dikosongkan, lalu dibuat otomatis (R001, R002, ...)
+            if ($data['id_ruang'] === '') {
+                $data['id_ruang'] = $this->Data_ruang_model->generate_id();
+            }
+
+            if ($this->Data_ruang_model->get_by_id($data['id_ruang'])) {
+                $this->session->set_flashdata('message', 'ID Ruang sudah digunakan, gunakan ID lain');
+                $this->ruang_form();
+                return;
+            }
+
+            $this->Data_ruang_model->insert($data);
+            $this->session->set_flashdata('message', 'Create Record Success');
+        }
+
+        redirect(site_url('data_inventaris/ruang'));
+    }
+
+    /**
+     * Hapus ruang. Ruang yang masih dipakai data inventaris tidak dihapus
+     * supaya tidak ada inventaris yatim (orphan).
+     */
+    public function ruang_delete($id)
+    {
+        $row = $this->Data_ruang_model->get_by_id($id);
+
+        if (!$row) {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('data_inventaris/ruang'));
+        }
+
+        $used = $this->Data_ruang_model->count_inventaris($id);
+
+        if ($used > 0) {
+            $this->session->set_flashdata('message', 'Ruang masih dipakai oleh ' . $used . ' data inventaris, tidak dapat dihapus');
+        } else {
+            $this->Data_ruang_model->delete($id);
+            $this->session->set_flashdata('message', 'Delete Record Success');
+        }
+
+        redirect(site_url('data_inventaris/ruang'));
+    }
+
+    /**
+     * Endpoint AJAX untuk tambah ruang langsung dari form inventaris.
+     * Dipanggil dari data_inventaris_form.php ketika ruang yang dibutuhkan
+     * belum ada, supaya user tidak perlu pindah halaman.
+     */
+    public function ruang_add_ajax()
+    {
+        $this->output->set_content_type('application/json');
+
+        if ($this->input->method() !== 'post') {
+            $this->output->set_output(json_encode(array(
+                'status' => FALSE,
+                'message' => 'Metode tidak diizinkan',
+            )));
+            return;
+        }
+
+        $this->form_validation->set_rules('nama_ruang', 'nama ruang', 'trim|required|max_length[100]');
+        $this->form_validation->set_rules('kode_ruang', 'kode ruang', 'trim|max_length[50]');
+        $this->form_validation->set_rules('gedung', 'gedung', 'trim|max_length[50]');
+        $this->form_validation->set_rules('lantai', 'lantai', 'trim|callback_lantai');
+        $this->form_validation->set_error_delimiters('', '');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->output->set_output(json_encode(array(
+                'status' => FALSE,
+                'message' => trim(strip_tags(validation_errors())),
+            )));
+            return;
+        }
+
+        $id_ruang = trim((string) $this->input->post('id_ruang', TRUE));
+        if ($id_ruang === '') {
+            $id_ruang = $this->Data_ruang_model->generate_id();
+        }
+
+        if ($this->Data_ruang_model->get_by_id($id_ruang)) {
+            $this->output->set_output(json_encode(array(
+                'status' => FALSE,
+                'message' => 'ID Ruang "' . $id_ruang . '" sudah digunakan',
+            )));
+            return;
+        }
+
+        $data = $this->Data_ruang_model->normalize(array(
+            'id_ruang' => $id_ruang,
+            'nama_ruang' => $this->input->post('nama_ruang', TRUE),
+            'kode_ruang' => $this->input->post('kode_ruang', TRUE),
+            'gedung' => $this->input->post('gedung', TRUE),
+            'lantai' => $this->input->post('lantai', TRUE),
+        ));
+
+        $this->Data_ruang_model->insert($data);
+
+        $this->output->set_output(json_encode(array(
+            'status' => TRUE,
+            'message' => 'Ruang berhasil ditambahkan',
+            'id_ruang' => $data['id_ruang'],
+            'nama_ruang' => $data['nama_ruang'],
+            'kode_ruang' => $data['kode_ruang'],
+            'option_label' => $data['nama_ruang'] . ' (' . $data['kode_ruang'] . ')',
+        )));
+    }
+
+    /**
+     * Custom validation: lantai boleh kosong, tapi harus angka.
+     */
+    public function lantai($str)
+    {
+        if ($str === '' || $str === null) {
+            return TRUE;
+        }
+
+        if (!ctype_digit((string) $str)) {
+            $this->form_validation->set_message('lantai', 'Lantai harus berupa angka.');
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Custom validation: ruang yang dipilih harus ada di master data ruang.
+     */
+    public function ruang_exists($str)
+    {
+        if ($this->Data_ruang_model->get_by_id($str)) {
+            return TRUE;
+        }
+
+        $this->form_validation->set_message('ruang_exists', 'Ruang yang dipilih tidak ditemukan, silakan pilih ruang lain atau tambahkan baru.');
+        return FALSE;
     }
 
     // ==================== PEMELIHARAAN METHODS ====================
@@ -401,7 +658,7 @@ class Data_inventaris extends CI_Controller
         $this->form_validation->set_rules('sn', 'sn', 'trim|required');
         $this->form_validation->set_rules('jenis', 'jenis', 'trim|required');
         $this->form_validation->set_rules('kondisi', 'kondisi', 'trim|required');
-        $this->form_validation->set_rules('id_ruang', 'id ruang', 'trim|required');
+        $this->form_validation->set_rules('id_ruang', 'id ruang', 'trim|required|callback_ruang_exists');
         $this->form_validation->set_rules('harga', 'harga', 'trim|required|numeric');
         $this->form_validation->set_rules('stts', 'stts', 'trim|required');
 
@@ -905,6 +1162,8 @@ public function get_maintenance_tracking($id)
             'jenis' => $inventaris->jenis,
             'kondisi' => $inventaris->kondisi,
             'id_ruang' => $inventaris->id_ruang,
+            'ruang_nm' => isset($inventaris->ruang_nm) ? $inventaris->ruang_nm : '',
+            'ruang_kode' => isset($inventaris->ruang_kode) ? $inventaris->ruang_kode : '',
             'harga' => $inventaris->harga,
             'stts' => $inventaris->stts,
         ),
