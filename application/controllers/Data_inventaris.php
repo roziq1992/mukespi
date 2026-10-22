@@ -653,9 +653,11 @@ class Data_inventaris extends CI_Controller
     {
         $this->form_validation->set_rules('kode_inven', 'kode inven', 'trim|required');
         $this->form_validation->set_rules('nm_barang', 'nm barang', 'trim|required');
-        $this->form_validation->set_rules('merek', 'merek', 'trim|required');
-        $this->form_validation->set_rules('tipe', 'tipe', 'trim|required');
-        $this->form_validation->set_rules('sn', 'sn', 'trim|required');
+        // merek/tipe/sn boleh kosong: banyak aset lama belum punya SN,
+        // sehingga dulu edit (termasuk ganti ruang) selalu gagal validasi.
+        $this->form_validation->set_rules('merek', 'merek', 'trim');
+        $this->form_validation->set_rules('tipe', 'tipe', 'trim');
+        $this->form_validation->set_rules('sn', 'sn', 'trim');
         $this->form_validation->set_rules('jenis', 'jenis', 'trim|required');
         $this->form_validation->set_rules('kondisi', 'kondisi', 'trim|required');
         $this->form_validation->set_rules('id_ruang', 'id ruang', 'trim|required|callback_ruang_exists');
