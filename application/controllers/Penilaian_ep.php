@@ -168,6 +168,22 @@ class Penilaian_ep extends CI_Controller
         return $row ? intval($row->id) : 0;
     }
 
+    // Ket. Dokumen: admin untuk semua pokja, pokja MRMIK untuk semua user.
+    private function _boleh_dok_dukung($id_pokja)
+    {
+        if ($this->_is_admin()) return TRUE;
+
+        $row = $this->db
+            ->select('bab')
+            ->from('pokja')
+            ->where('id', intval($id_pokja))
+            ->limit(1)
+            ->get()
+            ->row();
+
+        return $row && strtoupper(trim((string) $row->bab)) === 'MRMIK';
+    }
+
     // EP yang sudah dinonaktifkan (dan EP dari standar nonaktif) tidak boleh
     // bisa dibuka lewat crafted URL, misalnya penilaian_ep/pokja/MFK lalu
     // dipaksa akses id_ep yang nonaktif. Query daftar sudah menyaringnya,
@@ -261,6 +277,7 @@ class Penilaian_ep extends CI_Controller
             'boleh_nilai'     => $boleh_nilai,
             'boleh_akses'     => TRUE,
             'boleh_download'  => $this->_boleh_download_pokja($id_pokja),
+            'boleh_dok'       => $this->_boleh_dok_dukung($id_pokja),
         );
 
         $this->load->view('template/header', $data);
@@ -293,12 +310,6 @@ class Penilaian_ep extends CI_Controller
         header('Content-Type: application/json');
         header('Cache-Control: no-store');
 
-        if (!$this->_is_admin()) {
-            http_response_code(403);
-            echo json_encode(array('status' => FALSE, 'message' => 'Fitur Ket. Dokumen hanya untuk admin.'));
-            return;
-        }
-
         $id_ep = intval($id_ep);
         if (!$this->_ep_tersedia($id_ep)) {
             echo json_encode(array('status' => FALSE, 'message' => 'EP tidak tersedia'));
@@ -312,6 +323,12 @@ class Penilaian_ep extends CI_Controller
         }
 
         $id_pokja   = $this->_id_pokja_dari_ep($id_ep);
+        if (!$this->_boleh_dok_dukung($id_pokja)) {
+            http_response_code(403);
+            echo json_encode(array('status' => FALSE, 'message' => 'Fitur Ket. Dokumen hanya untuk admin atau pokja MRMIK.'));
+            return;
+        }
+
         $boleh_nilai = $this->_boleh_nilai_pokja($id_pokja);
         $refresh    = ($this->input->get('refresh') === '1') && $boleh_nilai;
 

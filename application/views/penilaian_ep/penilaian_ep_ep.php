@@ -768,7 +768,7 @@
                         </div>
                         <?php endif; ?>
                         <div class="pe2-ep-action-right">
-                            <?php if (!empty($is_admin)): ?>
+                            <?php if (!empty($boleh_dok)): ?>
                                 <button type="button" class="pe2-btn-dok" onclick='peBukaModalDokDukung(<?php echo (int) $ep->id_ep ?>, <?php echo json_encode((string) $no_tampil) ?>)'>
                                     Ket. Dokumen
                                 </button>
@@ -812,7 +812,7 @@
     </div>
 </div>
 
-<?php if (!empty($is_admin)): ?>
+<?php if (!empty($boleh_dok)): ?>
 <!-- ================= MODAL KET. DOKUMEN / DATA DUKUNG ================= -->
 <div class="modal fade" id="modalDokDukung" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
