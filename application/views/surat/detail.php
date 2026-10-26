@@ -8,6 +8,11 @@ $steps = array(
 );
 $status_step = array('Diajukan' => 0, 'Diproses Sekretaris' => 1, 'Sudah Diberi Nomor' => 2, 'Diteruskan ke Direktur' => 3, 'Ditandatangani' => 4, 'Didisposisikan' => 4, 'Ditolak' => 3, 'Selesai' => 4);
 $active_step = isset($status_step[$surat->status]) ? $status_step[$surat->status] : 0;
+$role_id_saat_ini = (int) $this->session->userdata('role_id');
+$status_bisa_proses = array('Sudah Diberi Nomor', 'Diteruskan ke Direktur');
+$status_bisa_ulang = array('Ditandatangani', 'Didisposisikan', 'Selesai', 'Ditolak');
+$tampil_tombol_proses = in_array($role_id_saat_ini, array(1, 4), TRUE) && (in_array($surat->status, $status_bisa_proses, TRUE) || in_array($surat->status, $status_bisa_ulang, TRUE));
+$proses_ulang = in_array($surat->status, $status_bisa_ulang, TRUE);
 ?>
 <style>
     .eo-detail { --eo-ink:#172b4d; --eo-muted:#718096; --eo-line:#e4eaf2; --eo-blue:#2563eb; --eo-green:#0f9f72; --eo-orange:#e38b27; color:var(--eo-ink); }
@@ -63,7 +68,7 @@ $active_step = isset($status_step[$surat->status]) ? $status_step[$surat->status
         <h1><?php echo html_escape($surat->perihal); ?></h1>
         <div class="eo-hero-meta"><span><i class="fas fa-map-marker-alt mr-1"></i><?php echo html_escape($surat->tujuan); ?></span><span><i class="far fa-calendar-alt mr-1"></i><?php echo html_escape($surat->tanggal_pengajuan); ?></span><span><i class="fas fa-tag mr-1"></i><?php echo ucfirst(html_escape($surat->jenis)); ?></span></div>
         <div class="eo-status"><i class="fas fa-circle"></i><?php echo html_escape($surat->status); ?></div>
-        <div class="eo-actions"><a href="<?php echo site_url('surat'); ?>" class="btn btn-light"><i class="fas fa-arrow-left"></i> Kembali</a><?php if ((int) $this->session->userdata('role_id') === 1): ?><form method="post" action="<?php echo site_url('surat/hapus/' . $surat->id); ?>" onsubmit="return confirm('Hapus surat ini beserta seluruh riwayat dan file?');" style="display:inline"><button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button></form><?php endif; ?></div>
+        <div class="eo-actions"><a href="<?php echo site_url('surat'); ?>" class="btn btn-light"><i class="fas fa-arrow-left"></i> Kembali</a><?php if ($tampil_tombol_proses): ?><a href="<?php echo site_url('surat_direktur/proses/' . $surat->id); ?>" class="btn btn-<?php echo $proses_ulang ? 'warning' : 'primary'; ?>"><i class="fas fa-<?php echo $proses_ulang ? 'redo' : 'arrow-right'; ?>"></i> <?php echo $proses_ulang ? 'Proses Ulang' : 'Proses'; ?></a><?php endif; ?><?php if ((int) $surat->id_pemohon === (int) $this->session->userdata('id') && in_array($surat->status, array('Diajukan', 'Ditolak'), TRUE)): ?><a href="<?php echo site_url('surat/edit/' . $surat->id); ?>" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a><?php endif; ?><?php if ((int) $this->session->userdata('role_id') === 1): ?><form method="post" action="<?php echo site_url('surat/hapus/' . $surat->id); ?>" onsubmit="return confirm('Hapus surat ini beserta seluruh riwayat dan file?');" style="display:inline"><button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button></form><?php endif; ?></div>
     </div>
 
     <?php if ($surat->status === 'Ditolak'): ?>

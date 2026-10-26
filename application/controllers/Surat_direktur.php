@@ -61,8 +61,8 @@ class Surat_direktur extends CI_Controller
         $surat = $this->Surat_model->get($id);
         if (!$surat) show_404();
         $aksi = $this->input->post('aksi', TRUE);
-        if (in_array($surat->status, array('Ditolak', 'Selesai'), TRUE)) {
-            $this->session->set_flashdata('message', 'Surat sudah final dan tidak dapat diproses lagi.');
+        if (in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai', 'Ditolak'), TRUE)) {
+            $this->session->set_flashdata('message', 'Surat sudah diproses. Gunakan tombol Proses Ulang untuk memperbaiki aksi sebelumnya.');
             redirect('surat_direktur/proses/' . $id);
             return;
         }
@@ -201,6 +201,49 @@ class Surat_direktur extends CI_Controller
             if ($pemohon) surat_kirim_notifikasi($pemohon->email, $pemohon->name, 'Surat Anda ditolak', 'Surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong> ditolak oleh Direktur RS Airlangga.<br><br>Alasan penolakan:<br>' . htmlspecialchars($alasan, ENT_QUOTES, 'UTF-8'), $id);
         }
         redirect((int) $this->session->userdata('role_id') === 1 ? 'surat' : 'surat_direktur');
+    }
+
+    public function ulang($id)
+    {
+        $surat = $this->Surat_model->get((int) $id);
+        if (!$surat) show_404();
+        if (strtolower($this->input->method()) !== 'post') show_error('Metode request tidak valid.', 405);
+        if (!in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai', 'Ditolak'), TRUE)) {
+            $this->session->set_flashdata('message', 'Surat belum diproses final, tidak perlu diproses ulang.');
+            redirect('surat_direktur/proses/' . (int) $id);
+            return;
+        }
+
+        $old_final = $surat->file_final;
+        $status_kembali = ($surat->jenis === 'disposisi' || $surat->file_ber_nomor) ? 'Diteruskan ke Direktur' : 'Sudah Diberi Nomor';
+        $this->db->trans_start();
+        $this->db->where('id_surat', (int) $id)->delete('surat_disposisi');
+        $this->Surat_model->update((int) $id, array(
+            'status' => $status_kembali,
+            'file_final' => NULL,
+            'kode_verifikasi' => NULL,
+            'alasan_tolak' => NULL,
+            'updated_at' => date('Y-m-d H:i:s')
+        ));
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE) show_error('Proses ulang surat gagal disimpan.', 500);
+
+        if ($old_final && $old_final !== $surat->file_ber_nomor && $old_final !== $surat->file_draft) {
+            $this->_delete_upload_file($old_final);
+        }
+        log_surat($id, 'Proses direktur diulang', 'Aksi sebelumnya dibatalkan. Status dikembalikan ke ' . $status_kembali . ', disposisi dan dokumen final lama dihapus.');
+        $this->session->set_flashdata('message', 'Aksi direktur berhasil dibatalkan. Silakan lakukan proses ulang.');
+        redirect('surat_direktur/proses/' . (int) $id);
+    }
+
+    private function _delete_upload_file($relative)
+    {
+        if (!$relative) return;
+        $root = realpath(FCPATH . 'uploads/surat');
+        $full = realpath(FCPATH . str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, ltrim($relative, '/\\')));
+        if ($root === FALSE || $full === FALSE || !is_file($full)) return;
+        if (strpos(strtolower($full), strtolower($root . DIRECTORY_SEPARATOR)) !== 0) return;
+        @unlink($full);
     }
 
     private function _pdf_source($surat)

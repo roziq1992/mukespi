@@ -10,6 +10,18 @@
             <?php if ($surat->file_ber_nomor): ?>
                 <a class="btn btn-sm btn-outline-primary mb-3" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>">Download dokumen bernomor</a>
             <?php endif; ?>
+            <?php $bisa_proses_ulang = in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai', 'Ditolak'), TRUE); ?>
+            <?php if ($bisa_proses_ulang): ?>
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i> Surat sudah diproses</h6>
+                    <p class="mb-2">Status saat ini: <strong><?php echo html_escape($surat->status); ?></strong>. Jika terjadi kesalahan tanda tangan, disposisi, atau penolakan, batalkan aksi sebelumnya lalu proses ulang surat ini.</p>
+                    <p class="mb-3 small">Semua disposisi dan dokumen final dari aksi sebelumnya akan dihapus. Dokumen bernomor tetap tersimpan.</p>
+                    <form method="post" action="<?php echo site_url('surat_direktur/ulang/' . $surat->id); ?>" onsubmit="return confirm('Batalkan aksi direktur sebelumnya dan proses ulang surat ini? Semua disposisi dan dokumen final lama akan dihapus.');">
+                        <button type="submit" class="btn btn-warning"><i class="fas fa-redo mr-1"></i> Proses Ulang</button>
+                        <a href="<?php echo site_url('surat/detail/' . $surat->id); ?>" class="btn btn-light">Lihat Detail Surat</a>
+                    </form>
+                </div>
+            <?php else: ?>
             <form method="post" enctype="multipart/form-data" action="<?php echo site_url('surat_direktur/simpan/' . $surat->id); ?>">
                 <div id="blok_pratinjau_ttd">
                 <?php if ($signature_preview): ?>
@@ -102,6 +114,7 @@
                 </div>
                 <button class="btn btn-primary">Simpan Aksi</button>
             </form>
+            <?php endif; ?>
         </div>
     </div>
 </div>
