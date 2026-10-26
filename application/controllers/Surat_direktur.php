@@ -9,7 +9,7 @@ class Surat_direktur extends CI_Controller
         is_logged_in();
         if (!in_array((int) $this->session->userdata('role_id'), array(1, 4), TRUE)) redirect('auth/blocked');
         $this->load->helper(array('surat', 'download'));
-        $this->load->model(array('Surat_model', 'Surat_disposisi_model'));
+        $this->load->model(array('Surat_model', 'Surat_disposisi_model', 'Surat_lampiran_model'));
         $this->load->library(array('upload', 'email'));
     }
 
@@ -32,7 +32,8 @@ class Surat_direktur extends CI_Controller
             'surat' => $surat,
             'users' => $this->Surat_model->users(),
             'signature_preview' => $this->_pdf_source($surat) !== FALSE,
-            'verifikasi_url' => site_url('surat/verifikasi/' . (int) $surat->id . '/' . $kode_verifikasi)
+            'verifikasi_url' => site_url('surat/verifikasi/' . (int) $surat->id . '/' . $kode_verifikasi),
+            'lampiran' => $this->Surat_lampiran_model->by_surat($id)
         );
         $this->load->view('template/header', $data);
         $this->load->view('surat/proses_direktur', $data);

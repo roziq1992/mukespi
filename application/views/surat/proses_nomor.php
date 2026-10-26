@@ -4,6 +4,18 @@
         <div class="card-body">
             <p><strong><?php echo html_escape($surat->perihal); ?></strong><br><?php echo html_escape($surat->tujuan); ?></p>
             <p>Status: <span class="badge badge-<?php echo surat_status_class($surat->status); ?>"><?php echo html_escape($surat->status); ?></span> <?php if ($surat->file_draft): ?><a href="<?php echo site_url('surat/download/' . $surat->id . '/draft'); ?>">Download draft</a><?php endif; ?></p>
+            <div class="mb-3">
+                <strong>Lampiran dari pemohon</strong>
+                <?php if (!empty($lampiran)): ?>
+                    <ul class="list-unstyled mt-2 mb-0">
+                        <?php foreach ($lampiran as $file): ?>
+                            <li class="mb-1"><a class="btn btn-sm btn-light border" href="<?php echo site_url('surat/lampiran/' . $file->id); ?>"><i class="fas fa-paperclip text-secondary mr-1"></i><?php echo html_escape($file->nama_file); ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="text-muted small mt-1">Tidak ada lampiran.</div>
+                <?php endif; ?>
+            </div>
             <div class="alert alert-info">
                 <strong>Informasi pengisian:</strong>
                 <ol class="mb-0 pl-3">

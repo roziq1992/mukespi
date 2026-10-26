@@ -9,7 +9,7 @@ class Surat_sekretaris extends CI_Controller
         is_logged_in();
         if (!in_array((int) $this->session->userdata('role_id'), array(1, 5), TRUE)) redirect('auth/blocked');
         $this->load->helper(array('surat', 'download'));
-        $this->load->model(array('Surat_model', 'Surat_log_model'));
+        $this->load->model(array('Surat_model', 'Surat_log_model', 'Surat_lampiran_model'));
         $this->load->library(array('upload', 'email'));
     }
 
@@ -39,7 +39,7 @@ class Surat_sekretaris extends CI_Controller
             log_surat($id, 'Surat diproses sekretaris', 'Surat masuk ke antrian sekretaris.');
             $surat = $this->Surat_model->get($id);
         }
-        $data = array('title' => 'Proses Nomor Surat', 'surat' => $surat);
+        $data = array('title' => 'Proses Nomor Surat', 'surat' => $surat, 'lampiran' => $this->Surat_lampiran_model->by_surat($id));
         $this->load->view('template/header', $data);
         $this->load->view('surat/proses_nomor', $data);
         $this->load->view('template/footer');

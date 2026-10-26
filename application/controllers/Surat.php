@@ -344,6 +344,9 @@ class Surat extends CI_Controller
             'keterangan' => 'Surat dihapus permanen beserta lampiran, disposisi, dan riwayatnya.',
             'created_at' => date('Y-m-d H:i:s')
         ));
+        $this->db->where('id_surat', (int) $id)->delete('surat_lampiran');
+        $this->db->where('id_surat', (int) $id)->delete('surat_disposisi');
+        $this->db->where('id_surat', (int) $id)->delete('surat_log');
         $this->db->where('id', (int) $id)->delete('surat');
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) show_error('Surat gagal dihapus.', 500);

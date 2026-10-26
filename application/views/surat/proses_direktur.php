@@ -10,6 +10,18 @@
             <?php if ($surat->file_ber_nomor): ?>
                 <a class="btn btn-sm btn-outline-primary mb-3" href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>">Download dokumen bernomor</a>
             <?php endif; ?>
+            <div class="mb-3">
+                <strong>Lampiran dari pemohon</strong>
+                <?php if (!empty($lampiran)): ?>
+                    <ul class="list-unstyled mt-2 mb-0">
+                        <?php foreach ($lampiran as $file): ?>
+                            <li class="mb-1"><a class="btn btn-sm btn-light border" href="<?php echo site_url('surat/lampiran/' . $file->id); ?>"><i class="fas fa-paperclip text-secondary mr-1"></i><?php echo html_escape($file->nama_file); ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="text-muted small mt-1">Tidak ada lampiran.</div>
+                <?php endif; ?>
+            </div>
             <?php $bisa_proses_ulang = in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai', 'Ditolak'), TRUE); ?>
             <?php if ($bisa_proses_ulang): ?>
                 <div class="alert alert-warning">
