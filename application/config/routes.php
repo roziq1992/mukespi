@@ -149,6 +149,7 @@ $route['surat/download/(:num)/(:any)'] = 'surat/download/$1/$2';
 $route['surat/verifikasi/(:num)/(:any)'] = 'surat/verifikasi/$1/$2';
 $route['surat/lampiran/(:num)'] = 'surat/download_lampiran/$1';
 $route['surat/hapus/(:num)'] = 'surat/hapus/$1';
+$route['surat/riwayat_hapus'] = 'surat/hapus_log';
 $route['surat/disposisi/selesai/(:num)'] = 'surat/selesai_disposisi/$1';
 $route['surat_sekretaris'] = 'surat_sekretaris/index';
 $route['surat_masuk'] = 'surat_sekretaris/index';

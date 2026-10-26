@@ -81,3 +81,27 @@ SET s.status = CASE
 WHERE s.status = 'Diajukan';
 INSERT INTO roles (id, name) SELECT 4, 'direktur' WHERE NOT EXISTS (SELECT 1 FROM roles WHERE id = 4);
 INSERT INTO roles (id, name) SELECT 5, 'sekretaris' WHERE NOT EXISTS (SELECT 1 FROM roles WHERE id = 5);
+
+-- Log penghapusan surat. Sengaja tanpa foreign key agar catatan tetap ada
+-- setelah surat (beserta surat_log yang ON DELETE CASCADE) dihapus.
+CREATE TABLE IF NOT EXISTS surat_hapus_log (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_surat BIGINT UNSIGNED NOT NULL,
+  perihal VARCHAR(255) NOT NULL,
+  jenis VARCHAR(20) NULL,
+  no_surat VARCHAR(100) NULL,
+  status VARCHAR(50) NULL,
+  id_pemohon BIGINT UNSIGNED NULL,
+  nama_pemohon VARCHAR(255) NULL,
+  id_user BIGINT UNSIGNED NOT NULL,
+  nama_user VARCHAR(255) NOT NULL,
+  role_id BIGINT UNSIGNED NULL,
+  role_nama VARCHAR(50) NULL,
+  keterangan TEXT NULL,
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_hapus_created (created_at),
+  KEY idx_hapus_user (id_user),
+  KEY idx_hapus_surat (id_surat)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

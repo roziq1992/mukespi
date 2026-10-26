@@ -15,7 +15,7 @@ class Surat extends CI_Controller
             is_logged_in();
         }
         $this->load->helper(array('surat', 'download'));
-        $this->load->model(array('Surat_model', 'Surat_lampiran_model', 'Surat_disposisi_model', 'Surat_log_model'));
+        $this->load->model(array('Surat_model', 'Surat_lampiran_model', 'Surat_disposisi_model', 'Surat_log_model', 'Surat_hapus_log_model'));
         $this->load->library(array('form_validation', 'upload'));
     }
 
@@ -322,18 +322,45 @@ class Surat extends CI_Controller
 
     public function hapus($id)
     {
-        if ((int) $this->session->userdata('role_id') !== 1) show_error('Hanya admin yang dapat menghapus surat.', 403);
+        $role_id = (int) $this->session->userdata('role_id');
+        if (!in_array($role_id, array(1, $this->role_sekretaris), TRUE)) show_error('Hanya admin dan sekretaris yang dapat menghapus surat.', 403);
         if (strtolower($this->input->method()) !== 'post') show_error('Metode request tidak valid.', 405);
         $surat = $this->Surat_model->get($id);
         if (!$surat) show_404();
+        $pemohon = $this->db->select('name')->where('id', (int) $surat->id_pemohon)->get('users')->row();
         $this->db->trans_start();
+        $this->Surat_hapus_log_model->insert(array(
+            'id_surat' => (int) $id,
+            'perihal' => $surat->perihal,
+            'jenis' => $surat->jenis,
+            'no_surat' => $surat->no_surat,
+            'status' => $surat->status,
+            'id_pemohon' => (int) $surat->id_pemohon,
+            'nama_pemohon' => $pemohon ? $pemohon->name : '-',
+            'id_user' => (int) $this->session->userdata('id'),
+            'nama_user' => (string) $this->session->userdata('name'),
+            'role_id' => $role_id,
+            'role_nama' => $role_id === 1 ? 'Admin' : 'Sekretaris',
+            'keterangan' => 'Surat dihapus permanen beserta lampiran, disposisi, dan riwayatnya.',
+            'created_at' => date('Y-m-d H:i:s')
+        ));
         $this->db->where('id', (int) $id)->delete('surat');
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) show_error('Surat gagal dihapus.', 500);
         $folder = FCPATH . 'uploads/surat/' . (int) $id;
         if (is_dir($folder)) $this->_remove_folder($folder);
-        $this->session->set_flashdata('message', 'Surat berhasil dihapus.');
+        $this->session->set_flashdata('message', 'Surat berhasil dihapus dan dicatat atas nama ' . html_escape($this->session->userdata('name')) . '.');
         redirect('surat');
+    }
+
+    public function hapus_log()
+    {
+        $role_id = (int) $this->session->userdata('role_id');
+        if (!in_array($role_id, array(1, $this->role_sekretaris), TRUE)) show_error('Akses ditolak.', 403);
+        $data = array('title' => 'Riwayat Hapus Surat', 'logs' => $this->Surat_hapus_log_model->list_all());
+        $this->load->view('template/header', $data);
+        $this->load->view('surat/hapus_log', $data);
+        $this->load->view('template/footer');
     }
 
     private function _remove_folder($folder)
