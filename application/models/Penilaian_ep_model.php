@@ -224,6 +224,39 @@ class Penilaian_ep_model extends CI_Model
         $this->db->order_by('pokja.id', 'ASC');
         return $this->db->get()->result();
     }
+
+    // ================= KONTEKS EP & CACHE DATA DUKUNG =================
+
+    // Data EP + standar + pokja, dipakai untuk menyusun saran data dukung.
+    public function get_ep_konteks($id_ep)
+    {
+        return $this->db
+            ->select('ep.*, s.no_standar, s.isi_standar, s.maksud_tujuan, p.bab, p.ket AS pokja_ket')
+            ->from('elemen_penilaian ep')
+            ->join('standar s', 's.id_standar = ep.id_standar')
+            ->join('pokja p', 'p.bab = s.bab')
+            ->where('ep.id_ep', (int) $id_ep)
+            ->limit(1)
+            ->get()
+            ->row();
+    }
+
+    public function get_data_dukung($id_ep)
+    {
+        return $this->db->where('id_ep', (int) $id_ep)->get('ep_data_dukung')->row();
+    }
+
+    public function save_data_dukung($id_ep, $data)
+    {
+        $existing = $this->get_data_dukung($id_ep);
+        if ($existing) {
+            $this->db->where('id_ep', (int) $id_ep)->update('ep_data_dukung', $data);
+            return;
+        }
+        $data['id_ep']     = (int) $id_ep;
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $this->db->insert('ep_data_dukung', $data);
+    }
 }
 
 /* End of file Penilaian_ep_model.php */

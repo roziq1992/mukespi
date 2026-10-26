@@ -2,7 +2,8 @@
 application/config/database.php
 application/config/email.php
 application/config/config.php
-
+application/config/gemini.local.php
+application/config/gemini.php
 # Runtime and uploaded files #
 application/cache/*
 !application/cache/index.html

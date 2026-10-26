@@ -9,9 +9,11 @@
                 <?php if (!empty($lampiran)): ?>
                     <ul class="list-unstyled mt-2 mb-0">
                         <?php foreach ($lampiran as $file): ?>
-                            <li class="mb-1"><a class="btn btn-sm btn-light border" href="<?php echo site_url('surat/lampiran/' . $file->id); ?>"><i class="fas fa-paperclip text-secondary mr-1"></i><?php echo html_escape($file->nama_file); ?></a></li>
+                            <?php $ext = strtolower(pathinfo($file->nama_file, PATHINFO_EXTENSION)); $bisa_lihat = in_array($ext, array('pdf', 'jpg', 'jpeg', 'png'), TRUE); ?>
+                            <li class="mb-1"><a class="btn btn-sm btn-light border" href="<?php echo site_url(($bisa_lihat ? 'surat/lihat_lampiran/' : 'surat/lampiran/') . $file->id); ?>"<?php echo $bisa_lihat ? ' target="_blank" rel="noopener"' : ''; ?>><i class="fas <?php echo $bisa_lihat ? 'fa-eye' : 'fa-download'; ?> text-secondary mr-1"></i><?php echo html_escape($file->nama_file); ?></a> <small class="text-muted"><?php echo $bisa_lihat ? 'Buka' : 'Unduh'; ?></small></li>
                         <?php endforeach; ?>
                     </ul>
+                    <small class="form-text text-muted">File PDF/gambar dapat dibuka langsung. File Word/Excel akan diunduh karena tidak dapat dipratinjau.</small>
                 <?php else: ?>
                     <div class="text-muted small mt-1">Tidak ada lampiran.</div>
                 <?php endif; ?>

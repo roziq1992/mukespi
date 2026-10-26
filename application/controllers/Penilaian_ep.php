@@ -283,6 +283,336 @@ class Penilaian_ep extends CI_Controller
         $this->load->view('template/footer');
     }
 
+    // ================= AJAX: KET. DOKUMEN / DATA DUKUNG =================
+    // Menghasilkan saran data dukung per EP. Kalau API key Gemini tersedia,
+    // saran dibuat oleh AI lalu di-cache. Kalau tidak, dipakai template
+    // otomatis berbasis jenis bukti + kata kunci pada isi EP.
+
+    public function data_dukung($id_ep = 0)
+    {
+        header('Content-Type: application/json');
+        header('Cache-Control: no-store');
+
+        $id_ep = intval($id_ep);
+        if (!$this->_ep_tersedia($id_ep)) {
+            echo json_encode(array('status' => FALSE, 'message' => 'EP tidak tersedia'));
+            return;
+        }
+
+        $konteks = $this->Penilaian_ep_model->get_ep_konteks($id_ep);
+        if (!$konteks) {
+            echo json_encode(array('status' => FALSE, 'message' => 'Data EP tidak ditemukan'));
+            return;
+        }
+
+        $id_pokja   = $this->_id_pokja_dari_ep($id_ep);
+        $boleh_nilai = $this->_boleh_nilai_pokja($id_pokja);
+        $refresh    = ($this->input->get('refresh') === '1') && $boleh_nilai;
+
+        $this->config->load('gemini', FALSE, TRUE);
+        $api_key = trim((string) $this->config->item('gemini_api_key'));
+
+        $hash = sha1(implode('|', array(
+            (string) $konteks->isi_ep,
+            (string) $konteks->no_standar,
+            (string) $konteks->isi_standar,
+            (string) $konteks->jenis_bukti,
+            (string) $konteks->skor_maks,
+        )));
+
+        $cache = $this->Penilaian_ep_model->get_data_dukung($id_ep);
+        if (!$refresh && $cache && $cache->hash_ep === $hash) {
+            $payload = json_decode($cache->konten, TRUE);
+            // Cache template lama boleh di-upgrade sekali kalau API key
+            // sekarang sudah diisi. Cache Gemini langsung dipakai.
+            $upgrade = ($cache->sumber !== 'gemini' && $api_key !== '');
+            if (is_array($payload) && !$upgrade) {
+                echo json_encode(array_merge(array(
+                    'status'     => TRUE,
+                    'sumber'     => $cache->sumber,
+                    'model'      => $cache->model,
+                    'diperbarui' => $cache->updated_at,
+                    'dari_cache' => TRUE,
+                    'ai_aktif'   => $api_key !== '',
+                ), $payload));
+                return;
+            }
+        }
+
+        $payload = $this->_generate_data_dukung_gemini($konteks);
+        $sumber  = 'gemini';
+        $model   = (string) $this->config->item('gemini_model');
+
+        if ($payload === FALSE) {
+            // Saat minta saran ulang tetapi AI tidak tersedia/gagal,
+            // tampilkan saran tersimpan agar isi tidak hilang.
+            if ($refresh && $cache && $cache->hash_ep === $hash) {
+                $cached = json_decode($cache->konten, TRUE);
+                if (is_array($cached)) {
+                    echo json_encode(array_merge(array(
+                        'status'     => TRUE,
+                        'sumber'     => $cache->sumber,
+                        'model'      => $cache->model,
+                        'diperbarui' => $cache->updated_at,
+                        'dari_cache' => TRUE,
+                        'ai_aktif'   => $api_key !== '',
+                    ), $cached));
+                    return;
+                }
+            }
+
+            $payload = $this->_data_dukung_template($konteks);
+            $sumber  = 'template';
+            $model   = NULL;
+        } else {
+            $this->Penilaian_ep_model->save_data_dukung($id_ep, array(
+                'hash_ep'    => $hash,
+                'konten'     => json_encode($payload, JSON_UNESCAPED_UNICODE),
+                'sumber'     => $sumber,
+                'model'      => $model,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ));
+        }
+
+        echo json_encode(array_merge(array(
+            'status'     => TRUE,
+            'sumber'     => $sumber,
+            'model'      => $model,
+            'diperbarui' => date('Y-m-d H:i:s'),
+            'dari_cache' => FALSE,
+            'ai_aktif'   => $api_key !== '',
+        ), $payload));
+    }
+
+    private function _label_jenis_bukti($kode)
+    {
+        $map = array(
+            'R' => 'Regulasi/Kebijakan',
+            'D' => 'Dokumen',
+            'O' => 'Observasi',
+            'W' => 'Wawancara',
+            'S' => 'Simulasi',
+        );
+        $kode = strtoupper((string) $kode);
+        return isset($map[$kode]) ? $map[$kode] : 'Dokumen';
+    }
+
+    private function _prompt_data_dukung($konteks)
+    {
+        $isi_ep   = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $konteks->isi_ep)));
+        $standar  = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $konteks->isi_standar)));
+        $maksud   = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $konteks->maksud_tujuan)));
+        $jenis    = $this->_label_jenis_bukti($konteks->jenis_bukti);
+
+        $prompt  = "Anda asisten akreditasi rumah sakit di Indonesia. Bantu tim menyiapkan data dukung yang konkret dan mudah diaudit.\n\n";
+        $prompt .= "Pokja: {$konteks->bab} - {$konteks->pokja_ket}\n";
+        $prompt .= "Standar {$konteks->no_standar}: {$standar}\n";
+        if ($maksud !== '') $prompt .= "Maksud/tujuan standar: {$maksud}\n";
+        $prompt .= "EP {$konteks->no_ep} (skor maksimal {$konteks->skor_maks}): {$isi_ep}\n";
+        $prompt .= "Jenis bukti yang diminta pada EP ini: {$jenis}.\n\n";
+        $prompt .= "Sebutkan dokumen/data dukung spesifik yang perlu disiapkan rumah sakit untuk membuktikan EP ini terpenuhi. ";
+        $prompt .= "Gunakan bahasa Indonesia, praktis, dan lazim dipakai di rumah sakit. ";
+        $prompt .= "Jangan mengarang nomor regulasi atau dokumen yang tidak pasti. Maksimal 8 dokumen.\n\n";
+        $prompt .= "Balas HANYA JSON valid tanpa markdown dengan skema:\n";
+        $prompt .= '{"ringkasan":"1-2 kalimat","dokumen":["..."],"observasi":["..."],"catatan":"1 kalimat tips"}';
+
+        return $prompt;
+    }
+
+    // Return array payload atau FALSE kalau AI tidak tersedia/gagal.
+    private function _generate_data_dukung_gemini($konteks)
+    {
+        $api_key = trim((string) $this->config->item('gemini_api_key'));
+        if ($api_key === '') return FALSE;
+
+        $model = trim((string) $this->config->item('gemini_model'));
+        if ($model === '') $model = 'gemini-2.5-flash';
+        $timeout = (int) $this->config->item('gemini_timeout');
+        if ($timeout <= 0) $timeout = 25;
+
+        $url  = 'https://generativelanguage.googleapis.com/v1beta/models/'
+              . rawurlencode($model) . ':generateContent?key=' . rawurlencode($api_key);
+        $body = json_encode(array(
+            'contents' => array(array(
+                'role'  => 'user',
+                'parts' => array(array('text' => $this->_prompt_data_dukung($konteks))),
+            )),
+            'generationConfig' => array(
+                'temperature'      => 0.2,
+                'maxOutputTokens'  => 4096,
+                'responseMimeType' => 'application/json',
+            ),
+        ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        $raw       = FALSE;
+        $http_code = 0;
+        $curl_err  = '';
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, array(
+                CURLOPT_POST           => TRUE,
+                CURLOPT_HTTPHEADER     => array('Content-Type: application/json'),
+                CURLOPT_POSTFIELDS     => $body,
+                CURLOPT_RETURNTRANSFER => TRUE,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_TIMEOUT        => $timeout,
+                CURLOPT_USERAGENT      => 'mukespi-data-dukung/1.0',
+            ));
+            $raw       = curl_exec($ch);
+            $http_code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curl_err  = curl_error($ch);
+            curl_close($ch);
+        } else {
+            // Sebagian instalasi XAMPP tidak memuat ekstensi curl di Apache.
+            // Gunakan stream HTTPS sebagai cadangan (allow_url_fopen=On).
+            $ctx = stream_context_create(array(
+                'http' => array(
+                    'method'        => 'POST',
+                    'header'        => "Content-Type: application/json\r\n",
+                    'content'       => $body,
+                    'timeout'       => $timeout,
+                    'ignore_errors' => TRUE,
+                    'user_agent'    => 'mukespi-data-dukung/1.0',
+                ),
+            ));
+            $raw = @file_get_contents($url, FALSE, $ctx);
+            if (!empty($http_response_header[0])
+                && preg_match('#\s(\d{3})\s#', $http_response_header[0], $match)) {
+                $http_code = (int) $match[1];
+            }
+            if ($raw === FALSE) $curl_err = 'stream HTTPS gagal';
+        }
+
+        if ($raw === FALSE || $http_code < 200 || $http_code >= 300) {
+            log_message('error', 'Gemini data dukung EP ' . (int) $konteks->id_ep
+                . ' gagal (HTTP ' . $http_code . ')' . ($curl_err ? ': ' . $curl_err : ''));
+            return FALSE;
+        }
+
+        $json = json_decode($raw, TRUE);
+        $text = '';
+        if (isset($json['candidates'][0]['content']['parts']) && is_array($json['candidates'][0]['content']['parts'])) {
+            foreach ($json['candidates'][0]['content']['parts'] as $part) {
+                if (isset($part['text'])) $text .= $part['text'];
+            }
+        }
+        $text = trim($text);
+        if ($text === '') return FALSE;
+
+        $data = json_decode($text, TRUE);
+        if (!is_array($data) && preg_match('/\{.*\}/s', $text, $match)) {
+            $data = json_decode($match[0], TRUE);
+        }
+        if (!is_array($data) || empty($data['dokumen']) || !is_array($data['dokumen'])) {
+            log_message('error', 'Gemini data dukung EP ' . (int) $konteks->id_ep . ': format JSON tidak valid');
+            return FALSE;
+        }
+
+        $dokumen = array();
+        foreach ($data['dokumen'] as $item) {
+            $teks = $this->_bersihkan_teks_ai($item, 300);
+            if ($teks !== '') $dokumen[] = $teks;
+        }
+        $observasi = array();
+        if (isset($data['observasi']) && is_array($data['observasi'])) {
+            foreach ($data['observasi'] as $item) {
+                $teks = $this->_bersihkan_teks_ai($item, 300);
+                if ($teks !== '') $observasi[] = $teks;
+            }
+        }
+        if (empty($dokumen)) return FALSE;
+
+        return array(
+            'ringkasan' => $this->_bersihkan_teks_ai(isset($data['ringkasan']) ? $data['ringkasan'] : '', 500),
+            'dokumen'   => array_slice(array_values(array_unique($dokumen)), 0, 8),
+            'observasi' => array_slice(array_values(array_unique($observasi)), 0, 4),
+            'catatan'   => $this->_bersihkan_teks_ai(isset($data['catatan']) ? $data['catatan'] : '', 500),
+        );
+    }
+
+    private function _bersihkan_teks_ai($teks, $max = 500)
+    {
+        $teks = trim(strip_tags((string) $teks));
+        $teks = preg_replace('/\s+/u', ' ', $teks);
+        if (function_exists('mb_substr')) return mb_substr($teks, 0, $max);
+        return substr($teks, 0, $max);
+    }
+
+    private function _data_dukung_template($konteks)
+    {
+        $jenis    = strtoupper((string) $konteks->jenis_bukti);
+        $label    = $this->_label_jenis_bukti($jenis);
+        $isi_ep   = function_exists('mb_strtolower') ? mb_strtolower((string) $konteks->isi_ep) : strtolower((string) $konteks->isi_ep);
+        $dokumen  = array();
+
+        if ($jenis === 'R') {
+            $dokumen[] = 'Salinan kebijakan/SK yang masih berlaku dan mengatur isi EP ini';
+            $dokumen[] = 'SOP/prosedur pelaksanaan beserta bukti penerapannya';
+            $dokumen[] = 'Bukti sosialisasi kebijakan/SOP (daftar hadir, materi, notulen)';
+        } elseif ($jenis === 'O') {
+            $dokumen[] = 'Checklist/daftar tilik observasi sesuai isi EP';
+            $dokumen[] = 'Dokumentasi foto/kondisi nyata di unit terkait';
+            $dokumen[] = 'Catatan hasil observasi dan tindak lanjut';
+        } elseif ($jenis === 'W') {
+            $dokumen[] = 'Daftar narasumber dan jadwal wawancara';
+            $dokumen[] = 'Panduan/daftar pertanyaan wawancara';
+            $dokumen[] = 'Notulen atau ringkasan hasil wawancara';
+        } elseif ($jenis === 'S') {
+            $dokumen[] = 'Skenario simulasi sesuai isi EP';
+            $dokumen[] = 'Berita acara dan dokumentasi pelaksanaan simulasi';
+            $dokumen[] = 'Hasil evaluasi dan tindak lanjut simulasi';
+        } else {
+            $dokumen[] = 'Dokumen perencanaan/pelaksanaan kegiatan sesuai isi EP';
+            $dokumen[] = 'Laporan/rekapitulasi hasil pelaksanaan';
+            $dokumen[] = 'Daftar hadir/berita acara kegiatan';
+            $dokumen[] = 'Dokumen evaluasi dan tindak lanjut';
+        }
+
+        $kata_kunci = array(
+            'kebijakan'       => 'Salinan kebijakan/SK Direktur yang masih berlaku',
+            'sop'             => 'SOP/prosedur terkait dan bukti penerapannya',
+            'panduan'         => 'Panduan/daftar tilik yang digunakan',
+            'evaluasi'        => 'Instrumen evaluasi dan laporan hasil evaluasi',
+            'monitoring'      => 'Laporan monitoring dan bukti tindak lanjut',
+            'sosialisasi'     => 'Daftar hadir, materi, dan notulen sosialisasi',
+            'pelatihan'       => 'Sertifikat pelatihan, daftar hadir, dan materi',
+            'rapat'           => 'Notulen rapat dan daftar hadir',
+            'laporan'         => 'Laporan tertulis terbaru yang relevan',
+            'kontrak'         => 'Dokumen kontrak/perjanjian yang berlaku',
+            'perjanjian'      => 'Dokumen perjanjian kerja sama yang berlaku',
+            'register'        => 'Register terbaru yang relevan',
+            'audit'           => 'Laporan audit internal dan bukti tindak lanjut',
+            'insiden'         => 'Laporan insiden dan analisis/tindak lanjut',
+            'kompetensi'      => 'Bukti kompetensi (sertifikat, uji kompetensi, kredensial)',
+            'kredensial'      => 'Dokumen kredensial staf terkait',
+            'pemilihan'       => 'Dokumen proses pemilihan dan berita acara',
+            'ditetapkan'      => 'SK/dokumen penetapan yang berlaku',
+            'didokumentasikan'=> 'Dokumen/bukti yang terdokumentasi',
+            'dilaporkan'      => 'Laporan kepada pihak terkait',
+            'ditindaklanjuti' => 'Bukti tindak lanjut atas hasil evaluasi',
+        );
+
+        foreach ($kata_kunci as $kata => $saran) {
+            if (strpos($isi_ep, $kata) !== FALSE) $dokumen[] = $saran;
+        }
+
+        $dokumen = array_slice(array_values(array_unique($dokumen)), 0, 10);
+
+        $observasi = array();
+        if (in_array($jenis, array('O', 'W', 'S'), TRUE)) {
+            $observasi[] = 'Siapkan unit/area dan narasumber yang akan dilihat atau diwawancarai.';
+            $observasi[] = 'Pastikan bukti pelaksanaan mudah ditelusuri saat observasi/simulasi.';
+        }
+
+        return array(
+            'ringkasan' => 'Saran data dukung untuk EP ' . $konteks->no_ep . ' (Standar ' . $konteks->no_standar . ', jenis bukti: ' . $label . ').',
+            'dokumen'   => $dokumen,
+            'observasi' => $observasi,
+            'catatan'   => 'Saran ini disusun otomatis dari jenis bukti dan kata kunci pada EP. Untuk saran yang lebih spesifik, isi API key Gemini di application/config/gemini.php.',
+        );
+    }
+
     // ================= AJAX: SIMPAN SKOR =================
 
     public function save_skor()

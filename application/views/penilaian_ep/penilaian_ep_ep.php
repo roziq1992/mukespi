@@ -445,6 +445,54 @@
         gap: 6px;
     }
     .pe2-btn-bukti:hover { background: #e9dbf7; }
+
+    .pe2-ep-action-right { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+    .pe2-btn-dok {
+        background: #edf7f4;
+        border: 1px solid #c3e5db;
+        color: #1f7a63;
+        border-radius: 8px;
+        padding: 7px 14px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pe2-btn-dok:hover { background: #dff1ec; }
+
+    /* ===== Modal Ket. Dokumen / Data Dukung ===== */
+    #modalDokDukung .modal-header { background: #1f7a63; color: #fff; }
+    #modalDokDukung .modal-header .close { color: #fff; opacity: 0.9; }
+    .pe2-dok-meta { font-size: 0.76rem; color: #8a94a6; margin-bottom: 12px; }
+    .pe2-dok-ringkasan {
+        background: #f3faf8;
+        border-left: 4px solid #1f7a63;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.86rem;
+        color: #33475b;
+        margin-bottom: 14px;
+    }
+    .pe2-dok-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #1f7a63;
+        margin: 14px 0 6px;
+    }
+    .pe2-dok-list { margin: 0 0 12px 20px; padding: 0; font-size: 0.86rem; color: #33475b; }
+    .pe2-dok-list li { margin-bottom: 6px; line-height: 1.55; }
+    .pe2-dok-catatan {
+        background: #fff8e6;
+        color: #8a6100;
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        margin-top: 14px;
+    }
+    .pe2-dok-source { font-size: 0.72rem; color: #8a94a6; }
     .pe2-bukti-count {
         background: #6a3fa0;
         color: #fff;
@@ -718,16 +766,16 @@
                             <button type="button" class="pe2-btn-simpan" onclick="peSimpanSkor(<?php echo $ep->id_ep ?>)">💾 Simpan Skor</button>
                             <span class="pe2-save-tick" id="tick-<?php echo $ep->id_ep ?>">✔ Tersimpan</span>
                         </div>
-                        <button type="button" class="pe2-btn-bukti" onclick='peBukaModalBukti(<?php echo $ep->id_ep ?>, <?php echo json_encode((string) $ep->no_ep) ?>)'>
-                            📎 Kelola Bukti
-                            <span class="pe2-bukti-count" id="badge-bukti-<?php echo $ep->id_ep ?>"><?php echo $jml_bukti_total ?></span>
-                        </button>
-                        <?php else: ?>
-                        <button type="button" class="pe2-btn-bukti" onclick='peBukaModalBukti(<?php echo $ep->id_ep ?>, <?php echo json_encode((string) $ep->no_ep) ?>)'>
-                            👁️ Lihat Bukti
-                            <span class="pe2-bukti-count" id="badge-bukti-<?php echo $ep->id_ep ?>"><?php echo $jml_bukti_total ?></span>
-                        </button>
                         <?php endif; ?>
+                        <div class="pe2-ep-action-right">
+                            <button type="button" class="pe2-btn-dok" onclick='peBukaModalDokDukung(<?php echo (int) $ep->id_ep ?>, <?php echo json_encode((string) $no_tampil) ?>)'>
+                                Ket. Dokumen
+                            </button>
+                            <button type="button" class="pe2-btn-bukti" onclick='peBukaModalBukti(<?php echo (int) $ep->id_ep ?>, <?php echo json_encode((string) $ep->no_ep) ?>)'>
+                                <?php echo !empty($boleh_nilai) ? '📎 Kelola Bukti' : '👁️ Lihat Bukti'; ?>
+                                <span class="pe2-bukti-count" id="badge-bukti-<?php echo $ep->id_ep ?>"><?php echo $jml_bukti_total ?></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -757,6 +805,47 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-sm" style="background:#6a3fa0; border:none;" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL KET. DOKUMEN / DATA DUKUNG ================= -->
+<div class="modal fade" id="modalDokDukung" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:12px; overflow:hidden;">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" style="margin-bottom:2px;">Data Dukung yang Diperlukan</h5>
+                    <div class="pe2-dok-meta" style="color:rgba(255,255,255,.85); margin:0;">EP <span id="modalDokEp"></span></div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalDokLoading" class="text-muted" style="font-size:.85rem;">Menyiapkan saran data dukung...</div>
+                <div id="modalDokError" class="alert alert-warning" style="display:none;"></div>
+                <div id="modalDokBody" style="display:none;">
+                    <div id="modalDokRingkasan" class="pe2-dok-ringkasan"></div>
+
+                    <div class="pe2-dok-section-title">Dokumen / data dukung</div>
+                    <ul id="modalDokList" class="pe2-dok-list"></ul>
+
+                    <div id="modalDokObsWrap" style="display:none;">
+                        <div class="pe2-dok-section-title">Observasi / wawancara / simulasi</div>
+                        <ul id="modalDokObs" class="pe2-dok-list"></ul>
+                    </div>
+
+                    <div id="modalDokCatatan" class="pe2-dok-catatan" style="display:none;"></div>
+                    <div id="modalDokSource" class="pe2-dok-source mt-2"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <?php if (!empty($boleh_nilai)): ?>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="modalDokRefresh">Minta Saran Ulang</button>
+                <?php endif; ?>
+                <button type="button" class="btn btn-sm" style="background:#1f7a63; border:none; color:#fff;" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -812,6 +901,7 @@ window.addEventListener('load', function() {
     var BISA_NILAI = <?php echo !empty($boleh_nilai) ? 'true' : 'false' ?>;
     var BISA_DOWNLOAD = <?php echo !empty($boleh_download) ? 'true' : 'false' ?>;
     var currentIdEp = null;
+    var currentDokEp = null;
     var pickedFiles = [];
 
     // =========================================================
@@ -1118,6 +1208,76 @@ function peUpdateTampilanSetelahSimpan($card, idEp, skorBaru) {
         $('#peFilterBelum').text('⏳ Belum Dinilai (' + belum + ')');
     }
 
+
+    // ---------- Modal Ket. Dokumen / Data Dukung ----------
+    window.peBukaModalDokDukung = function(idEp, noEp) {
+        currentDokEp = idEp;
+        $('#modalDokEp').text(noEp);
+        $('#modalDokDukung').modal('show');
+        peMuatDokDukung(false);
+    };
+
+    function peMuatDokDukung(refresh) {
+        if (!currentDokEp) return;
+
+        var url = CI_BASE + '/data_dukung/' + currentDokEp + (refresh ? '?refresh=1' : '');
+        $('#modalDokLoading').show().text(refresh ? 'Meminta saran baru...' : 'Menyiapkan saran data dukung...');
+        $('#modalDokError').hide().text('');
+        $('#modalDokBody').hide();
+        $('#modalDokRefresh').prop('disabled', true);
+
+        $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                $('#modalDokLoading').hide();
+                $('#modalDokRefresh').prop('disabled', false);
+                if (!res || !res.status) {
+                    $('#modalDokError').text((res && res.message) ? res.message : 'Gagal memuat saran data dukung.').show();
+                    return;
+                }
+                peRenderDokDukung(res);
+            },
+            error: function() {
+                $('#modalDokLoading').hide();
+                $('#modalDokRefresh').prop('disabled', false);
+                $('#modalDokError').text('Terjadi kesalahan saat memuat saran data dukung.').show();
+            }
+        });
+    }
+
+    function peRenderDokDukung(res) {
+        var dokumen = res.dokumen || [];
+        var observasi = res.observasi || [];
+
+        $('#modalDokRingkasan').text(res.ringkasan || '').toggle((res.ringkasan || '') !== '');
+
+        var $list = $('#modalDokList').empty();
+        if (!dokumen.length) {
+            $('<li>').text('Belum ada saran dokumen.').appendTo($list);
+        } else {
+            dokumen.forEach(function(item) { $('<li>').text(item).appendTo($list); });
+        }
+
+        var $obs = $('#modalDokObs').empty();
+        observasi.forEach(function(item) { $('<li>').text(item).appendTo($obs); });
+        $('#modalDokObsWrap').toggle(observasi.length > 0);
+
+        var catatan = res.catatan || '';
+        $('#modalDokCatatan').text(catatan).toggle(catatan !== '');
+
+        var sumber = 'Template otomatis';
+        if (res.sumber === 'gemini') sumber = 'AI Gemini';
+        if (res.dari_cache) sumber += ' • tersimpan';
+        if (res.model) sumber += ' • ' + res.model;
+        if (res.sumber === 'template') sumber += ' • AI belum aktif/gagal';
+        $('#modalDokSource').text(sumber);
+
+        $('#modalDokBody').show();
+    }
+
+    $('#modalDokRefresh').on('click', function() { peMuatDokDukung(true); });
 
     // ---------- Modal bukti ----------
     window.peBukaModalBukti = function(idEp, noEp) {

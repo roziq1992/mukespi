@@ -53,3 +53,19 @@ WHERE m.`url` = 'user_pokja_ep'
   AND NOT EXISTS (
     SELECT 1 FROM `user_access_menu` uam WHERE uam.`role_id` = 1 AND uam.`menu_id` = m.`id`
   );
+
+-- ---------------------------------------------------------------------
+-- Cache saran "Ket. Dokumen / Data Dukung" per EP.
+-- Diisi otomatis oleh Penilaian_ep::data_dukung(). Tanpa foreign key agar
+-- cache tidak ikut terhapus saat master EP diubah/dinonaktifkan.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ep_data_dukung` (
+  `id_ep`      int(8) NOT NULL,
+  `hash_ep`    char(40) NOT NULL,
+  `konten`     longtext NOT NULL,
+  `sumber`     varchar(20) NOT NULL DEFAULT 'gemini',
+  `model`      varchar(80) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id_ep`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

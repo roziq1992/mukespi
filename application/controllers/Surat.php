@@ -317,7 +317,34 @@ class Surat extends CI_Controller
         if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id');
         if ($role === 'user' && (int) $surat->id_pemohon !== $uid) show_error('Akses ditolak.', 403);
-        force_download(FCPATH . $row->path_file, NULL);
+        $this->_stream_lampiran($row, FALSE);
+    }
+
+    public function lihat_lampiran($id)
+    {
+        $row = $this->db->where('id', (int) $id)->get('surat_lampiran')->row();
+        if (!$row || !is_file(FCPATH . $row->path_file)) show_404();
+        $surat = $this->Surat_model->get($row->id_surat);
+        if (!$surat) show_404();
+        $role = $this->role(); $uid = (int) $this->session->userdata('id');
+        if ($role === 'user' && (int) $surat->id_pemohon !== $uid) show_error('Akses ditolak.', 403);
+
+        $ext = strtolower(pathinfo($row->nama_file, PATHINFO_EXTENSION));
+        $this->_stream_lampiran($row, in_array($ext, array('pdf', 'jpg', 'jpeg', 'png'), TRUE));
+    }
+
+    private function _stream_lampiran($row, $inline)
+    {
+        $path = FCPATH . $row->path_file;
+        $ext = strtolower(pathinfo($row->nama_file, PATHINFO_EXTENSION));
+        $mimes = array('pdf' => 'application/pdf', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png');
+        $nama = str_replace(array("\r", "\n", '"'), '', basename($row->nama_file));
+        header('Content-Type: ' . ($inline && isset($mimes[$ext]) ? $mimes[$ext] : 'application/octet-stream'));
+        header('Content-Disposition: ' . ($inline ? 'inline' : 'attachment') . '; filename="' . $nama . '"');
+        header('Content-Length: ' . filesize($path));
+        header('X-Content-Type-Options: nosniff');
+        readfile($path);
+        exit;
     }
 
     public function hapus($id)
