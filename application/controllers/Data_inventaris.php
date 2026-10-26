@@ -494,8 +494,8 @@ class Data_inventaris extends CI_Controller
  public function pemeliharaan_form($id = null)
 {
     // Enable error reporting for debugging
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    // error_reporting(E_ALL);
+    // ini_set('display_errors', 1);
     
     // Get inventory list for dropdown
     $inventaris_list = $this->Data_inventaris_model->get_all();
@@ -726,8 +726,8 @@ public function maintenance_schedule()
 public function maintenance_schedule_form($id = null)
 {
     // Enable error reporting for debugging
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    // error_reporting(E_ALL);
+    // ini_set('display_errors', 1);
     
     $this->load->model('Maintenance_asset_model');
     
@@ -895,8 +895,8 @@ public function maintenance_history()
 public function maintenance_history_form($id = null)
 {
     // Enable error reporting for debugging
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    // error_reporting(E_ALL);
+    // ini_set('display_errors', 1);
     
     $this->load->model('Maintenance_asset_model');
     

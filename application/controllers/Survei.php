@@ -63,8 +63,6 @@ class Survei extends CI_Controller
         }
 
         $this->form_validation->set_rules('nama', 'Nama', 'trim|max_length[150]');
-        $this->form_validation->set_rules('nik', 'NIK', 'trim|max_length[30]|numeric');
-        $this->form_validation->set_rules('no_rm', 'No. Rekam Medis', 'trim|max_length[50]');
         $this->form_validation->set_rules('tanggal_kunjungan', 'Tanggal Kunjungan', 'trim|required');
         $this->form_validation->set_rules('umur', 'Umur', 'trim|integer|min_length[1]|max_length[3]');
         $this->form_validation->set_rules('id_unit', 'Unit', 'trim|integer');
@@ -124,8 +122,6 @@ class Survei extends CI_Controller
         $header = array(
             'kode'              => $kode,
             'nama'              => $is_anonim ? NULL : $this->_bersih($this->input->post('nama', TRUE)),
-            'nik'               => $is_anonim ? NULL : $this->_bersih($this->input->post('nik', TRUE)),
-            'no_rm'             => $is_anonim ? NULL : $this->_bersih($this->input->post('no_rm', TRUE)),
             'id_unit'           => (int) $this->input->post('id_unit') ?: NULL,
             'tanggal_kunjungan' => $this->input->post('tanggal_kunjungan', TRUE),
             'tanggal_survei'    => date('Y-m-d H:i:s'),
@@ -147,7 +143,7 @@ class Survei extends CI_Controller
 
         $simpan = $this->Survei_model->simpan_responden($header, $jawaban);
         if (!$simpan) {
-            $this->session->set_flashdata('message', '<div class="alert alert-danger">Terjadi kesalahan saat menyimpan 데이터를. Silakan coba lagi.</div>');
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Terjadi kesalahan saat menyimpan data. Silakan coba lagi.</div>');
             $this->index();
             return;
         }
@@ -203,7 +199,7 @@ class Survei extends CI_Controller
 
     /**
      * Kirim notifikasi ke akun admin (1), surveior (3), dan HRD (6)
-     * setiap kali ada survei diisi pasien — tanpa syarat maupun kecuali.
+     * setiap kali ada survei diisi pasien.
      */
     private function _kabar_admin($kode)
     {

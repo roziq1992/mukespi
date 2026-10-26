@@ -167,7 +167,14 @@
 		.sv-aspek-name { font-size: .86rem; font-weight: 700; color: var(--sv-ink); }
 		.sv-aspek-desc { font-size: .72rem; color: var(--sv-muted); margin-top: 2px; }
 
-		.sv-stars { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+		.sv-stars {
+	display: flex;
+	flex-direction: row-reverse;   /* tampilan 1 → 5 dari kiri ke kanan */
+	justify-content: flex-end;     /* tetap rata kiri setelah dibalik */
+	align-items: center;
+	gap: 3px;
+	flex-wrap: wrap;
+}
 		.sv-stars input { position: absolute; opacity: 0; width: 0; height: 0; }
 		.sv-stars label {
 			font-size: 1.55rem;
@@ -224,13 +231,13 @@
 		.sv-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 26px -6px rgba(37,99,235,.6); }
 		.sv-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-	.sv-foot { text-align: center; font-size: .72rem; color: var(--sv-muted); margin-top: 22px; }
-	.sv-alert { padding: 12px 15px; border-radius: 10px; font-size: .8rem; font-weight: 600; margin-bottom: 16px; }
-	.sv-alert-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-	.sv-alert-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-	.sv-alert-success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
-	.sv-alert .sv-close { float: right; cursor: pointer; font-weight: 800; opacity: .6; }
-	.sv-alert .sv-close:hover { opacity: 1; }
+		.sv-foot { text-align: center; font-size: .72rem; color: var(--sv-muted); margin-top: 22px; }
+		.sv-alert { padding: 12px 15px; border-radius: 10px; font-size: .8rem; font-weight: 600; margin-bottom: 16px; }
+		.sv-alert-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+		.sv-alert-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+		.sv-alert-success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+		.sv-alert .sv-close { float: right; cursor: pointer; font-weight: 800; opacity: .6; }
+		.sv-alert .sv-close:hover { opacity: 1; }
 
 		.sv-progress {
 			position: sticky; top: 0; z-index: 5;
@@ -268,13 +275,13 @@
 <div class="sv-wrap">
 
 	<?php
-$sv_pesan = $this->session->flashdata('message');
-$kelas_alert = (stripos((string) $sv_pesan, 'alert-success') !== FALSE) ? 'sv-alert-success'
-	: ((stripos((string) $sv_pesan, 'alert-danger') !== FALSE) ? 'sv-alert-danger' : 'sv-alert-warning');
-?>
-<?php if ($sv_pesan): ?>
-	<div class="sv-alert <?= $kelas_alert; ?>"><?= $sv_pesan; ?></div>
-<?php endif; ?>
+	$sv_pesan = $this->session->flashdata('message');
+	$kelas_alert = (stripos((string) $sv_pesan, 'alert-success') !== FALSE) ? 'sv-alert-success'
+		: ((stripos((string) $sv_pesan, 'alert-danger') !== FALSE) ? 'sv-alert-danger' : 'sv-alert-warning');
+	?>
+	<?php if ($sv_pesan): ?>
+		<div class="sv-alert <?= $kelas_alert; ?>"><?= $sv_pesan; ?></div>
+	<?php endif; ?>
 
 	<form method="POST" action="<?= site_url('survei/kirim'); ?>" id="svForm">
 
@@ -290,33 +297,18 @@ $kelas_alert = (stripos((string) $sv_pesan, 'alert-success') !== FALSE) ? 'sv-al
 				<span class="sv-step">Langkah 1</span>
 			</div>
 
-			<div class="sv-row">
-				<div class="sv-field">
-					<label for="nama">Nama Pasien <span class="req" style="color:var(--sv-muted);font-weight:500">(opsional)</span></label>
-					<input type="text" id="nama" name="nama" maxlength="150"
-						   value="<?= set_value('nama'); ?>" placeholder="Nama lengkap (boleh dikosongkan)">
-				</div>
-				<div class="sv-field">
-					<label for="no_rm">No. Rekam Medis</label>
-					<input type="text" id="no_rm" name="no_rm" maxlength="50"
-						   value="<?= set_value('no_rm'); ?>" placeholder="Nomor rekam medis">
-				</div>
+			<div class="sv-field">
+				<label for="nama">Nama Pasien <span style="color:var(--sv-muted);font-weight:500">(opsional)</span></label>
+				<input type="text" id="nama" name="nama" maxlength="150"
+					   value="<?= set_value('nama'); ?>" placeholder="Nama lengkap (boleh dikosongkan)">
 			</div>
 
 			<div class="sv-row">
-				<div class="sv-field">
-					<label for="nik">NIK</label>
-					<input type="text" id="nik" name="nik" maxlength="30" inputmode="numeric"
-						   value="<?= set_value('nik'); ?>" placeholder="16 digit NIK">
-				</div>
 				<div class="sv-field">
 					<label for="umur">Umur</label>
 					<input type="number" id="umur" name="umur" min="1" max="120"
 						   value="<?= set_value('umur'); ?>" placeholder="Tahun">
 				</div>
-			</div>
-
-			<div class="sv-row">
 				<div class="sv-field">
 					<label for="jenis_kelamin">Jenis Kelamin</label>
 					<select id="jenis_kelamin" name="jenis_kelamin">
@@ -325,17 +317,18 @@ $kelas_alert = (stripos((string) $sv_pesan, 'alert-success') !== FALSE) ? 'sv-al
 						<option value="P" <?= set_select('jenis_kelamin', 'P'); ?>>Perempuan</option>
 					</select>
 				</div>
-				<div class="sv-field">
-					<label for="id_unit">Unit / Layanan yang Dikunjungi</label>
-					<select id="id_unit" name="id_unit">
-						<option value="">-- Pilih unit --</option>
-						<?php foreach ($unit as $u): ?>
-							<option value="<?= (int) $u->id_unit; ?>" <?= set_select('id_unit', (string) $u->id_unit); ?>>
-								<?= html_escape($u->nm_unit); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
+			</div>
+
+			<div class="sv-field">
+				<label for="id_unit">Unit / Layanan yang Dikunjungi</label>
+				<select id="id_unit" name="id_unit">
+					<option value="">-- Pilih unit --</option>
+					<?php foreach ($unit as $u): ?>
+						<option value="<?= (int) $u->id_unit; ?>" <?= set_select('id_unit', (string) $u->id_unit); ?>>
+							<?= html_escape($u->nm_unit); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
 			</div>
 
 			<div class="sv-field">
@@ -349,8 +342,7 @@ $kelas_alert = (stripos((string) $sv_pesan, 'alert-success') !== FALSE) ? 'sv-al
 			<div class="sv-check">
 				<input type="checkbox" id="is_anonim" name="is_anonim" value="1" <?= set_checkbox('is_anonim', '1'); ?>>
 				<label for="is_anonim" style="margin:0">
-					<b>Kirim secara anonim.</b> Nama, NIK, dan nomor rekam medis tidak akan disimpan
-					ke dalam sistem.
+					<b>Kirim secara anonim.</b> Nama tidak akan disimpan ke dalam sistem.
 				</label>
 			</div>
 		</div>
@@ -424,7 +416,7 @@ $kelas_alert = (stripos((string) $sv_pesan, 'alert-success') !== FALSE) ? 'sv-al
 				<label for="saran">Saran, Kritik, atau Keluhan Anda</label>
 				<textarea id="saran" name="saran" maxlength="1000"
 						  placeholder="Tuliskan pengalaman Anda — saran ini akan kami tindaklanjutkan."><?= set_value('saran'); ?></textarea>
-				<div class="sv-hint">Maksimal 1000 karakter. <?= strlen((string) set_value('saran')) ?> karakter terpakai.</div>
+				<div class="sv-hint">Maksimal 1000 karakter. <?= strlen((string) set_value('saran')); ?> karakter terpakai.</div>
 			</div>
 
 			<button type="submit" class="sv-submit" id="svSubmit">
