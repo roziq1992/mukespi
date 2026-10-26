@@ -22,3 +22,6 @@ __MACOSX/
 # Generated/runtime logs
 error_log
 sertifikat/error_log
+*.bak*
+system.bak-*/
+vendor.zip.bak
