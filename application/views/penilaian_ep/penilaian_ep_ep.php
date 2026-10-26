@@ -768,9 +768,11 @@
                         </div>
                         <?php endif; ?>
                         <div class="pe2-ep-action-right">
-                            <button type="button" class="pe2-btn-dok" onclick='peBukaModalDokDukung(<?php echo (int) $ep->id_ep ?>, <?php echo json_encode((string) $no_tampil) ?>)'>
-                                Ket. Dokumen
-                            </button>
+                            <?php if (!empty($is_admin)): ?>
+                                <button type="button" class="pe2-btn-dok" onclick='peBukaModalDokDukung(<?php echo (int) $ep->id_ep ?>, <?php echo json_encode((string) $no_tampil) ?>)'>
+                                    Ket. Dokumen
+                                </button>
+                            <?php endif; ?>
                             <button type="button" class="pe2-btn-bukti" onclick='peBukaModalBukti(<?php echo (int) $ep->id_ep ?>, <?php echo json_encode((string) $ep->no_ep) ?>)'>
                                 <?php echo !empty($boleh_nilai) ? '📎 Kelola Bukti' : '👁️ Lihat Bukti'; ?>
                                 <span class="pe2-bukti-count" id="badge-bukti-<?php echo $ep->id_ep ?>"><?php echo $jml_bukti_total ?></span>
@@ -810,6 +812,7 @@
     </div>
 </div>
 
+<?php if (!empty($is_admin)): ?>
 <!-- ================= MODAL KET. DOKUMEN / DATA DUKUNG ================= -->
 <div class="modal fade" id="modalDokDukung" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -850,6 +853,7 @@
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- ================= MODAL BUKTI ================= -->
 <div class="modal fade" id="modalBukti" tabindex="-1" role="dialog" aria-hidden="true">

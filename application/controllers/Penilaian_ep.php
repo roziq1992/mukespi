@@ -293,6 +293,12 @@ class Penilaian_ep extends CI_Controller
         header('Content-Type: application/json');
         header('Cache-Control: no-store');
 
+        if (!$this->_is_admin()) {
+            http_response_code(403);
+            echo json_encode(array('status' => FALSE, 'message' => 'Fitur Ket. Dokumen hanya untuk admin.'));
+            return;
+        }
+
         $id_ep = intval($id_ep);
         if (!$this->_ep_tersedia($id_ep)) {
             echo json_encode(array('status' => FALSE, 'message' => 'EP tidak tersedia'));
