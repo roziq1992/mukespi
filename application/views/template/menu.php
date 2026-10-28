@@ -191,9 +191,11 @@
         <div class="bg-white py-2 collapse-inner rounded">
             <?php if ($surat_role === 1): ?>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat"><i class="fas fa-tasks"></i>Kelola Semua Surat</a>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat_sekretaris/registrasi_lama"><i class="fas fa-file-upload"></i>Registrasi Dokumen Lama</a>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Buat Pengajuan Surat</a>
             <?php elseif ($surat_role === 5): ?>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat_masuk"><i class="fas fa-inbox"></i>Surat Masuk Sekretaris <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat_sekretaris/registrasi_lama"><i class="fas fa-file-upload"></i>Registrasi Dokumen Lama</a>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Buat Pengajuan Surat</a>
             <?php elseif ($surat_role === 4): ?>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat_direktur"><i class="fas fa-signature"></i>TTD & Disposisi <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
