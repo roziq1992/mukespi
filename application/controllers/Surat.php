@@ -81,6 +81,24 @@ class Surat extends CI_Controller
         $this->load->view('template/header', $data); $this->load->view('surat/form_pengajuan', $data); $this->load->view('template/footer');
     }
 
+    /**
+     * Proses otomatis surat disposisi (pengganti langkah sekretaris).
+     * Dokumen PDF dari pengaju disalin ke folder final surat dan dicatat sebagai file_ber_nomor,
+     * sehingga halaman Direktur membacanya persis seperti surat yang diproses sekretaris.
+     * File draft asli tidak diubah. Return path relatif file salinan, atau FALSE bila gagal.
+     */
+    private function _salin_ke_final($id, $draft_relatif)
+    {
+        if (!$draft_relatif) return FALSE;
+        $sumber = FCPATH . ltrim(str_replace('\\', '/', $draft_relatif), '/');
+        if (!is_file($sumber)) return FALSE;
+        $dir = FCPATH . 'uploads/surat/' . (int) $id . '/final/';
+        if (!is_dir($dir) && !mkdir($dir, 0755, TRUE) && !is_dir($dir)) return FALSE;
+        $nama = bin2hex(random_bytes(16)) . '.pdf';
+        if (!copy($sumber, $dir . $nama)) return FALSE;
+        return 'uploads/surat/' . (int) $id . '/final/' . $nama;
+    }
+
     public function store()
     {
         $this->form_validation->set_rules('jenis', 'Jenis surat', 'required|in_list[internal,eksternal,disposisi]');
@@ -94,11 +112,18 @@ class Surat extends CI_Controller
             redirect('surat/create'); return;
         }
         if (empty($_FILES['file_draft']['name'])) { $this->session->set_flashdata('message', 'Draft surat wajib diunggah.'); redirect('surat/create'); return; }
+        // Disposisi langsung ke Direktur tanpa sekretaris, jadi dokumennya harus PDF agar bisa dipratinjau dan ditandatangani.
+        if ($jenis === 'disposisi' && strtolower(pathinfo($_FILES['file_draft']['name'], PATHINFO_EXTENSION)) !== 'pdf') {
+            $this->session->set_flashdata('message', 'Dokumen surat disposisi harus berformat PDF agar dapat dipratinjau dan ditandatangani Direktur.');
+            redirect('surat/create'); return;
+        }
         $base = FCPATH . 'uploads/surat/';
         $status_awal = $jenis === 'disposisi' ? 'Diteruskan ke Direktur' : 'Diajukan';
         $data = array('jenis' => $jenis, 'perihal' => $this->input->post('perihal', TRUE), 'tujuan' => $this->input->post('tujuan', TRUE), 'tanggal_pengajuan' => $this->input->post('tanggal_pengajuan', TRUE), 'keterangan' => $this->input->post('keterangan', TRUE), 'id_pemohon' => $this->session->userdata('id'), 'status' => $status_awal, 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s'));
+        // Surat disposisi (undangan eksternal) tidak diberi nomor surat.
+        if ($jenis === 'disposisi') $data['no_surat'] = '-';
         if (!empty($_FILES['file_draft']['name'])) {
-            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
+            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => $jenis === 'disposisi' ? 'pdf' : 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
             if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0755, TRUE);
             $this->upload->initialize($config);
             if (!$this->upload->do_upload('file_draft')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat/create'); return; }
@@ -110,15 +135,31 @@ class Surat extends CI_Controller
         if (!empty($_FILES['lampiran']['name'][0])) foreach ($_FILES['lampiran']['name'] as $key => $name) { $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]); $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 10240, 'encrypt_name' => TRUE)); if ($this->upload->do_upload('one_lampiran')) { $f = $this->upload->data(); $this->Surat_lampiran_model->insert(array('id_surat' => $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s'))); } }
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) show_error('Pengajuan surat gagal disimpan.', 500);
+
+        // Proses otomatis disposisi: dokumen diteruskan ke Direktur seperti hasil kerja sekretaris.
+        $peringatan = '';
+        if ($jenis === 'disposisi') {
+            $ber_nomor = $this->_salin_ke_final($id, $data['file_draft']);
+            if ($ber_nomor !== FALSE) {
+                $this->Surat_model->update($id, array('file_ber_nomor' => $ber_nomor, 'updated_at' => date('Y-m-d H:i:s')));
+                log_surat($id, 'Diteruskan otomatis', 'Surat disposisi tanpa nomor. Dokumen disiapkan otomatis untuk ditinjau Direktur.');
+            } else {
+                log_message('error', 'Disposisi ' . (int) $id . ': gagal menyalin dokumen ke folder final.');
+                log_surat($id, 'Peringatan', 'Dokumen disposisi gagal disiapkan otomatis untuk Direktur.');
+                $peringatan = ' Namun dokumen gagal disiapkan otomatis untuk Direktur, hubungi admin.';
+            }
+        }
+
         $penerima = $this->db->where_in('role_id', array(4, 5))->order_by('id', 'ASC')->get('users')->result();
-        $pesan = $jenis === 'disposisi'
-            ? 'Terdapat pengajuan surat disposisi baru yang langsung diteruskan ke Direktur untuk ditindaklanjuti.<br><br>'
-            : 'Terdapat pengajuan surat baru yang perlu ditindaklanjuti.<br><br>'
+        // Tanda kurung pada ternary supaya detail surat tampil untuk kedua jenis.
+        $pesan = ($jenis === 'disposisi'
+                ? 'Terdapat pengajuan surat disposisi baru yang langsung diteruskan ke Direktur untuk ditindaklanjuti.<br><br>'
+                : 'Terdapat pengajuan surat baru yang perlu ditindaklanjuti.<br><br>')
             . '<strong>Perihal:</strong> ' . htmlspecialchars($data['perihal'], ENT_QUOTES, 'UTF-8') . '<br>'
             . '<strong>Jenis:</strong> ' . htmlspecialchars(ucfirst($data['jenis']), ENT_QUOTES, 'UTF-8') . '<br>'
             . '<strong>Tujuan:</strong> ' . htmlspecialchars($data['tujuan'], ENT_QUOTES, 'UTF-8');
         surat_kirim_notifikasi_massal($penerima, 'Pemberitahuan Pengajuan Surat Baru', $pesan);
-        $this->session->set_flashdata('message', 'Pengajuan surat berhasil dibuat.'); redirect('surat/detail/' . $id);
+        $this->session->set_flashdata('message', 'Pengajuan surat berhasil dibuat.' . $peringatan); redirect('surat/detail/' . $id);
     }
 
     private function _boleh_edit($surat)
@@ -172,6 +213,14 @@ class Surat extends CI_Controller
             $this->session->set_flashdata('message', 'Draft surat wajib diunggah.');
             redirect('surat/edit/' . $id); return;
         }
+        // Disposisi wajib PDF (langsung ke Direktur tanpa sekretaris).
+        if ($jenis === 'disposisi') {
+            $nama_cek = $draft_baru ? $_FILES['file_draft']['name'] : (string) $old_draft;
+            if (strtolower(pathinfo($nama_cek, PATHINFO_EXTENSION)) !== 'pdf') {
+                $this->session->set_flashdata('message', 'Dokumen surat disposisi harus berformat PDF. Unggah ulang dokumen dalam format PDF.');
+                redirect('surat/edit/' . $id); return;
+            }
+        }
 
         $ditolak = $surat->status === 'Ditolak';
         $status_awal = $jenis === 'disposisi' ? 'Diteruskan ke Direktur' : 'Diajukan';
@@ -191,14 +240,40 @@ class Surat extends CI_Controller
             $data['file_final'] = NULL;
             $data['kode_verifikasi'] = NULL;
         }
+        // Disposisi selalu bernomor "-". Bila jenis diganti dari disposisi ke jenis biasa,
+        // tanda "-" dan salinan dokumen otomatis dibersihkan agar sekretaris memprosesnya dari awal.
+        $salin_ulang = FALSE;
+        $ber_nomor_dibuang = NULL;
+        if ($jenis === 'disposisi') {
+            $data['no_surat'] = '-';
+            $salin_ulang = $draft_baru || $ditolak || empty($surat->file_ber_nomor);
+        } else {
+            if ($ditolak || $surat->no_surat === '-') $data['no_surat'] = NULL;
+            if ($surat->jenis === 'disposisi' && !$ditolak && !empty($surat->file_ber_nomor)) {
+                $data['file_ber_nomor'] = NULL;
+                $ber_nomor_dibuang = $surat->file_ber_nomor;
+            }
+        }
 
         $base = FCPATH . 'uploads/surat/';
         if ($draft_baru) {
-            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
+            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => $jenis === 'disposisi' ? 'pdf' : 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
             if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0755, TRUE);
             $this->upload->initialize($config);
             if (!$this->upload->do_upload('file_draft')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat/edit/' . $id); return; }
             $data['file_draft'] = 'uploads/surat/pending/' . $this->upload->data('file_name');
+        }
+
+        // Proses otomatis disposisi: salin dokumen ke folder final sebagai file_ber_nomor.
+        $ber_nomor_baru = FALSE;
+        if ($salin_ulang) {
+            $ber_nomor_baru = $this->_salin_ke_final($id, $draft_baru ? $data['file_draft'] : $old_draft);
+            if ($ber_nomor_baru === FALSE) {
+                if ($draft_baru) $this->_delete_upload_file($data['file_draft']);
+                $this->session->set_flashdata('message', 'Dokumen disposisi gagal disiapkan untuk Direktur. Silakan coba lagi.');
+                redirect('surat/edit/' . $id); return;
+            }
+            $data['file_ber_nomor'] = $ber_nomor_baru;
         }
 
         $folder = $base . (int) $id . '/lampiran/';
@@ -233,6 +308,7 @@ class Surat extends CI_Controller
         if ($this->db->trans_status() === FALSE) {
             foreach ($lampiran_baru as $row) $this->_delete_upload_file($row['path_file']);
             if ($draft_baru) $this->_delete_upload_file($data['file_draft']);
+            if ($ber_nomor_baru !== FALSE) $this->_delete_upload_file($ber_nomor_baru);
             show_error('Perubahan pengajuan surat gagal disimpan.', 500);
         }
 
@@ -244,13 +320,18 @@ class Surat extends CI_Controller
             foreach (array($surat->file_ber_nomor, $surat->file_final) as $file) {
                 if ($file && !in_array($file, $keep, TRUE)) $this->_delete_upload_file($file);
             }
+        } elseif ($salin_ulang && !empty($surat->file_ber_nomor)) {
+            // Salinan otomatis lama diganti salinan baru.
+            $this->_delete_upload_file($surat->file_ber_nomor);
         }
+        if ($ber_nomor_dibuang) $this->_delete_upload_file($ber_nomor_dibuang);
         foreach ($lampiran_hapus as $row) $this->_delete_upload_file($row->path_file);
 
         $catatan_log = array('Data pengajuan diperbarui oleh pemohon.');
         if ($draft_baru) $catatan_log[] = 'Draft surat diganti.';
         if ($lampiran_baru) $catatan_log[] = count($lampiran_baru) . ' lampiran ditambahkan.';
         if ($lampiran_hapus) $catatan_log[] = count($lampiran_hapus) . ' lampiran dihapus.';
+        if ($salin_ulang) $catatan_log[] = 'Dokumen disposisi disiapkan otomatis untuk Direktur.';
         if ($ditolak) $catatan_log[] = 'Surat diajukan ulang setelah ditolak.';
         log_surat($id, $ditolak ? 'Pengajuan diajukan ulang' : 'Pengajuan diperbarui', implode(' ', $catatan_log));
 
@@ -265,6 +346,34 @@ class Surat extends CI_Controller
 
         $this->session->set_flashdata('message', 'Pengajuan surat berhasil diperbarui.');
         redirect('surat/detail/' . $id);
+    }
+
+    /**
+     * Sekali jalan: perbaiki surat disposisi LAMA (dibuat sebelum alur otomatis ini).
+     * Hanya admin. Buka: surat/perbaiki_disposisi
+     */
+    public function perbaiki_disposisi()
+    {
+        if ((int) $this->session->userdata('role_id') !== 1) show_error('Akses ditolak.', 403);
+        $rows = $this->db->where('jenis', 'disposisi')
+            ->group_start()->where('file_ber_nomor IS NULL', NULL, FALSE)->or_where('file_ber_nomor', '')->group_end()
+            ->get('surat')->result();
+        $baris = array();
+        foreach ($rows as $s) {
+            $draft = (string) $s->file_draft;
+            if ($draft === '' || strtolower(pathinfo($draft, PATHINFO_EXTENSION)) !== 'pdf') {
+                $baris[] = '#' . $s->id . ' dilewati (draft kosong / bukan PDF)';
+                continue;
+            }
+            $ber = $this->_salin_ke_final($s->id, $draft);
+            if ($ber === FALSE) { $baris[] = '#' . $s->id . ' GAGAL menyalin'; continue; }
+            $upd = array('file_ber_nomor' => $ber, 'updated_at' => date('Y-m-d H:i:s'));
+            if ($s->no_surat === NULL || $s->no_surat === '') $upd['no_surat'] = '-';
+            $this->Surat_model->update($s->id, $upd);
+            $baris[] = '#' . $s->id . ' OK';
+        }
+        header('Content-Type: text/plain; charset=utf-8');
+        echo count($rows) . " surat disposisi diperiksa\n" . implode("\n", $baris) . "\n";
     }
 
     private function _delete_upload_file($relative)
@@ -300,7 +409,7 @@ class Surat extends CI_Controller
             if (!in_array($surat->status, array('Ditandatangani', 'Didisposisikan', 'Selesai'), TRUE)) {
                 show_error('Dokumen final belum tersedia. Surat masih dalam proses atau ditolak.', 403);
             }
-            $path = $surat->file_final ?: $surat->file_ber_nomor;
+            $path = $surat->file_final ?: ($surat->file_ber_nomor ?: $surat->file_draft);
         } else {
             $path = $type === 'draft' ? $surat->file_draft : ($type === 'numbered' ? $surat->file_ber_nomor : ($surat->file_final ?: ($surat->file_ber_nomor ?: $surat->file_draft)));
         }
