@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(C:\\xampp8.5\\php\\php.exe:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

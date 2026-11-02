@@ -13,6 +13,9 @@
 .portal-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
 .portal-card { min-height:130px; display:flex; flex-direction:column; text-decoration:none!important; background:#fff; border:1px solid var(--portal-line); border-radius:10px; padding:13px; box-shadow:0 4px 14px rgba(23,43,77,.05); transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
 .portal-card:hover { transform:translateY(-3px); border-color:#9dbbe8; box-shadow:0 8px 20px rgba(23,43,77,.1); }
+.portal-card.portal-disabled { opacity:.5; filter:grayscale(.45); cursor:not-allowed; pointer-events:none; }
+.portal-card.portal-disabled:hover { transform:none; border-color:var(--portal-line); box-shadow:0 4px 14px rgba(23,43,77,.05); }
+.portal-card.portal-disabled .portal-open { color:#94a3b8; }
 .portal-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:.85rem; margin-bottom:10px; }
 .portal-card h3 { color:var(--portal-ink); font-size:.78rem; font-weight:800; margin:0 0 4px; }
 .portal-card p { color:var(--portal-muted); font-size:.66rem; line-height:1.4; margin:0; }
@@ -36,6 +39,7 @@
 </style>
 
 <div class="container-fluid portal">
+    <?php $is_survior = ((int) $this->session->userdata('role_id') === 3); ?>
     <div class="portal-hero">
         <!-- <div class="portal-eyebrow">One-Stop Digital Services</div> -->
         <h1>RSA-ONE — RS Airlangga Integrated Operation &amp; Network </h1>
@@ -58,9 +62,9 @@
             <span class="portal-open">Buka website <i class="fas fa-arrow-right"></i></span>
         </a>
         
-        <?php if (is_menu_accessible('surat')) { ?>
+        <?php $can_surat = is_menu_accessible('surat'); if ($can_surat || $is_survior) { ?>
         <!-- E-OFFICE RSA -->
-        <a class="portal-card portal-office" href="<?php echo site_url('surat'); ?>">
+        <a class="portal-card portal-office<?php echo ($is_survior && !$can_surat) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('surat'); ?>">
             <span class="portal-icon"><i class="fas fa-envelope-open-text"></i></span>
             <h3>SI-OFFICE</h3>
             <p>Sistem Informasi Administrasi Office</p>
@@ -68,9 +72,9 @@
         </a>
         <?php } ?>
         
-        <?php if (is_menu_accessible('list_indikator')) { ?>
+        <?php $can_list_indikator = is_menu_accessible('list_indikator'); if ($can_list_indikator || $is_survior) { ?>
         <!-- MUKESPI -->
-        <a class="portal-card portal-mukespi" href="<?php echo site_url('list_indikator'); ?>">
+        <a class="portal-card portal-mukespi<?php echo ($is_survior && !$can_list_indikator) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('list_indikator'); ?>">
             <span class="portal-icon"><i class="fas fa-heartbeat"></i></span>
             <h3>MUKESPI</h3>
             <p>Manajemen mutu, keselamatan pasien, insiden, dan PPI.</p>
@@ -78,9 +82,9 @@
         </a>
         <?php } ?>
 
-        <?php if (is_menu_accessible('e_library')) { ?>
+        <?php $can_e_library = is_menu_accessible('e_library'); if ($can_e_library || $is_survior) { ?>
         <!-- E-LIBRARY -->
-        <a class="portal-card portal-elibrary" href="<?php echo site_url('e_library'); ?>">
+        <a class="portal-card portal-elibrary<?php echo ($is_survior && !$can_e_library) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('e_library'); ?>">
             <span class="portal-icon"><i class="fas fa-book-open"></i></span>
             <h3>E-LIBRARY</h3>
             <p>Portal penemuan literatur untuk telaah dan pengembangan mutu.</p>
@@ -88,9 +92,9 @@
         </a>
         <?php } ?>
 
-        <?php if (is_menu_accessible('data_inventaris')) { ?>
+        <?php $can_data_inventaris = is_menu_accessible('data_inventaris'); if ($can_data_inventaris || $is_survior) { ?>
         <!-- SIASSET - Sistem Informasi Aset (BARU) -->
-        <a class="portal-card portal-siasset" href="<?php echo site_url('data_inventaris'); ?>">
+        <a class="portal-card portal-siasset<?php echo ($is_survior && !$can_data_inventaris) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('data_inventaris'); ?>">
             <span class="portal-icon"><i class="fas fa-boxes"></i></span>
             <h3>SIASSET</h3>
             <p>Sistem informasi manajemen aset</p>
@@ -98,9 +102,9 @@
         </a>
         <?php } ?>
         
-        <?php if (is_menu_accessible('dokumen_unit')) { ?>
+        <?php $can_dokumen_unit = is_menu_accessible('dokumen_unit'); if ($can_dokumen_unit || $is_survior) { ?>
         <!-- SIDOKTA -->
-        <a class="portal-card portal-sidokta" href="<?php echo site_url('dokumen_unit'); ?>">
+        <a class="portal-card portal-sidokta<?php echo ($is_survior && !$can_dokumen_unit) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('dokumen_unit'); ?>">
             <span class="portal-icon"><i class="fas fa-folder-open"></i></span>
             <h3>SIDOKTA</h3>
             <p>Sistem informasi dokumen unit terpadu.</p>
@@ -108,9 +112,9 @@
         </a>
         <?php } ?>
         
-        <?php if (is_menu_accessible('penilaian_ep')) { ?>
+        <?php $can_penilaian_ep = is_menu_accessible('penilaian_ep'); if ($can_penilaian_ep || $is_survior) { ?>
         <!-- SIPARDI -->
-        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_ep'); ?>">
+        <a class="portal-card portal-sipardi<?php echo ($is_survior && !$can_penilaian_ep) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('penilaian_ep'); ?>">
             <span class="portal-icon"><i class="fas fa-award"></i></span>
             <h3>SIPARDI</h3>
             <p> Sistem Informasi Penilaian akreditasi .</p>
@@ -118,9 +122,9 @@
         </a>
         <?php } ?>
         
-        <?php if (is_menu_accessible('monitoring_pj')) { ?>
+        <?php $can_monitoring_pj = is_menu_accessible('monitoring_pj'); if ($can_monitoring_pj || $is_survior) { ?>
         <!-- SIMONIKA -->
-        <a class="portal-card portal-simonika" href="<?php echo site_url('monitoring_pj'); ?>">
+        <a class="portal-card portal-simonika<?php echo ($is_survior && !$can_monitoring_pj) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('monitoring_pj'); ?>">
             <span class="portal-icon"><i class="fas fa-chart-line"></i></span>
             <h3>SIMON</h3>
             <p>Sistem Informasi Monitoring pelaoran Online.</p>
@@ -128,9 +132,9 @@
         </a>
         <?php } ?>
 
-        <?php if (is_menu_accessible('penilaian_otk')) { ?>
+        <?php $can_penilaian_otk = is_menu_accessible('penilaian_otk'); if ($can_penilaian_otk || $is_survior) { ?>
         <!-- PENILAIAN KINERJA -->
-        <a class="portal-card portal-sipardi" href="<?php echo site_url('penilaian_otk'); ?>">
+        <a class="portal-card portal-sipardi<?php echo ($is_survior && !$can_penilaian_otk) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('penilaian_otk'); ?>">
             <span class="portal-icon"><i class="fas fa-clipboard-check"></i></span>
             <h3>SIPENA</h3>
             <p>Sistem Informasi Penilaian Pegawai</p>
@@ -146,9 +150,9 @@
         <!--    <span class="portal-open">Buka sheet <i class="fas fa-arrow-right"></i></span>-->
         <!--</a>-->
 
-        <?php if (is_menu_accessible('pelaporan')) { ?>
+        <?php $can_pelaporan = is_menu_accessible('pelaporan'); if ($can_pelaporan || $is_survior) { ?>
         <!-- PELAPORAN KARYAWAN -->
-        <a class="portal-card portal-office" href="<?php echo site_url('pelaporan'); ?>">
+        <a class="portal-card portal-office<?php echo ($is_survior && !$can_pelaporan) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('pelaporan'); ?>">
             <span class="portal-icon"><i class="fas fa-star-half-alt"></i></span>
             <h3>SIRETA</h3>
             <p>Sistem Rating dan Aduan.</p>
@@ -156,9 +160,9 @@
         </a>
         <?php } ?>
 
-        <?php if (is_menu_accessible('survei_admin')) { ?>
+        <?php $can_survei_admin = is_menu_accessible('survei_admin'); if ($can_survei_admin || $is_survior) { ?>
         <!-- SURVEI KEPUASAN PASIEN -->
-        <a class="portal-card portal-simonika" href="<?php echo site_url('survei_admin'); ?>">
+        <a class="portal-card portal-simonika<?php echo ($is_survior && !$can_survei_admin) ? ' portal-disabled' : ''; ?>" href="<?php echo site_url('survei_admin'); ?>">
             <span class="portal-icon"><i class="fas fa-star"></i></span>
             <h3>SIBINTANG</h3>
             <p>Sistem Informasi Survei Pelanggan.</p>
@@ -166,6 +170,17 @@
         </a>
         <?php } ?>
 
+        <script>
+        (function () {
+            document.querySelectorAll('.portal-card.portal-disabled').forEach(function (el) {
+                el.setAttribute('aria-disabled', 'true');
+                el.setAttribute('tabindex', '-1');
+                el.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); return false; });
+                var openEl = el.querySelector('.portal-open');
+                if (openEl) { openEl.innerHTML = 'Tidak ada akses <i class="fas fa-lock"></i>'; }
+            });
+        })();
+        </script>
         <?php if (current_pegawai_id()) { ?>
         <!-- DATA SAYA PEGAWAI -->
         <a class="portal-card portal-siasset" href="<?php echo site_url('pegawai/detail/' . current_pegawai_id()); ?>">
