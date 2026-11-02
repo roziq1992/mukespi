@@ -250,7 +250,18 @@ class E_library extends CI_Controller
             redirect(site_url('e_library/create'));
         }
 
+        // Unggah berkas PDF (opsional) yang diadministrasikan admin.
+        $upload_result = $this->_upload_pdf();
+        if ($upload_result !== NULL && !empty($upload_result['error'])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">' . html_escape($upload_result['message']) . '</div>');
+            redirect(site_url('e_library/create'));
+        }
+
         $payload = $this->_entry_payload();
+        if ($upload_result !== NULL && empty($upload_result['error'])) {
+            $payload['file_path'] = $upload_result['file_path'];
+            $payload['file_name'] = $upload_result['file_name'];
+        }
         $payload['created_by'] = (int) $this->session->userdata('id');
         $payload['created_at'] = date('Y-m-d H:i:s');
 
@@ -338,7 +349,24 @@ class E_library extends CI_Controller
             }
         }
 
-        $this->E_library_model->update_entry($row->id, $this->_entry_payload());
+        $payload = $this->_entry_payload();
+
+        // Unggah berkas PDF baru (opsional). Jika ada, ganti file lama.
+        $upload_result = $this->_upload_pdf();
+        if ($upload_result !== NULL && !empty($upload_result['error'])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">' . html_escape($upload_result['message']) . '</div>');
+            redirect(site_url('e_library/update/' . $row->id));
+        }
+        if ($upload_result !== NULL && empty($upload_result['error'])) {
+            // hapus file lama bila diganti
+            if (!empty($row->file_path) && file_exists(FCPATH . $row->file_path)) {
+                @unlink(FCPATH . $row->file_path);
+            }
+            $payload['file_path'] = $upload_result['file_path'];
+            $payload['file_name'] = $upload_result['file_name'];
+        }
+
+        $this->E_library_model->update_entry($row->id, $payload);
         $this->E_library_model->set_entry_subjects($row->id, (array) $this->input->post('subject_ids'));
 
         $this->session->set_flashdata('message', '<div class="alert alert-success">Entri literatur berhasil diperbarui.</div>');
@@ -356,6 +384,9 @@ class E_library extends CI_Controller
         $row = $this->E_library_model->get_by_id($id);
 
         if ($row) {
+            if (!empty($row->file_path) && file_exists(FCPATH . $row->file_path)) {
+                @unlink(FCPATH . $row->file_path);
+            }
             $this->E_library_model->delete_entry($row->id);
             $this->session->set_flashdata('message', '<div class="alert alert-success">Entri literatur berhasil dihapus.</div>');
         } else {
@@ -876,6 +907,46 @@ class E_library extends CI_Controller
     }
 
     /**
+     * Unggah berkas PDF (opsional). Mengembalikan NULL jika tidak ada file.
+     */
+    protected function _upload_pdf()
+    {
+        if (empty($_FILES['file_pdf']['name'])) {
+            return NULL;
+        }
+
+        $upload_path = FCPATH . 'uploads/elibrary/';
+        if (!is_dir($upload_path)) {
+            mkdir($upload_path, 0755, TRUE);
+        }
+
+        $config = array(
+            'upload_path'   => $upload_path,
+            'allowed_types' => 'pdf',
+            'max_size'      => 10240, // 10 MB
+            'encrypt_name'  => TRUE,
+        );
+
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload('file_pdf')) {
+            return array(
+                'error'   => TRUE,
+                'message' => strip_tags($this->upload->display_errors()),
+            );
+        }
+
+        $file = $this->upload->data();
+
+        return array(
+            'error'     => FALSE,
+            'file_path' => 'uploads/elibrary/' . $file['file_name'],
+            'file_name' => $file['orig_name'],
+        );
+    }
+
+    /**
      * Aturan validasi form entri.
      */
     protected function _entry_rules()
@@ -889,7 +960,7 @@ class E_library extends CI_Controller
         $this->form_validation->set_rules('halaman', 'Halaman', 'trim|max_length[50]');
         $this->form_validation->set_rules('doi', 'DOI', 'trim|max_length[255]');
         $this->form_validation->set_rules('nama_jurnal', 'Nama Jurnal', 'trim|max_length[255]');
-        $this->form_validation->set_rules('url_asli', 'URL Sumber', 'required|trim|max_length[1000]');
+        $this->form_validation->set_rules('url_asli', 'URL Sumber', 'trim|max_length[1000]');
         $this->form_validation->set_rules('kata_kunci', 'Kata Kunci', 'trim|max_length[500]');
         $this->form_validation->set_rules('bahasa', 'Bahasa', 'trim|max_length[50]');
         $this->form_validation->set_rules('sitasi', 'Sitasi', 'trim|integer|greater_than_equal_to[0]');

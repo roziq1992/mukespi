@@ -292,6 +292,11 @@ $el_has_filter = ($filters['q'] !== '' || $filters['source_id'] > 0 || $filters[
                                 <a href="<?= site_url('e_library/detail/' . (int) $row->id); ?>" class="el-btn el-btn--ghost el-btn--sm">
                                     <i class="fas fa-info-circle"></i> Detail
                                 </a>
+                                <?php if (!empty($row->file_path)): ?>
+                                    <a href="<?= site_url('e_library/detail/' . (int) $row->id); ?>" class="el-btn el-btn--primary el-btn--sm">
+                                        <i class="fas fa-file-pdf"></i> Baca PDF
+                                    </a>
+                                <?php endif; ?>
                                 <?php if (elibrary_safe_url($row->url_asli) !== ''): ?>
                                     <a href="<?= site_url('e_library/buka/' . (int) $row->id); ?>" class="el-btn el-btn--primary el-btn--sm" target="_blank" rel="noopener">
                                         <i class="fas fa-external-link-alt"></i> Buka di Sumber

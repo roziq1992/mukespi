@@ -52,7 +52,7 @@ $val = function ($field, $default = '') use ($entry) {
         }
     ?>
 
-    <form action="<?= $action; ?>" method="post" autocomplete="off">
+    <form action="<?= $action; ?>" method="post" autocomplete="off" enctype="multipart/form-data">
         <?= elibrary_csrf_field(); ?>
 
         <div class="row">
@@ -145,7 +145,18 @@ $val = function ($field, $default = '') use ($entry) {
                     </div>
                     <div class="el-panel__body">
                         <div class="el-field">
-                            <label class="el-label" for="el_url">URL Sumber Asli <span style="color:var(--el-danger);">*</span></label>
+                            <label class="el-label" for="el_file_pdf">Berkas PDF (opsional)</label>
+                            <input type="file" id="el_file_pdf" name="file_pdf" class="el-input" accept="application/pdf">
+                            <div class="el-table__meta">Unggah dokumen PDF agar dapat dibaca langsung di E-Library (maks. 10 MB).</div>
+                            <?php if ($entry && !empty($entry->file_path)): ?>
+                                <div class="el-table__meta">
+                                    File saat ini: <a href="<?= base_url($entry->file_path); ?>" target="_blank"><?= html_escape($entry->file_name ?: basename($entry->file_path)); ?></a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="el-field">
+                            <label class="el-label" for="el_url">URL Sumber Asli</label>
                             <input type="url" id="el_url" name="url_asli" class="el-input" maxlength="1000"
                                    value="<?= html_escape($val('url_asli')); ?>"
                                    placeholder="https://jurnal.example.org/artikel/1">

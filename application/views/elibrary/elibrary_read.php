@@ -39,12 +39,17 @@ $el_home  = elibrary_safe_url($entry->source_homepage);
             </div>
 
             <div class="el-stats" style="flex-direction:column;">
+                <?php if (!empty($entry->file_path)): ?>
+                    <a href="<?= base_url($entry->file_path); ?>" target="_blank" rel="noopener" class="el-btn el-btn--primary" style="background:#fff;color:var(--el-accent-2);">
+                        <i class="fas fa-file-pdf"></i> Baca PDF
+                    </a>
+                <?php endif; ?>
                 <?php if ($el_url !== ''): ?>
                     <a href="<?= site_url('e_library/buka/' . (int) $entry->id); ?>"
                        class="el-btn el-btn--primary" target="_blank" rel="noopener" style="background:#fff;color:var(--el-accent-2);">
                         <i class="fas fa-external-link-alt"></i> Buka di Sumber
                     </a>
-                <?php else: ?>
+                <?php elseif (empty($entry->file_path)): ?>
                     <span class="el-btn el-btn--ghost" style="opacity:.7;cursor:default;">
                         <i class="fas fa-link-slash"></i> Tanpa Tautan Sumber
                     </span>
@@ -65,6 +70,16 @@ $el_home  = elibrary_safe_url($entry->source_homepage);
 
         <!-- ========================== INFORMASI ========================== -->
         <div class="col-lg-8 mb-4">
+            <?php if (!empty($entry->file_path)): ?>
+            <div class="el-panel mb-3">
+                <div class="el-panel__head">
+                    <h2 class="el-panel__title"><i class="fas fa-file-pdf"></i> Baca Dokumen</h2>
+                </div>
+                <div class="el-panel__body" style="padding:0;">
+                    <iframe src="<?= base_url($entry->file_path); ?>" style="width:100%;height:700px;border:0;" title="Dokumen PDF"></iframe>
+                </div>
+            </div>
+            <?php endif; ?>
             <div class="el-panel mb-3">
                 <div class="el-panel__head">
                     <h2 class="el-panel__title"><i class="fas fa-file-lines"></i> Informasi Terperinci</h2>

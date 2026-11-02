@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Shell(C:\\xampp8.5\\php\\php.exe:*)"
+      "Shell(C:\\xampp8.5\\php\\php.exe:*)",
+      "Shell(C:\\xampp8.5\\mysql\\bin\\mysql.exe:*)"
     ],
     "deny": [],
     "defaultMode": "default"

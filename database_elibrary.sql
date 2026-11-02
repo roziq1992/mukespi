@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS el_entries (
   doi           VARCHAR(255) NULL,
   nama_jurnal   VARCHAR(255) NULL COMMENT 'Nama jurnal/buku yang tercetak di publikasi',
   url_asli      VARCHAR(1000) NULL COMMENT 'URL sumber asli (tujuan "Buka di sumber")',
+  file_path     VARCHAR(255) NULL COMMENT 'Path file PDF yang diunggah admin',
+  file_name     VARCHAR(255) NULL COMMENT 'Nama asli file PDF',
   kata_kunci    VARCHAR(500) NULL,
   jenis         VARCHAR(50) NOT NULL DEFAULT 'artikel' COMMENT 'artikel|buku|tesis|laporan|lainnya',
   bahasa        VARCHAR(50) NULL,

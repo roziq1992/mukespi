@@ -249,37 +249,39 @@ class Survei_model extends CI_Model
      * Ringkasan utama untuk kartu KPI & grafik tren.
      */
     public function statistik($f = array())
-    {
-        $row = $this->db->select(
-            'COUNT(*) AS total,
-             AVG(r.skor_rata) AS rata,
-             SUM(CASE WHEN r.predikat IN ("Sangat Baik","Baik") THEN 1 ELSE 0 END) AS tuntas,
-             SUM(r.is_kritik) AS kritik,
-             SUM(CASE WHEN r.rekomendasi IS NOT NULL THEN 1 ELSE 0 END) AS ada_nps,
-             SUM(CASE WHEN r.rekomendasi >= 9 THEN 1 ELSE 0 END) AS promoter,
-             SUM(CASE WHEN r.rekomendasi <= 6 THEN 1 ELSE 0 END) AS detractor'
-        )
-            ->from('survei_responden r');
-        $this->_filter($f);
-        $row = $this->db->get()->row();
+{
+    $row = $this->db->select(
+        'COUNT(*) AS total,
+         AVG(r.skor_rata) AS rata,
+         SUM(CASE WHEN r.predikat IN ("Sangat Baik","Baik") THEN 1 ELSE 0 END) AS tuntas,
+         SUM(r.is_kritik) AS kritik,
+         SUM(CASE WHEN r.rekomendasi IS NOT NULL AND r.rekomendasi > 0 THEN 1 ELSE 0 END) AS ada_nps,
+         SUM(CASE WHEN r.rekomendasi >= 9 THEN 1 ELSE 0 END) AS promoter,
+         SUM(CASE WHEN r.rekomendasi IS NOT NULL AND r.rekomendasi > 0 AND r.rekomendasi <= 6 THEN 1 ELSE 0 END) AS detractor'
+    )
+        ->from('survei_responden r');
+    $this->_filter($f);
+    $row = $this->db->get()->row();
 
-        $total = (int) $row->total;
-        $out = array(
-            'total'    => $total,
-            'rata'     => $total ? round((float) $row->rata, 2) : 0,
-            'tuntas'   => (int) $row->tuntas,
-            'kritik'   => (int) $row->kritik,
-            'promoter' => (int) $row->promoter,
-            'detractor'=> (int) $row->detractor,
-        );
-        $out['persen_tuntas'] = $total ? round($out['tuntas'] * 100 / $total, 1) : 0;
-        $ada_nps = (int) $row->ada_nps;
-        // Net Promoter Score = % promoter - % detractor
-        $out['nps'] = $ada_nps
-            ? (int) round($out['promoter'] * 100 / $ada_nps - $out['detractor'] * 100 / $ada_nps)
-            : 0;
-        return $out;
-    }
+    $total = (int) $row->total;
+    $out = array(
+        'total'    => $total,
+        'rata'     => $total ? round((float) $row->rata, 2) : 0,
+        'tuntas'   => (int) $row->tuntas,
+        'kritik'   => (int) $row->kritik,
+        'promoter' => (int) $row->promoter,
+        'detractor'=> (int) $row->detractor,
+    );
+    $out['persen_tuntas'] = $total ? round($out['tuntas'] * 100 / $total, 1) : 0;
+    $ada_nps = (int) $row->ada_nps;
+    
+    // Net Promoter Score = % promoter - % detractor
+    $out['nps'] = $ada_nps
+        ? (int) round($out['promoter'] * 100 / $ada_nps - $out['detractor'] * 100 / $ada_nps)
+        : 0;
+        
+    return $out;
+}
 
     /**
      * Rekap status tindak lanjut untuk keluhan survei.
