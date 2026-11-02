@@ -705,14 +705,15 @@
 					<div class="emblem-icon"><i class="fas fa-feather-pointed"></i></div>
 					<div class="brand-title">
 						<h1>RSA-ONE</h1>
-						<p>RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</p>
+						<p>RS Airlangga Integrated Operation &amp; Network</p>
+						<p>One-Stop Digital Services</p>
 					</div>
 				</div>
 
-				<span class="brand-tagline"><span class="tag-dot"></span> Full Digital &middot; Tanpa Kertas</span>
+				<!-- <span class="brand-tagline"><span class="tag-dot"></span> Full Digital &middot; Tanpa Kertas</span> -->
 
 				<div class="system-intro">
-				<p class="system-sub"><strong style="color:#E0E7FF; font-weight:700;">RSA-ONE</strong> &mdash; RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</p>
+				<!-- <p class="system-sub"><strong style="color:#E0E7FF; font-weight:700;">RSA-ONE</strong> &mdash; RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</p> -->
 				<p class="system-sub" style="font-size:12px; opacity:.9;">Makna: Menggambarkan bahwa seluruh layanan digital RS Airlangga terpusat dan dapat diakses dalam satu pintu (one-stop service).</p>
 
 				<div class="module-grid">

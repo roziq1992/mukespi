@@ -37,10 +37,11 @@
 
 <div class="container-fluid portal">
     <div class="portal-hero">
-        <div class="portal-eyebrow">RSA-ONE / One-Stop Digital Services</div>
-        <h1>RSA-ONE — RS Airlangga Integrated Operation &amp; Network / One-Stop Digital Services</h1>
-        <p>Satu halaman untuk mengakses seluruh layanan digital mutu, dokumen, penilaian, monitoring, dan manajemen surat.</p>
-        <span class="portal-tagline"><i></i> Full Digital &middot; Tanpa Kertas</span>
+        <!-- <div class="portal-eyebrow">One-Stop Digital Services</div> -->
+        <h1>RSA-ONE — RS Airlangga Integrated Operation &amp; Network </h1>
+          <h1>#One-Stop Digital Services</h1>
+        <p>Satu halaman untuk mengakses seluruh layanan digital mutu, dokumen, penilaian, monitoring dan evaluasi, dan manajemen surat.</p>
+        <!-- <span class="portal-tagline"><i></i> Full Digital &middot; Tanpa Kertas</span> -->
     </div>
     
     <div class="portal-section-title">
