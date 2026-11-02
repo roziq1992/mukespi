@@ -303,6 +303,13 @@
 					   value="<?= set_value('nama'); ?>" placeholder="Nama lengkap (boleh dikosongkan)">
 			</div>
 
+			<div class="sv-field">
+				<label for="no_wa">No. WhatsApp <span class="req">*</span></label>
+				<input type="text" id="no_wa" name="no_wa" maxlength="20" required
+					   value="<?= set_value('no_wa'); ?>" placeholder="Contoh: 08123456789">
+				<?= form_error('no_wa'); ?>
+			</div>
+
 			<div class="sv-row">
 				<div class="sv-field">
 					<label for="umur">Umur</label>

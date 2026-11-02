@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS survei_responden (
     id                BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     kode              VARCHAR(30) NOT NULL,          -- RESP-20260131-0007
     nama              VARCHAR(150) NULL,
+    no_wa             VARCHAR(20) NULL,
     nik               VARCHAR(30) NULL,
     no_rm             VARCHAR(50) NULL,
     id_unit           INT NULL,                     -- unit yang dilayani (signed, mengikuti unit.id_unit)
@@ -68,6 +69,7 @@ CREATE TABLE IF NOT EXISTS survei_tindak_lanjut (
     id_responden BIGINT UNSIGNED NOT NULL,
     id_user      BIGINT UNSIGNED NULL,
     status       ENUM('Diproses','Selesai') NOT NULL DEFAULT 'Diproses',
+    grading      VARCHAR(20) NULL COMMENT 'Merah|Kuning|Hijau',
     catatan      TEXT NULL,
     created_at   DATETIME NOT NULL,
     KEY idx_tl_responden (id_responden),

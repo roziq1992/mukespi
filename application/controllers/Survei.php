@@ -63,6 +63,7 @@ class Survei extends CI_Controller
         }
 
         $this->form_validation->set_rules('nama', 'Nama', 'trim|max_length[150]');
+        $this->form_validation->set_rules('no_wa', 'No. WhatsApp', 'trim|required|max_length[20]');
         $this->form_validation->set_rules('tanggal_kunjungan', 'Tanggal Kunjungan', 'trim|required');
         $this->form_validation->set_rules('umur', 'Umur', 'trim|integer|min_length[1]|max_length[3]');
         $this->form_validation->set_rules('id_unit', 'Unit', 'trim|integer');
@@ -122,6 +123,7 @@ class Survei extends CI_Controller
         $header = array(
             'kode'              => $kode,
             'nama'              => $is_anonim ? NULL : $this->_bersih($this->input->post('nama', TRUE)),
+            'no_wa'             => $this->_bersih($this->input->post('no_wa', TRUE)),
             'id_unit'           => (int) $this->input->post('id_unit') ?: NULL,
             'tanggal_kunjungan' => $this->input->post('tanggal_kunjungan', TRUE),
             'tanggal_survei'    => date('Y-m-d H:i:s'),

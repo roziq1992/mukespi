@@ -414,13 +414,59 @@ public function statistik($f = array())
         return $this->db->get()->result();
     }
 
-    // ================= TINDAK LANJUT =================
-    public function tambah_tindak_lanjut($id_responden, $id_user, $status, $catatan)
+    // ================= LAPORAN GRADING =================
+    public function laporan_grading($f = array())
     {
+        $this->db->select('r.id, r.kode, r.nama, r.is_anonim, r.tanggal_survei, r.saran, u.nm_unit')
+            ->from('survei_responden r')
+            ->join('unit u', 'u.id_unit = r.id_unit', 'left');
+
+        if (!empty($f['bulan']) && !empty($f['tahun'])) {
+            $this->db->where('MONTH(r.tanggal_survei) =', (int) $f['bulan']);
+            $this->db->where('YEAR(r.tanggal_survei) =', (int) $f['tahun']);
+        } elseif (!empty($f['tahun'])) {
+            $this->db->where('YEAR(r.tanggal_survei) =', (int) $f['tahun']);
+        }
+        if (!empty($f['id_unit'])) {
+            $this->db->where('r.id_unit', (int) $f['id_unit']);
+        }
+
+        $this->db->order_by('r.tanggal_survei', 'DESC');
+        $rows = $this->db->get()->result();
+
+        foreach ($rows as $r) {
+            $tl = $this->tindak_lanjut($r->id);
+            $r->grading     = !empty($tl) ? $tl[0]->grading : NULL;
+            $r->tanggal_tl  = !empty($tl) ? $tl[0]->created_at : NULL;
+            $r->status_tl   = !empty($tl) ? $tl[0]->status : NULL;
+            $r->catatan_tl  = !empty($tl) ? $tl[0]->catatan : NULL;
+        }
+
+        // Hanya tampilkan data yang sudah diberi grading.
+        $rows = array_values(array_filter($rows, function ($r) {
+            return !empty($r->grading);
+        }));
+
+        if (!empty($f['grading'])) {
+            $g = $f['grading'];
+            $rows = array_values(array_filter($rows, function ($r) use ($g) {
+                return $r->grading === $g;
+            }));
+        }
+
+        return $rows;
+    }
+
+    // ================= TINDAK LANJUT =================
+    public function tambah_tindak_lanjut($id_responden, $id_user, $status, $catatan, $grading = NULL)
+    {
+        $grading = in_array($grading, array('Merah', 'Kuning', 'Hijau'), true) ? $grading : NULL;
+
         return $this->db->insert('survei_tindak_lanjut', array(
             'id_responden' => (int) $id_responden,
             'id_user'      => $id_user ? (int) $id_user : NULL,
             'status'       => in_array($status, array('Diproses', 'Selesai'), true) ? $status : 'Diproses',
+            'grading'      => $grading,
             'catatan'      => $catatan,
             'created_at'   => date('Y-m-d H:i:s'),
         ));

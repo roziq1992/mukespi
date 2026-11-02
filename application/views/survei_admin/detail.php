@@ -231,6 +231,7 @@ $flash = $this->session->flashdata('message');
 						<?php endif; ?>
 					</td></tr>
 					<tr><td>Nama</td><td><?= $row->is_anonim ? '— (anonim)' : html_escape($row->nama ?: '—'); ?></td></tr>
+					<tr><td>No. WhatsApp</td><td><?= html_escape($row->no_wa ?: '—'); ?></td></tr>
 					<tr><td>No. Rekam Medis</td><td><?= html_escape($row->no_rm ?: '—'); ?></td></tr>
 					<tr><td>NIK</td><td><?= html_escape($row->nik ?: '—'); ?></td></tr>
 					<tr><td>Umur / Jenis Kelamin</td><td>
@@ -254,6 +255,7 @@ $flash = $this->session->flashdata('message');
 				<?php
 				// $tindak sudah diurutkan dari yang terbaru, jadi index 0 = status terkini.
 				$sekarang = empty($tindak) ? '' : $tindak[0]->status;
+				$grading_sekarang = empty($tindak) ? '' : (string) $tindak[0]->grading;
 				$warna = $sekarang === 'Selesai'
 					? 'background:#ecfdf5;border:1px solid #a7f3d0'
 					: ($sekarang === 'Diproses' ? 'background:#eff6ff;border:1px solid #bfdbfe' : 'background:#f8fafc;border:1px solid #e2e8f0');
@@ -262,6 +264,9 @@ $flash = $this->session->flashdata('message');
 					<span style="font-size:.72rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#64748b">Status Tindak Lanjut</span>
 					<?php if ($sekarang !== ''): ?>
 						<span class="sk-badge <?= $sekarang === 'Selesai' ? 'sb' : 'b' ?>" style="font-size:.74rem"><?= html_escape($sekarang) ?></span>
+						<?php if ($grading_sekarang !== ''): ?>
+							<span class="sk-badge <?= $grading_sekarang === 'Merah' ? 'k' : ($grading_sekarang === 'Kuning' ? 'c' : 'sb'); ?>" style="font-size:.74rem"><?= html_escape($grading_sekarang); ?></span>
+						<?php endif; ?>
 						<span style="font-size:.74rem;color:#64748b">
 							terakhir diubah <?= date('d M Y H:i', strtotime($tindak[0]->created_at)) ?><?= $tindak[0]->nama_user ? ' oleh ' . html_escape($tindak[0]->nama_user) : '' ?>
 						</span>
@@ -280,6 +285,9 @@ $flash = $this->session->flashdata('message');
 								<div class="tanggal"><?= date('d M Y H:i', strtotime($t->created_at)); ?></div>
 								<div class="status">
 									<span class="sk-badge <?= $t->status === 'Selesai' ? 'sb' : 'b'; ?>"><?= html_escape($t->status); ?></span>
+									<?php if (!empty($t->grading)): ?>
+										<span class="sk-badge <?= $t->grading === 'Merah' ? 'k' : ($t->grading === 'Kuning' ? 'c' : 'sb'); ?>" style="margin-left:4px"><?= html_escape($t->grading); ?></span>
+									<?php endif; ?>
 								</div>
 								<?php if (!empty($t->catatan)): ?><div class="catatan"><?= html_escape($t->catatan); ?></div><?php endif; ?>
 								<div class="oleh">oleh <?= html_escape($t->nama_user ?: 'sistem'); ?></div>
@@ -290,6 +298,15 @@ $flash = $this->session->flashdata('message');
 
 				<form method="POST" action="<?= site_url('survei_admin/tindak_lanjut'); ?>" class="sk-form">
 					<input type="hidden" name="id_responden" value="<?= (int) $row->id; ?>">
+					<div style="margin-bottom:12px">
+						<label for="tl-grading">Grading Keluhan</label>
+						<select id="tl-grading" name="grading">
+							<option value="">— Tidak ada grading —</option>
+							<option value="Merah" <?= $grading_sekarang === 'Merah' ? 'selected' : ''; ?>>Merah (Ekstrim) — maks. 1x24 jam, upayakan selesai hari yang sama</option>
+							<option value="Kuning" <?= $grading_sekarang === 'Kuning' ? 'selected' : ''; ?>>Kuning (Tinggi) — maks. 3 hari kerja</option>
+							<option value="Hijau" <?= $grading_sekarang === 'Hijau' ? 'selected' : ''; ?>>Hijau (Rendah) — maks. 7 hari</option>
+						</select>
+					</div>
 					<div style="margin-bottom:12px">
 						<label for="tl-status">Status</label>
 						<select id="tl-status" name="status" required>

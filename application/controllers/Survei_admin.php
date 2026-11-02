@@ -143,6 +143,7 @@ class Survei_admin extends CI_Controller
         }
 
         $this->form_validation->set_rules('status', 'Status', 'trim|required|in_list[Diproses,Selesai]');
+        $this->form_validation->set_rules('grading', 'Grading', 'trim|in_list[Merah,Kuning,Hijau]');
         $this->form_validation->set_rules('catatan', 'Catatan', 'trim|required|max_length[1000]');
         $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
 
@@ -156,7 +157,8 @@ class Survei_admin extends CI_Controller
             $id,
             (int) $this->session->userdata('id'),
             $this->input->post('status', TRUE),
-            $this->input->post('catatan', TRUE)
+            $this->input->post('catatan', TRUE),
+            $this->input->post('grading', TRUE)
         );
 
         $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Tindak lanjut tersimpan.</div>');
@@ -269,6 +271,29 @@ class Survei_admin extends CI_Controller
         redirect(site_url('survei_admin/aspek'));
     }
 
+    // ===================== LAPORAN GRADING =====================
+    public function laporan_grading()
+    {
+        $f = $this->_filter_input();
+        $g = $this->input->get('grading', TRUE);
+        if (in_array($g, array('Merah', 'Kuning', 'Hijau'), true)) {
+            $f['grading'] = $g;
+        }
+
+        $data = array(
+            'title'  => 'Laporan Grading Keluhan Survei',
+            'f'      => $f,
+            'bulan'  => $this->_bulan_list(),
+            'tahun'  => $this->_tahun_list(),
+            'unit'   => $this->Survei_model->unit_pelayanan(),
+            'rows'   => $this->Survei_model->laporan_grading($f),
+        );
+
+        $this->load->view('template/header', $data);
+        $this->load->view('survei_admin/laporan_grading', $data);
+        $this->load->view('template/footer');
+    }
+
     // ===================== EKSPOR EXCEL =====================
     public function ekspor()
     {
@@ -295,6 +320,7 @@ class Survei_admin extends CI_Controller
         xlsWriteLabel($baris, $kolom++, 'No');
         xlsWriteLabel($baris, $kolom++, 'Kode Survei');
         xlsWriteLabel($baris, $kolom++, 'Nama');
+        xlsWriteLabel($baris, $kolom++, 'No. WhatsApp');
         xlsWriteLabel($baris, $kolom++, 'No. RM');
         xlsWriteLabel($baris, $kolom++, 'Unit');
         xlsWriteLabel($baris, $kolom++, 'Tanggal Kunjungan');
@@ -307,6 +333,7 @@ class Survei_admin extends CI_Controller
         xlsWriteLabel($baris, $kolom++, 'Predikat');
         xlsWriteLabel($baris, $kolom++, 'Rekomendasi (0-10)');
         xlsWriteLabel($baris, $kolom++, 'Saran / Keluhan');
+        xlsWriteLabel($baris, $kolom++, 'Grading');
         xlsWriteLabel($baris, $kolom++, 'Sudah Ditindak Lanjut');
 
         $no = 0;
@@ -324,6 +351,7 @@ class Survei_admin extends CI_Controller
             xlsWriteNumber($baris, $kolom++, $no);
             xlsWriteLabel($baris, $kolom++, $r->kode);
             xlsWriteLabel($baris, $kolom++, $r->is_anonim ? '(Anonim)' : ($r->nama ?: '-'));
+            xlsWriteLabel($baris, $kolom++, $r->no_wa ?: '-');
             xlsWriteLabel($baris, $kolom++, $r->no_rm ?: '-');
             xlsWriteLabel($baris, $kolom++, $r->nm_unit ?: '-');
             xlsWriteLabel($baris, $kolom++, $r->tanggal_kunjungan);
@@ -336,6 +364,9 @@ class Survei_admin extends CI_Controller
             xlsWriteLabel($baris, $kolom++, $r->predikat);
             xlsWriteLabel($baris, $kolom++, $r->rekomendasi === NULL ? '-' : (string) $r->rekomendasi);
             xlsWriteLabel($baris, $kolom++, $r->saran ?: '-');
+            $tl = $this->Survei_model->tindak_lanjut($r->id);
+            $grading = !empty($tl) ? ($tl[0]->grading ?: '-') : '-';
+            xlsWriteLabel($baris, $kolom++, $grading);
             xlsWriteLabel($baris, $kolom++, $this->Survei_model->sudah_ditindak_lanjut($r->id) ? 'Ya' : 'Belum');
         }
 

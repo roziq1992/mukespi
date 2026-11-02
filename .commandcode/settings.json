@@ -2,7 +2,29 @@
   "permissions": {
     "allow": [
       "Shell(C:\\xampp8.5\\php\\php.exe:*)",
-      "Shell(C:\\xampp8.5\\mysql\\bin\\mysql.exe:*)"
+      "Shell(C:\\xampp8.5\\mysql\\bin\\mysql.exe:*)",
+      "Shell(powershell -Command \"try { $r = Invoke-WebRequest -Uri 'http://localhost/mukespi/' -UseBasicParsing -TimeoutSec 5; Write-Host 'HTTP' $r.StatusCode } catch { Write-Host 'ERR' $_.Exception.Message }\")",
+      "Shell(powershell -Command \"$body = @{ 'tanggal_kunjungan'='2026-11-02'; 'skor[1]'='5'; 'is_anonim'='1' }; $r = Invoke-WebRequest -Uri 'http://localhost/mukespi/index.php/survei/kirim' -Method POST -Body $body -UseBasicParsing -TimeoutSec 10; Write-Host 'HTTP' $r.StatusCode; $r.Content | Select-String -Pattern 'Terjadi kesalahan|terima|alert' | Select-Object -First 5\")",
+      "Shell(powershell -Command \"$body = @{}; $body['tanggal_kunjungan']='2026-11-02'; $body['is_anonim']='1'; 1..12 | ForEach-Object { $body[\\\"skor[$_]\\\"]='5' }; $r = Invoke-WebRequest -Uri 'http://localhost/mukespi/index.php/survei/kirim' -Method POST -Body $body -UseBasicParsing -TimeoutSec 10; $m = [regex]::Match($r.Content,'Terjadi kesalahan[^<]*|alert-success[^<]*'); Write-Host 'HTTP' $r.StatusCode; Write-Host $m.Value\")",
+      "Shell(Get-ChildItem:*)",
+      "Shell(Select-Object:*)",
+      "Shell(dir \"C:\\xampp8.5\\apache\\logs\" *.log 2>nul; dir \"C:\\xampp8.5\\php\" *.log 2>nul)",
+      "Shell(powershell -Command \"Get-Content 'C:\\xampp8.5\\apache\\logs\\error.log' -Tail 30\")",
+      "Shell(powershell -Command \"Select-String -Path 'C:\\xampp8.5\\apache\\logs\\*.log' -Pattern 'Fatal|Error 500|survei' | Select-Object -Last 20\")",
+      "Shell(powershell -Command \"Select-String -Path 'C:\\xampp8.5\\apache\\logs\\*.log','C:\\xampp8.5\\php\\logs\\*.log' -Pattern 'Fatal|Parse error|survei' -ErrorAction SilentlyContinue | Select-Object -Last 10\")",
+      "Shell(powershell -Command \"Select-String -Path 'C:\\xampp8.5\\php\\php.ini' -Pattern 'error_log|display_errors|log_errors'\")",
+      "Shell(powershell -Command \"if (Test-Path 'C:\\xampp8.5\\php\\logs\\php_error_log') { Get-Content 'C:\\xampp8.5\\php\\logs\\php_error_log' -Tail 30 } else { Write-Host 'no file' }\")",
+      "Shell(powershell -Command \"Get-Content 'C:\\xampp8.5\\apache\\logs\\error.log' -Tail 10\")",
+      "Shell(powershell -Command \"try { $r = Invoke-WebRequest -Uri 'http://localhost/mukespi/index.php/survei/kirim' -Method POST -Body @{'tanggal_kunjungan'='2026-11-02';'is_anonim'='1';'skor[1]'='5'} -UseBasicParsing -TimeoutSec 10 } catch { $resp = $_.Exception.Response; $stream = $resp.GetResponseStream(); $reader = New-Object System.IO.StreamReader($stream); Write-Host $reader.ReadToEnd() }\")",
+      "Shell(curl.exe:*)",
+      "Shell(powershell -Command \"Get-Content 'C:\\Users\\WINDOW~1\\AppData\\Local\\Temp\\commandcode\\out.txt' -TotalCount 20\")",
+      "Shell(powershell -Command \"Get-Content 'C:\\xampp8.5\\apache\\logs\\error.log' -Tail 5\")",
+      "Shell(powershell -Command \"Get-Content 'C:\\Users\\WINDOW~1\\AppData\\Local\\Temp\\commandcode\\out.txt' | Select-String -Pattern 'Fatal|Error|Exception|line' | Select-Object -First 20\")",
+      "Shell(powershell -Command \"Get-Content 'C:\\Users\\WINDOW~1\\AppData\\Local\\Temp\\commandcode\\out.txt' | Select-String -Pattern 'Message|Duplicate|foreign|constraint|cannot' | Select-Object -First 20\")",
+      "Shell(findstr:*)",
+      "Shell(powershell -Command \"Get-Content 'C:\\Users\\WINDOW~1\\AppData\\Local\\Temp\\commandcode\\out.txt' | Select-String -Pattern 'uncaught|Message:|Duplicate|Line Number' | Select-Object -First 20\")",
+      "Shell(powershell -Command \"Get-Content 'C:\\Users\\WINDOW~1\\AppData\\Local\\Temp\\commandcode\\out.txt' | Select-String -Pattern 'survei|\\.php' | Select-Object -First 20\")",
+      "Shell(powershell -Command \"$t = & 'C:\\xampp8.5\\mysql\\bin\\mysql.exe' -u root -e 'SHOW CREATE TABLE mukespi.el_entries'; $t | Select-String -Pattern 'AUTO_INCREMENT' | Select-Object -First 1\")"
     ],
     "deny": [],
     "defaultMode": "default"

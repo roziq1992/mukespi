@@ -111,6 +111,7 @@
 	<div class="sk-header-actions">
 		<a class="sk-btn" href="<?= site_url('survei_admin'); ?>"><i class="fas fa-chart-line"></i> Dashboard</a>
 		<a class="sk-btn" href="<?= site_url('survei_admin/aspek'); ?>"><i class="fas fa-sliders-h"></i> Master Aspek</a>
+		<a class="sk-btn" href="<?= site_url('survei_admin/laporan_grading'); ?>"><i class="fas fa-clipboard-check"></i> Laporan Grading</a>
 		<a class="sk-btn solid" href="<?= site_url('survei_admin/ekspor') . '?' . http_build_query(array_filter($f, function ($v) { return $v !== '' && $v !== NULL; })); ?>"><i class="fas fa-file-excel"></i> Ekspor Excel</a>
 	</div>
 </div>
