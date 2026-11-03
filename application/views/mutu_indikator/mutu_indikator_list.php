@@ -573,18 +573,19 @@ $tanggal = date("Y-m-d");
 				foreach ($mutu_indikator_data as $mutu_indikator)
 				{
 					$capaian = 0;
-					if ($mutu_indikator->num > 0) {
+				// 	if ($mutu_indikator->num > 0) {
 
-						if ($jenis<>"PPI" and $judul<>"Kepuasan Pasien"){
-							$capaian = round($mutu_indikator->num/$mutu_indikator->demu*100,1);
-						}
-						if ($judul=="Kepuasan Pasien"){
-							$capaian = round($mutu_indikator->num*25,2);
-						}
-						if($jenis=="PPI"){
-							$capaian = round($mutu_indikator->num/$mutu_indikator->demu*1000,1);
-						}
-					}
+				// 		if ($jenis<>"PPI" and $judul<>"Kepuasan Pasien"){
+				// 			$capaian = round($mutu_indikator->num/$mutu_indikator->demu*100,1);
+				// 		}
+				// 		if ($judul=="Kepuasan Pasien"){
+				// 			$capaian = round($mutu_indikator->num*25,2);
+				// 		}
+				// 		if($jenis=="PPI"){
+				// 			$capaian = round($mutu_indikator->num/$mutu_indikator->demu*1000,1);
+				// 		}
+				// 	}
+				$capaian = $this->Mutu_indikator_model->hitung_capaian($mutu_indikator->num, $mutu_indikator->demu, $jenis, $judul);
 					$capaian_class = ($capaian >= $target) ? 'ok' : 'low';
 					?>
 					<tr>

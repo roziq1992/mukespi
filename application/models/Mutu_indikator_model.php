@@ -40,34 +40,33 @@ class Mutu_indikator_model extends CI_Model
         return $this->db->get($this->table)->row();
     }
     
-    // get total rows
-    function total_rows($q = NULL,$idindikator) {
-     $this->db->where('id_indikator', $idindikator);
-     $this->db->group_start();
-    $this->db->like('id_mutu', $q);
-	$this->db->or_like('tanggal', $q);
-// 	$this->db->or_like('id_indikator', $q);
-	$this->db->or_like('num', $q);
-	$this->db->or_like('demu', $q);
-	$this->db->group_end();
-	$this->db->from($this->table);
-        return $this->db->count_all_results();
-    }
-
-    // get data with limit and search
-    function get_limit_data($limit, $start = 0, $q = NULL, $idindikator) {
-        $this->db->order_by('tanggal', $this->order);
-        $this->db->where('id_indikator', $idindikator);
+function total_rows($q = NULL, $idindikator = NULL) {
+    $this->db->from($this->table);
+    $this->db->where('id_indikator', (int) $idindikator);
+    if ($q !== NULL && $q !== '') {
         $this->db->group_start();
-        $this->db->like('id_mutu', $q);
-    	$this->db->or_like('tanggal', $q);
-    	$this->db->or_like('num', $q);
-    	$this->db->or_like('demu', $q);
-    	$this->db->group_end();
-    	$this->db->limit($limit, $start);
-        return $this->db->get($this->table)->result();
+        $this->db->like('tanggal', $q);
+        $this->db->or_like('num', $q);
+        $this->db->or_like('demu', $q);
+        $this->db->group_end();
     }
+    return $this->db->count_all_results();
+}
 
+function get_limit_data($limit, $start = 0, $q = NULL, $idindikator = NULL) {
+    $this->db->where('id_indikator', (int) $idindikator);
+    if ($q !== NULL && $q !== '') {
+        $this->db->group_start();
+        $this->db->like('tanggal', $q);
+        $this->db->or_like('num', $q);
+        $this->db->or_like('demu', $q);
+        $this->db->group_end();
+    }
+    $this->db->order_by('tanggal', 'DESC');
+    $this->db->order_by('id_mutu', 'DESC');
+    $this->db->limit((int) $limit, (int) $start);
+    return $this->db->get($this->table)->result();
+}
     // insert data
     function insert($data)
     {

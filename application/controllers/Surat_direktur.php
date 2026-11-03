@@ -181,7 +181,10 @@ class Surat_direktur extends CI_Controller
             log_surat($id, 'Surat didisposisikan', $catatan);
             $this->db->trans_complete();
             if ($this->db->trans_status() === FALSE) show_error('Disposisi dan status surat gagal disimpan.', 500);
-            surat_kirim_notifikasi_massal($penerima, 'Pemberitahuan Disposisi Surat', 'Dengan hormat, Direktur RS Airlangga telah memberikan disposisi surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong>.<br><br>Catatan disposisi:<br>' . htmlspecialchars($catatan, ENT_QUOTES, 'UTF-8'));
+            $pesan_disposisi = 'Dengan hormat, Direktur RS Airlangga telah memberikan disposisi surat dengan perihal <strong>' . htmlspecialchars($surat->perihal, ENT_QUOTES, 'UTF-8') . '</strong>.<br><br>Catatan disposisi:<br>' . htmlspecialchars($catatan, ENT_QUOTES, 'UTF-8');
+            surat_kirim_notifikasi_massal($penerima, 'Pemberitahuan Disposisi Surat', $pesan_disposisi);
+            $penerima_hrd = $this->db->select('id, name, email')->where('role_id', 6)->get('users')->result();
+            surat_kirim_notifikasi_massal($penerima_hrd, 'Pemberitahuan Disposisi Surat', $pesan_disposisi);
         } elseif ($aksi === 'tolak') {
             if (in_array($surat->status, array('Ditolak', 'Didisposisikan', 'Selesai'), TRUE)) {
                 $this->session->set_flashdata('message', 'Surat ini tidak dapat ditolak pada tahap saat ini.');
