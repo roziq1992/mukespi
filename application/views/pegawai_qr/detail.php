@@ -2,268 +2,225 @@
 <html lang="id">
 <head>
 	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
-	<title>Data Pegawai — RS Airlangga</title>
-
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+	<meta name="theme-color" content="#0b6b63">
+	<title>Verifikasi Kepegawaian — RS Airlangga Jombang</title>
 	<style>
 		:root {
-			--qr-primary: #0f766e;
-			--qr-primary-dark: #115e59;
-			--qr-ink: #0f172a;
-			--qr-ink2: #334155;
-			--qr-muted: #64748b;
-			--qr-line: #e2e8f0;
-			--qr-bg: #f1f5f9;
+			color-scheme: light;
+			font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			color: #17352f;
+			background: #f2f7f6;
+			font-synthesis: none;
+			text-rendering: optimizeLegibility;
+			-webkit-font-smoothing: antialiased;
 		}
 
-		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+		* { box-sizing: border-box; }
 
 		body {
-			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-			background: var(--qr-bg);
-			color: var(--qr-ink);
-			line-height: 1.55;
-			-webkit-font-smoothing: antialiased;
-			padding-bottom: 40px;
+			min-height: 100vh;
+			margin: 0;
+			padding: 28px 18px;
+			display: grid;
+			place-items: center;
+			background:
+				radial-gradient(ellipse at 12% 8%, rgba(35, 169, 143, .12), transparent 34%),
+				radial-gradient(ellipse at 92% 90%, rgba(41, 118, 167, .10), transparent 32%),
+				#f2f7f6;
 		}
 
-		/* ================= HEADER ================= */
-		.qr-head {
-			background: linear-gradient(135deg, #0b2b2b 0%, #0f766e 55%, #14b8a6 100%);
+		.page { width: min(100%, 520px); }
+
+		.card {
+			overflow: hidden;
+			border: 1px solid rgba(217, 231, 227, .9);
+			border-radius: 28px;
+			background: #fff;
+			box-shadow: 0 28px 70px rgba(27, 67, 59, .12), 0 3px 10px rgba(27, 67, 59, .04);
+		}
+
+		.top {
+			position: relative;
+			overflow: hidden;
+			padding: 34px 28px 38px;
 			color: #fff;
-			padding: 24px 18px 54px;
+			text-align: center;
+			background: linear-gradient(140deg, #0b514d 0%, #087b70 58%, #19a78d 100%);
+		}
+
+		.top::before, .top::after {
+			position: absolute;
+			width: 190px;
+			height: 190px;
+			border: 1px solid rgba(255, 255, 255, .12);
+			border-radius: 50%;
+			content: "";
+			pointer-events: none;
+		}
+
+		.top::before { top: -118px; left: -68px; }
+		.top::after { right: -112px; bottom: -132px; width: 250px; height: 250px; }
+
+		.brand, .title, .subtitle { position: relative; z-index: 1; }
+
+		.brand {
+			display: inline-flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 27px;
+			text-align: left;
+		}
+
+		.brand-mark {
+			display: grid;
+			width: 46px;
+			height: 46px;
+			place-items: center;
+			border: 1px solid rgba(255, 255, 255, .24);
+			border-radius: 15px;
+			background: rgba(255, 255, 255, .13);
+		}
+
+		.brand-mark svg { width: 26px; height: 26px; }
+		.brand-name { font-size: 13px; font-weight: 750; letter-spacing: .045em; }
+		.brand-place { margin-top: 3px; color: rgba(255, 255, 255, .72); font-size: 11px; }
+		.title { margin: 0; font-size: clamp(24px, 6vw, 30px); font-weight: 760; letter-spacing: -.035em; }
+		.subtitle { margin: 9px 0 0; color: rgba(255, 255, 255, .8); font-size: 14px; }
+
+		.content { padding: 0 30px 28px; text-align: center; }
+
+		.status-icon {
+			display: grid;
+			width: 76px;
+			height: 76px;
+			margin: -28px auto 18px;
+			position: relative;
+			place-items: center;
+			border: 6px solid #fff;
+			border-radius: 24px;
+			color: #07816f;
+			background: #e7f7f1;
+			box-shadow: 0 8px 20px rgba(22, 111, 92, .13);
+		}
+
+		.status-icon svg { width: 34px; height: 34px; }
+		.status-icon.invalid { color: #b4534b; background: #fff0ed; }
+		.eyebrow { margin: 0; color: #748982; font-size: 11px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+		.status-title { margin: 8px 0 0; color: #153a32; font-size: 21px; font-weight: 760; letter-spacing: -.025em; }
+		.status-copy { max-width: 370px; margin: 10px auto 0; color: #647a73; font-size: 14px; line-height: 1.75; }
+
+		.divider { height: 1px; margin: 25px 0 19px; background: #e9f0ee; }
+
+		.trust {
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			padding: 14px 15px;
+			border: 1px solid #e4efec;
+			border-radius: 16px;
+			background: #f7fbfa;
+			text-align: left;
+		}
+
+		.trust-icon {
+			display: grid;
+			width: 34px;
+			height: 34px;
+			flex: 0 0 34px;
+			place-items: center;
+			border-radius: 11px;
+			color: #087b70;
+			background: #e4f3ef;
+		}
+
+		.trust-icon svg { width: 18px; height: 18px; }
+		.trust-title { margin: 0; color: #244b42; font-size: 12px; font-weight: 730; }
+		.trust-copy { margin: 4px 0 0; color: #71847e; font-size: 11px; line-height: 1.6; }
+
+		.footer {
+			padding: 17px 20px;
+			border-top: 1px solid #edf2f0;
+			color: #879891;
+			font-size: 11px;
+			line-height: 1.6;
 			text-align: center;
 		}
-		.qr-head .logo {
-			width: 54px; height: 54px; margin: 0 auto 12px;
-			border-radius: 16px;
-			background: rgba(255,255,255,.16);
-			display: flex; align-items: center; justify-content: center;
-			font-size: 26px;
-		}
-		.qr-head h1 { font-size: 20px; font-weight: 800; letter-spacing: .2px; }
-		.qr-head p { font-size: 13px; opacity: .85; margin-top: 2px; }
-		.qr-ok-badge {
-			display: inline-flex; align-items: center; gap: 6px;
-			margin-top: 12px; padding: 6px 14px;
-			background: rgba(255,255,255,.18);
-			border: 1px solid rgba(255,255,255,.35);
-			border-radius: 999px; font-size: 12.5px; font-weight: 700;
-		}
-		.qr-bad-badge { background: rgba(220,38,38,.25); border-color: rgba(255,255,255,.5); }
 
-		/* ================= WRAPPER ================= */
-		.qr-wrap { max-width: 720px; margin: -34px auto 0; padding: 0 16px; }
-
-		.qr-card {
-			background: #fff;
-			border-radius: 16px;
-			box-shadow: 0 18px 40px -20px rgba(15,23,42,.35);
-			overflow: hidden;
-		}
-
-		/* ================= IDENTITAS ================= */
-		.ident {
-			display: flex; gap: 16px; align-items: center;
-			padding: 22px 22px 18px;
-			border-bottom: 1px solid var(--qr-line);
-		}
-		.avatar {
-			width: 68px; height: 68px; flex: 0 0 68px;
-			border-radius: 18px;
-			background: linear-gradient(135deg, #0f766e, #14b8a6);
-			color: #fff;
-			display: flex; align-items: center; justify-content: center;
-			font-size: 28px; font-weight: 800;
-		}
-		.avatar.off { background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
-		.ident h2 { font-size: 19px; font-weight: 800; line-height: 1.25; }
-		.ident .sub { font-size: 13px; color: var(--qr-muted); margin-top: 2px; }
-
-		.tag {
-			display: inline-block; margin-top: 8px;
-			padding: 3px 10px; border-radius: 999px;
-			font-size: 11.5px; font-weight: 700; letter-spacing: .3px;
-		}
-		.tag-aktif { background: #dcfce7; color: #15803d; }
-		.tag-nonaktif { background: #fee2e2; color: #b91c1c; }
-
-		/* ================= KOLOM ================= */
-		.cols { padding: 6px 22px 10px; }
-		.row {
-			display: flex; gap: 12px;
-			padding: 10px 0;
-			border-bottom: 1px dashed var(--qr-line);
-			font-size: 14px;
-		}
-		.row:last-child { border-bottom: 0; }
-		.row .k { flex: 0 0 38%; color: var(--qr-muted); }
-		.row .v { flex: 1; font-weight: 600; word-break: break-word; }
-		.row .v.mono { letter-spacing: .6px; }
-		.row .v small { display: block; font-weight: 400; color: var(--qr-muted); font-size: 12.5px; }
-
-		/* ================= RIWAYAT ================= */
-		.blk { padding: 16px 22px 20px; border-top: 6px solid var(--qr-bg); }
-		.blk h3 {
-			font-size: 12px; font-weight: 800; letter-spacing: .8px;
-			text-transform: uppercase; color: var(--qr-muted); margin-bottom: 10px;
-		}
-		.hist { list-style: none; }
-		.hist li {
-			position: relative; padding: 0 0 14px 18px;
-			border-left: 2px solid var(--qr-line);
-			font-size: 13px;
-		}
-		.hist li:last-child { border-left-color: transparent; padding-bottom: 0; }
-		.hist li::before {
-			content: ''; position: absolute; left: -6px; top: 4px;
-			width: 10px; height: 10px; border-radius: 50%;
-			background: var(--qr-primary); border: 2px solid #fff;
-			box-shadow: 0 0 0 1px var(--qr-primary);
-		}
-		.hist .tgl { color: var(--qr-muted); font-size: 12px; }
-		.hist .ket { color: var(--qr-ink2); }
-
-		/* ================= KOSONG / ERROR ================= */
-		.msg { padding: 46px 26px; text-align: center; }
-		.msg .ico { font-size: 46px; color: #cbd5e1; margin-bottom: 12px; }
-		.msg h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-		.msg p { font-size: 14px; color: var(--qr-muted); }
-
-		.qr-foot {
-			margin-top: 16px; text-align: center;
-			font-size: 11.5px; color: var(--qr-muted); line-height: 1.7;
-		}
-		.qr-foot code { background: #e2e8f0; padding: 1px 5px; border-radius: 4px; }
-
-		@media print {
-			body { background: #fff; }
-			.qr-head { display: none; }
-			.qr-wrap { margin: 0; max-width: none; }
-			.qr-card { box-shadow: none; border: 1px solid var(--qr-line); }
-			.qr-foot { display: none; }
+		@media (max-width: 420px) {
+			body { padding: 18px 13px; }
+			.top { padding: 27px 20px 34px; }
+			.content { padding-right: 21px; padding-left: 21px; }
+			.brand { margin-bottom: 23px; }
 		}
 	</style>
 </head>
 <body>
+	<?php
+	$terverifikasi = $pegawai && isset($pegawai->status) && strtolower((string) $pegawai->status) === 'aktif';
+	?>
+	<main class="page">
+		<section class="card" aria-live="polite">
+			<header class="top">
+				<div class="brand">
+					<span class="brand-mark" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none">
+							<path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+							<path d="M5 5h14v14H5z" stroke="currentColor" stroke-width="1.3" opacity=".75"/>
+						</svg>
+					</span>
+					<span>
+						<span class="brand-name">RS AIRLANGGA</span>
+						<span class="brand-place">Jombang</span>
+					</span>
+				</div>
+				<h1 class="title">Verifikasi Kepegawaian</h1>
+				<p class="subtitle">Informasi resmi dari RS Airlangga Jombang</p>
+			</header>
 
-	<div class="qr-head">
-		<div class="logo"><i class="fas fa-hospital"></i></div>
-		<h1>Data Pegawai</h1>
-		<p>RS Airlangga &mdash; hasil pemindaian QR Code</p>
-		<?php if ($pegawai): ?>
-			<span class="qr-ok-badge"><i class="fas fa-check-circle"></i> Data ditemukan</span>
-		<?php else: ?>
-			<span class="qr-ok-badge qr-bad-badge"><i class="fas fa-times-circle"></i> Data tidak ditemukan</span>
-		<?php endif; ?>
-	</div>
-
-	<div class="qr-wrap">
-		<div class="qr-card">
-			<?php if ($pegawai): ?>
-				<?php
-				$inisial  = mb_strtoupper(mb_substr($pegawai->nama, 0, 1));
-				$off      = ($pegawai->status === 'nonaktif');
-				?>
-				<div class="ident">
-					<div class="avatar <?= $off ? 'off' : '' ?>"><?= html_escape($inisial) ?></div>
-					<div>
-						<h2><?= html_escape($pegawai->nama) ?></h2>
-						<div class="sub"><?= html_escape($pegawai->jabatan ?: 'Jabatan belum diisi') ?></div>
-						<span class="tag <?= $off ? 'tag-nonaktif' : 'tag-aktif' ?>">
-							<?= $off ? 'NONAKTIF' : 'AKTIF' ?>
-						</span>
-					</div>
+			<div class="content">
+				<div class="status-icon <?= $terverifikasi ? '' : 'invalid' ?>" aria-hidden="true">
+					<?php if ($terverifikasi): ?>
+						<svg viewBox="0 0 24 24" fill="none">
+							<path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M12 2.8 4.4 6v5.2c0 4.7 3.2 8.3 7.6 10 4.4-1.7 7.6-5.3 7.6-10V6L12 2.8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+						</svg>
+					<?php else: ?>
+						<svg viewBox="0 0 24 24" fill="none">
+							<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+							<path d="M12 7.5v5M12 16.3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						</svg>
+					<?php endif; ?>
 				</div>
 
-				<div class="cols">
-					<div class="row">
-						<div class="k">NIK</div>
-						<div class="v mono"><?= html_escape($pegawai->nik) ?></div>
-					</div>
-					<div class="row">
-						<div class="k">NIP / NRK</div>
-						<div class="v mono"><?= html_escape($pegawai->nip ?: '—') ?></div>
-					</div>
-					<div class="row">
-						<div class="k">Jenis Kelamin</div>
-						<div class="v"><?= html_escape($pegawai->jenis_kelamin) ?></div>
-					</div>
-					<div class="row">
-						<div class="k">Tempat, Tgl Lahir</div>
-						<div class="v">
-							<?= html_escape($pegawai->tempat_lahir ?: '—') ?><?php if ($pegawai->tanggal_lahir): ?>,
-							<?= date('d/m/Y', strtotime($pegawai->tanggal_lahir)) ?><?php endif; ?>
-						</div>
-					</div>
-					<div class="row">
-						<div class="k">Unit Kerja</div>
-						<div class="v"><?= html_escape($pegawai->unit_kerja ?: '—') ?></div>
-					</div>
-					<div class="row">
-						<div class="k">Status Kepegawaian</div>
-						<div class="v"><?= html_escape($pegawai->status_kepegawaian ?: '—') ?></div>
-					</div>
-					<div class="row">
-						<div class="k">Tanggal Masuk</div>
-						<div class="v">
-							<?= $pegawai->tanggal_masuk ? date('d/m/Y', strtotime($pegawai->tanggal_masuk)) : '—' ?>
-						</div>
-					</div>
-					<div class="row">
-						<div class="k">No. HP</div>
-						<div class="v"><?= html_escape($pegawai->no_hp ?: '—') ?></div>
-					</div>
-					<div class="row">
-						<div class="k">Email</div>
-						<div class="v"><?= html_escape($pegawai->email ?: '—') ?></div>
-					</div>
-					<div class="row">
-						<div class="k">Kualifikasi</div>
-						<div class="v">
-							<small><?= $pegawai->kualifikasi_pendidikan ? nl2br(html_escape($pegawai->kualifikasi_pendidikan)) : 'Belum diisi' ?></small>
-						</div>
-					</div>
-				</div>
+				<?php if ($terverifikasi): ?>
+					<p class="eyebrow">Status verifikasi</p>
+					<h2 class="status-title">Pegawai Terverifikasi</h2>
+					<p class="status-copy">QR code ini valid. Pemegang QR terdaftar sebagai pegawai aktif RS Airlangga Jombang.</p>
+				<?php else: ?>
+					<p class="eyebrow">Status verifikasi</p>
+					<h2 class="status-title">Belum Dapat Diverifikasi</h2>
+					<p class="status-copy">QR code tidak valid atau status kepegawaian tidak aktif. Silakan konfirmasi langsung kepada pihak RS Airlangga Jombang.</p>
+				<?php endif; ?>
 
-				<div class="blk">
-					<h3>Catatan Verifikasi</h3>
-					<ul class="hist">
-						<li>
-							<span class="tgl"><?= $pegawai->tanggal_masuk ? date('d/m/Y', strtotime($pegawai->tanggal_masuk)) : '—' ?></span><br>
-							<span class="ket">Bergabung dengan RS Airlangga<?= $pegawai->unit_kerja ? ' &mdash; ' . html_escape($pegawai->unit_kerja) : '' ?>.</span>
-						</li>
-						<li>
-							<span class="tgl"><?= $pegawai->updated_at ? date('d/m/Y', strtotime($pegawai->updated_at)) : '—' ?></span><br>
-							<span class="ket">Data terakhir diperbarui pada sistem.</span>
-						</li>
-						<li>
-							<span class="tgl"><?= html_escape($tgl) ?></span><br>
-							<span class="ket">QR Code ini dipindai tanpa login &mdash; jangan dibagikan kepada pihak lain.</span>
-						</li>					</ul>
+				<div class="divider"></div>
+				<div class="trust">
+					<span class="trust-icon" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none">
+							<path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+							<path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</span>
+					<span>
+						<p class="trust-title">Privasi Anda terlindungi</p>
+						<p class="trust-copy">Halaman ini hanya menampilkan hasil verifikasi. Data pribadi dan informasi kepegawaian tidak ditampilkan.</p>
+					</span>
 				</div>
-			<?php else: ?>
-				<div class="msg">
-					<div class="ico"><i class="fas fa-user-slash"></i></div>
-					<h3>Data tidak ditemukan</h3>
-					<p><?= html_escape($error) ?></p>
-				</div>
-			<?php endif; ?>
-		</div>
+			</div>
 
-		<div class="qr-foot">
-			Informasi ini dapat diakses tanpa login, namun tautannya berupa <b>token</b> acak &mdash;
-			bukan NIK, sehingga tidak bisa ditebak atau dibaca dari alamat halaman.<br>
-			Kolom lain pada data pegawai (alamat lengkap, NPWP, data keluarga) tidak ditampilkan di sini.
-		</div>
-	</div>
-
+			<footer class="footer">Verifikasi diperbarui saat QR dipindai · <?= html_escape($tgl) ?><br>Jika memerlukan konfirmasi lebih lanjut, hubungi RS Airlangga Jombang.</footer>
+		</section>
+	</main>
 </body>
 </html>
