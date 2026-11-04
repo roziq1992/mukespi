@@ -426,7 +426,7 @@ class Surat_direktur extends CI_Controller
         if (empty($_FILES['file_final']['name'])) return TRUE;
         $path = FCPATH . 'uploads/surat/' . $id . '/final/';
         if (!is_dir($path)) mkdir($path, 0755, TRUE);
-        $this->upload->initialize(array('upload_path' => $path, 'allowed_types' => 'pdf|doc|docx|jpg|png', 'max_size' => 10240, 'encrypt_name' => TRUE));
+        $this->upload->initialize(array('upload_path' => $path, 'allowed_types' => 'pdf|doc|docx|jpg|png', 'max_size' => 6144, 'encrypt_name' => TRUE));
         if (!$this->upload->do_upload('file_final')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat_direktur/proses/' . $id); return FALSE; }
         $update['file_final'] = 'uploads/surat/' . $id . '/final/' . $this->upload->data('file_name');
         return TRUE;

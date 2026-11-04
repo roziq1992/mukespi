@@ -123,7 +123,7 @@
                 </div>
                 <div class="form-group" id="unggah_dokumen_final">
                     <label>Dokumen final / hasil TTD (.pdf, .doc, .docx, .jpg, .png)</label>
-                    <small class="form-text text-muted">Opsional. Bila diunggah, dokumen ini dipakai sebagai dokumen final.</small>
+                    <small class="form-text text-muted">Opsional, maksimal 6 MB. Bila diunggah, dokumen ini dipakai sebagai dokumen final.</small>
                     <input type="file" name="file_final" class="form-control-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                 </div>
                 <button class="btn btn-primary">Simpan Aksi</button>

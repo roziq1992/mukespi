@@ -123,7 +123,7 @@ class Surat extends CI_Controller
         // Surat disposisi (undangan eksternal) tidak diberi nomor surat.
         if ($jenis === 'disposisi') $data['no_surat'] = '-';
         if (!empty($_FILES['file_draft']['name'])) {
-            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => $jenis === 'disposisi' ? 'pdf' : 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
+            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => $jenis === 'disposisi' ? 'pdf' : 'doc|docx|pdf', 'max_size' => 6144, 'encrypt_name' => TRUE);
             if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0755, TRUE);
             $this->upload->initialize($config);
             if (!$this->upload->do_upload('file_draft')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat/create'); return; }
@@ -132,7 +132,7 @@ class Surat extends CI_Controller
         $this->db->trans_start(); $id = $this->Surat_model->insert($data);
         log_surat($id, 'Pengajuan dibuat', $jenis === 'disposisi' ? 'Surat disposisi diajukan dan langsung diteruskan ke Direktur.' : 'Surat diajukan oleh pemohon.');
         $folder = $base . $id . '/lampiran/'; if (!is_dir($folder)) mkdir($folder, 0755, TRUE);
-        if (!empty($_FILES['lampiran']['name'][0])) foreach ($_FILES['lampiran']['name'] as $key => $name) { $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]); $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 10240, 'encrypt_name' => TRUE)); if ($this->upload->do_upload('one_lampiran')) { $f = $this->upload->data(); $this->Surat_lampiran_model->insert(array('id_surat' => $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s'))); } }
+        if (!empty($_FILES['lampiran']['name'][0])) foreach ($_FILES['lampiran']['name'] as $key => $name) { $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]); $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 6144, 'encrypt_name' => TRUE)); if ($this->upload->do_upload('one_lampiran')) { $f = $this->upload->data(); $this->Surat_lampiran_model->insert(array('id_surat' => $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s'))); } }
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) show_error('Pengajuan surat gagal disimpan.', 500);
 
@@ -257,7 +257,7 @@ class Surat extends CI_Controller
 
         $base = FCPATH . 'uploads/surat/';
         if ($draft_baru) {
-            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => $jenis === 'disposisi' ? 'pdf' : 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE);
+            $config = array('upload_path' => $base . 'pending/', 'allowed_types' => $jenis === 'disposisi' ? 'pdf' : 'doc|docx|pdf', 'max_size' => 6144, 'encrypt_name' => TRUE);
             if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0755, TRUE);
             $this->upload->initialize($config);
             if (!$this->upload->do_upload('file_draft')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat/edit/' . $id); return; }
@@ -282,7 +282,7 @@ class Surat extends CI_Controller
         if (!empty($_FILES['lampiran']['name'][0])) {
             foreach ($_FILES['lampiran']['name'] as $key => $name) {
                 $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]);
-                $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 10240, 'encrypt_name' => TRUE));
+                $this->upload->initialize(array('upload_path' => $folder, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 6144, 'encrypt_name' => TRUE));
                 if ($this->upload->do_upload('one_lampiran')) {
                     $f = $this->upload->data();
                     $lampiran_baru[] = array('id_surat' => (int) $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . (int) $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s'));

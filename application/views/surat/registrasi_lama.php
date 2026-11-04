@@ -40,11 +40,12 @@
                 <div class="form-group">
                     <label>Dokumen yang sudah ditandatangani (PDF) <span class="text-danger">*</span></label>
                     <input type="file" name="file_ttd" class="form-control-file" accept=".pdf" required>
-                    <small class="form-text text-muted">Wajib berformat PDF. File ini akan langsung disimpan sebagai dokumen final & sudah berkode.</small>
+                    <small class="form-text text-muted">Wajib berformat PDF, maksimal 6 MB. File ini akan langsung disimpan sebagai dokumen final & sudah berkode.</small>
                 </div>
                 <div class="form-group">
                     <label>Lampiran (Opsional)</label>
                     <input type="file" name="lampiran[]" class="form-control-file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <small class="form-text text-muted">Maksimal 6 MB per file.</small>
                 </div>
                 <div class="form-group">
                     <label>Keterangan</label>

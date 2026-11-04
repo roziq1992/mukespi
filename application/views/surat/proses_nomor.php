@@ -37,7 +37,7 @@
                 <div class="form-group">
                     <label>Berkas yang sudah ditandatangani / dokumen bernomor (.doc/.docx/.pdf)</label>
                     <input type="file" name="file_ber_nomor" class="form-control-file" accept=".doc,.docx,.pdf">
-                    <small class="form-text text-muted">Unggah berkas yang telah ditandatangani. Untuk meneruskan ke Direktur agar dapat direview dan ditandatangani, dokumen wajib PDF.</small>
+                    <small class="form-text text-muted">Unggah berkas yang telah ditandatangani (maksimal 6 MB). Untuk meneruskan ke Direktur agar dapat direview dan ditandatangani, dokumen wajib PDF.</small>
                 </div>
                 <?php if ($surat->file_ber_nomor): ?>
                     <p class="mb-2">Berkas bernomor saat ini: <a href="<?php echo site_url('surat/download/' . $surat->id . '/numbered'); ?>"><i class="fas fa-file-alt"></i> Unduh berkas</a></p>

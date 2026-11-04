@@ -87,7 +87,7 @@ class Surat_sekretaris extends CI_Controller
         if ($ada_upload) {
             $path = FCPATH . 'uploads/surat/' . $id . '/final/';
             if (!is_dir($path)) mkdir($path, 0755, TRUE);
-            $this->upload->initialize(array('upload_path' => $path, 'allowed_types' => $teruskan ? 'pdf' : 'doc|docx|pdf', 'max_size' => 5120, 'encrypt_name' => TRUE));
+            $this->upload->initialize(array('upload_path' => $path, 'allowed_types' => $teruskan ? 'pdf' : 'doc|docx|pdf', 'max_size' => 6144, 'encrypt_name' => TRUE));
             if (!$this->upload->do_upload('file_ber_nomor')) { $this->session->set_flashdata('message', $this->upload->display_errors()); redirect('surat_sekretaris/proses/' . $id); return; }
             $update['file_ber_nomor'] = 'uploads/surat/' . $id . '/final/' . $this->upload->data('file_name');
         }
@@ -302,7 +302,7 @@ class Surat_sekretaris extends CI_Controller
 
         $path_final_dir = $base . $id . '/final/';
         if (!is_dir($path_final_dir)) mkdir($path_final_dir, 0755, TRUE);
-        $config = array('upload_path' => $path_final_dir, 'allowed_types' => 'pdf', 'max_size' => 10240, 'encrypt_name' => TRUE);
+        $config = array('upload_path' => $path_final_dir, 'allowed_types' => 'pdf', 'max_size' => 6144, 'encrypt_name' => TRUE);
         $this->upload->initialize($config);
         if (!$this->upload->do_upload('file_ttd')) {
             $this->db->trans_rollback();
@@ -335,7 +335,7 @@ class Surat_sekretaris extends CI_Controller
             foreach ($_FILES['lampiran']['name'] as $key => $name) {
                 if (empty($name)) continue;
                 $_FILES['one_lampiran'] = array('name' => $_FILES['lampiran']['name'][$key], 'type' => $_FILES['lampiran']['type'][$key], 'tmp_name' => $_FILES['lampiran']['tmp_name'][$key], 'error' => $_FILES['lampiran']['error'][$key], 'size' => $_FILES['lampiran']['size'][$key]);
-                $this->upload->initialize(array('upload_path' => $folder_lamp, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 10240, 'encrypt_name' => TRUE));
+                $this->upload->initialize(array('upload_path' => $folder_lamp, 'allowed_types' => 'pdf|doc|docx|xls|xlsx|jpg|jpeg|png', 'max_size' => 6144, 'encrypt_name' => TRUE));
                 if ($this->upload->do_upload('one_lampiran')) {
                     $f = $this->upload->data();
                     $this->Surat_lampiran_model->insert(array('id_surat' => $id, 'nama_file' => $name, 'path_file' => 'uploads/surat/' . $id . '/lampiran/' . $f['file_name'], 'uploaded_by' => $this->session->userdata('id'), 'created_at' => date('Y-m-d H:i:s')));
