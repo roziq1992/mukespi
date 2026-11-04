@@ -368,9 +368,9 @@
                             <p class="pe-chart-sub">Persentase EP yang sudah punya bukti diupload dan yang sudah diberi skor</p>
                         </div>
                         <div class="pe-chart-legend">
-                            <span class="pe-lg-item"><i class="pe-lg-box pe-lg-hijau"></i> ≥ 80% Bagus</span>
-                            <span class="pe-lg-item"><i class="pe-lg-box pe-lg-kuning"></i> 30–79% Cukup</span>
-                            <span class="pe-lg-item"><i class="pe-lg-box pe-lg-merah"></i> &lt; 30% Kurang</span>
+                            <span class="pe-lg-item"><i class="pe-lg-box pe-lg-merah"></i> Merah: &lt; 60%</span>
+                            <span class="pe-lg-item"><i class="pe-lg-box pe-lg-kuning"></i> Kuning: 60–80%</span>
+                            <span class="pe-lg-item"><i class="pe-lg-box pe-lg-hijau"></i> Hijau: &gt; 80%</span>
                         </div>
                     </div>
 
@@ -381,7 +381,7 @@
                                 <div class="pe-chart-nama">Bukti Terupload</div>
                                 <div class="pe-chart-sub2">EP yang punya minimal 1 file bukti</div>
                             </div>
-                            <span class="pe-chart-total <?php echo $g_p_upload >= 80 ? 'ok' : ($g_p_upload >= 30 ? 'mid' : 'low') ?>"><?php echo $g_p_upload ?>%</span>
+                            <span class="pe-chart-total <?php echo $g_p_upload > 80 ? 'ok' : ($g_p_upload >= 60 ? 'mid' : 'low') ?>"><?php echo $g_p_upload ?>%</span>
                         </div>
                         <div class="pe-chart-wrap">
                             <canvas id="chartUpload"></canvas>
@@ -395,7 +395,7 @@
                                 <div class="pe-chart-nama">Sudah Dinilai</div>
                                 <div class="pe-chart-sub2">EP yang sudah punya skor</div>
                             </div>
-                            <span class="pe-chart-total <?php echo $g_p_nilai >= 80 ? 'ok' : ($g_p_nilai >= 30 ? 'mid' : 'low') ?>"><?php echo $g_p_nilai ?>%</span>
+                            <span class="pe-chart-total <?php echo $g_p_nilai > 80 ? 'ok' : ($g_p_nilai >= 60 ? 'mid' : 'low') ?>"><?php echo $g_p_nilai ?>%</span>
                         </div>
                         <div class="pe-chart-wrap">
                             <canvas id="chartNilai"></canvas>
@@ -449,25 +449,21 @@
                     var dataUp   = <?php echo json_encode($grafik_data['upload']); ?>;
                     var dataNil  = <?php echo json_encode($grafik_data['nilai']); ?>;
 
-                    // Ambang warna sesuai permintaan:
-                    //   >= 80%  hijau   (bagus)
-                    //   >= 30%  kuning  (cukup, < 80%)
-                    //   <  30%  merah   (kurang)
                     function warnaBatang(p) {
-                        if (p >= 80) return { bg: 'rgba(47, 191, 113, 0.85)',  border: '#1e9e55', legend: '≥ 80% Bagus' };
-                        if (p >= 30) return { bg: 'rgba(247, 183, 49, 0.85)',  border: '#e08e0b', legend: '30–79% Cukup' };
-                        return          { bg: 'rgba(236, 95, 95, 0.85)',   border: '#c0392b', legend: '< 30% Kurang' };
+                        if (p > 80) return { bg: 'rgba(47, 191, 113, 0.85)', border: '#1e9e55', legend: 'Hijau: > 80%' };
+                        if (p >= 60) return { bg: 'rgba(247, 183, 49, 0.85)', border: '#e08e0b', legend: 'Kuning: 60–80%' };
+                        return { bg: 'rgba(236, 95, 95, 0.85)', border: '#c0392b', legend: 'Merah: < 60%' };
                     }
 
                     // Chart.js v2 tidak punya property.color pada legend, jadi
                     // generate label legend manual mengikuti warna batang.
                     // Dipisah per dataset karena sebaran warna tiap grafik bisa beda.
                     function legendCustom(data) {
-                        var urut = ['≥ 80% Bagus', '30–79% Cukup', '< 30% Kurang'];
+                        var urut = ['Merah: < 60%', 'Kuning: 60–80%', 'Hijau: > 80%'];
                         var konv = {
-                            '≥ 80% Bagus': '#1e9e55',
-                            '30–79% Cukup': '#e08e0b',
-                            '< 30% Kurang': '#c0392b'
+                            'Merah: < 60%': '#c0392b',
+                            'Kuning: 60–80%': '#e08e0b',
+                            'Hijau: > 80%': '#1e9e55'
                         };
                         var ada = {};
                         for (var i = 0; i < data.length; i++) ada[warnaBatang(data[i]).legend] = true;
