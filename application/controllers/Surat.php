@@ -57,7 +57,7 @@ class Surat extends CI_Controller
     private function role()
     {
         $id = (int) $this->session->userdata('role_id');
-        return $id === 1 ? 'admin' : ($id === $this->role_sekretaris ? 'sekretaris' : ($id === $this->role_direktur ? 'direktur' : 'user'));
+        return $id === 1 ? 'admin' : ($id === $this->role_sekretaris ? 'sekretaris' : ($id === $this->role_direktur ? 'direktur' : ($id === 6 ? 'hrd' : 'user')));
     }
 
     private function filters()
@@ -70,8 +70,8 @@ class Surat extends CI_Controller
         $role = $this->role();
         if ($role === 'sekretaris') redirect('surat_sekretaris');
         if ($role === 'direktur') redirect('surat_direktur');
-        $list_role = $role === 'admin' ? 'admin' : 'user';
-        $data = array('title' => $role === 'admin' ? 'Kelola Semua Surat' : 'Surat Saya', 'surat' => $this->Surat_model->list_data($list_role, $this->session->userdata('id'), $this->filters()), 'filters' => $this->filters(), 'pending' => $this->Surat_model->pending_count($list_role, $this->session->userdata('id')), 'is_admin' => $role === 'admin', 'action' => $role === 'admin' ? 'admin' : '');
+        $list_role = in_array($role, array('admin', 'hrd'), TRUE) ? $role : 'user';
+        $data = array('title' => $role === 'admin' ? 'Kelola Semua Surat' : ($role === 'hrd' ? 'Monitoring Surat untuk Direktur' : 'Surat Saya'), 'surat' => $this->Surat_model->list_data($list_role, $this->session->userdata('id'), $this->filters()), 'filters' => $this->filters(), 'pending' => $this->Surat_model->pending_count($list_role, $this->session->userdata('id')), 'is_admin' => $role === 'admin', 'is_hrd' => $role === 'hrd', 'action' => $role === 'admin' ? 'admin' : '');
         $this->load->view('template/header', $data); $this->load->view('surat/list_user', $data); $this->load->view('template/footer');
     }
 
@@ -389,7 +389,10 @@ class Surat extends CI_Controller
     public function detail($id)
     {
         $surat = $this->Surat_model->get($id); if (!$surat) show_404();
-        $role = $this->role(); $uid = (int) $this->session->userdata('id'); $allowed = $role !== 'user' || (int) $surat->id_pemohon === $uid || $this->db->where('id_surat', $id)->where('ke_user', $uid)->count_all_results('surat_disposisi') > 0; if (!$allowed) show_error('Anda tidak memiliki akses ke surat ini.', 403);
+        $role = $this->role(); $uid = (int) $this->session->userdata('id');
+        $allowed = $role !== 'user' || (int) $surat->id_pemohon === $uid || $this->db->where('id_surat', $id)->where('ke_user', $uid)->count_all_results('surat_disposisi') > 0;
+        if ($role === 'hrd') $allowed = $this->Surat_model->can_hrd_view($surat);
+        if (!$allowed) show_error('Anda tidak memiliki akses ke surat ini.', 403);
         $pemohon = $this->db->select('name')->where('id', $surat->id_pemohon)->get('users')->row();
         $surat->pemohon = $pemohon ? $pemohon->name : '-';
         $data = array('title' => 'Tracking Surat', 'surat' => $surat, 'lampiran' => $this->Surat_lampiran_model->by_surat($id), 'logs' => $this->Surat_log_model->by_surat($id), 'disposisi' => $this->Surat_disposisi_model->by_surat($id), 'role' => $role);
@@ -400,7 +403,11 @@ class Surat extends CI_Controller
     {
         $surat = $this->Surat_model->get($id);
         if (!$surat) show_404();
-        if ($this->role() === 'user') {
+        $role = $this->role();
+        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat)) {
+            show_error('Anda tidak memiliki akses ke dokumen ini.', 403);
+        }
+        if ($role === 'user') {
             $uid = (int) $this->session->userdata('id');
             $boleh_akses = (int) $surat->id_pemohon === $uid
                 || $this->db->where('id_surat', (int) $id)->where('ke_user', $uid)->count_all_results('surat_disposisi') > 0;
@@ -426,6 +433,7 @@ class Surat extends CI_Controller
         if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id');
         if ($role === 'user' && (int) $surat->id_pemohon !== $uid) show_error('Akses ditolak.', 403);
+        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat)) show_error('Akses ditolak.', 403);
         $this->_stream_lampiran($row, FALSE);
     }
 
@@ -437,6 +445,7 @@ class Surat extends CI_Controller
         if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id');
         if ($role === 'user' && (int) $surat->id_pemohon !== $uid) show_error('Akses ditolak.', 403);
+        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat)) show_error('Akses ditolak.', 403);
 
         $ext = strtolower(pathinfo($row->nama_file, PATHINFO_EXTENSION));
         $this->_stream_lampiran($row, in_array($ext, array('pdf', 'jpg', 'jpeg', 'png'), TRUE));

@@ -3,6 +3,8 @@ if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class Surat_model extends CI_Model
 {
+    const STATUS_HRD_VISIBLE = array('Sudah Diberi Nomor', 'Diteruskan ke Direktur');
+
     public function list_data($role, $user_id, $filters = array())
     {
         $this->db->select('s.*, u.name AS pemohon, l.created_at AS last_update, lu.name AS last_update_by');
@@ -13,6 +15,7 @@ class Surat_model extends CI_Model
         if ($role === 'user') {
             $this->db->where("(s.id_pemohon = " . (int) $user_id . " OR EXISTS (SELECT 1 FROM surat_disposisi sd WHERE sd.id_surat = s.id AND sd.ke_user = " . (int) $user_id . "))", NULL, FALSE);
         }
+        if ($role === 'hrd') $this->db->where_in('s.status', self::STATUS_HRD_VISIBLE);
         // Sekretaris melihat antrian aktif sekaligus riwayat surat yang sudah diteruskan.
         // Direktur melihat antrian aktif sekaligus riwayat surat yang pernah diterima.
         if (!empty($filters['status'])) $this->db->where('s.status', $filters['status']);
@@ -34,7 +37,12 @@ class Surat_model extends CI_Model
         if ($role === 'admin') $this->db->where_not_in('status', array('Selesai', 'Ditandatangani', 'Ditolak'));
         if ($role === 'sekretaris') $this->db->where_in('status', array('Diajukan', 'Diproses Sekretaris'));
         if ($role === 'direktur') $this->db->where_in('status', array('Sudah Diberi Nomor', 'Diteruskan ke Direktur'));
+        if ($role === 'hrd') $this->db->where_in('status', self::STATUS_HRD_VISIBLE);
         return $this->db->count_all_results();
+    }
+    public function can_hrd_view($surat)
+    {
+        return $surat && in_array($surat->status, self::STATUS_HRD_VISIBLE, TRUE);
     }
     public function users()
     {
