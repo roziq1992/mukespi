@@ -141,7 +141,7 @@ if (trim($q) !== '') {
                             }
                             $label = $s->no_standar . ' - ' . $s->isi_standar;
                             ?>
-                            <option value="<?php echo (int)$s->id_standar; ?>" data-search="<?php echo html_escape($s->bab . ' ' . $label); ?>" <?php echo ((int)$filter['id_standar'] === (int)$s->id_standar) ? 'selected' : ''; ?>><?php echo html_escape($label); ?></option>
+                            <option value="<?php echo (int)$s->id_standar; ?>" data-search="<?php echo html_escape($s->bab . ' ' . $label); ?>" data-full-label="<?php echo html_escape($label); ?>" <?php echo ((int)$filter['id_standar'] === (int)$s->id_standar) ? 'selected' : ''; ?>><?php echo html_escape($s->no_standar); ?></option>
                             <?php
                         endforeach;
                         if ($grup_bab !== null) {
@@ -150,6 +150,7 @@ if (trim($q) !== '') {
                         ?>
                     </select>
                     <small class="form-text text-muted" id="filter_info_standar"></small>
+                    <div class="small text-muted border rounded bg-light p-2 mt-2" id="filter_detail_standar" style="max-height: 4.5em; overflow-y: auto; overflow-wrap: anywhere;"></div>
                 </div>
                 <div class="col-md-2 mb-2">
                     <label class="small mb-1">Jenis Bukti</label>
@@ -233,7 +234,8 @@ if (trim($q) !== '') {
         MasterEp.initStandarPicker({
             input: '#filter_cari_standar',
             select: '#filter_standar',
-            info: '#filter_info_standar'
+            info: '#filter_info_standar',
+            detail: '#filter_detail_standar'
         });
     });
 </script>
