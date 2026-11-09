@@ -46,7 +46,7 @@
                                         $label .= ' (Nonaktif)';
                                     }
                                     ?>
-                                    <option value="<?php echo (int)$s->id_standar; ?>" data-search="<?php echo html_escape($s->bab . ' ' . $label); ?>" <?php echo ($id_standar == $s->id_standar) ? 'selected' : ''; ?>><?php echo html_escape($label); ?></option>
+                                    <option value="<?php echo (int)$s->id_standar; ?>" data-search="<?php echo html_escape($s->bab . ' ' . $label); ?>" data-full-label="<?php echo html_escape($label); ?>" <?php echo ($id_standar == $s->id_standar) ? 'selected' : ''; ?>><?php echo html_escape($s->no_standar . ($s->active !== 'Y' ? ' (Nonaktif)' : '')); ?></option>
                                     <?php
                                 endforeach;
                                 if ($grup_bab !== null) {
@@ -55,6 +55,7 @@
                                 ?>
                             </select>
                             <small class="form-text text-muted" id="info_standar"></small>
+                            <div class="small text-muted border rounded bg-light p-2 mt-2" id="detail_standar" style="max-height: 4.5em; overflow-y: auto; overflow-wrap: anywhere;"></div>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -112,7 +113,8 @@
         MasterEp.initStandarPicker({
             input: '#cari_standar',
             select: '#pilih_standar',
-            info: '#info_standar'
+            info: '#info_standar',
+            detail: '#detail_standar'
         });
     });
 </script>

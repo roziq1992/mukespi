@@ -21,6 +21,7 @@
         var input = opts.input ? document.querySelector(opts.input) : null;
         var select = opts.select ? document.querySelector(opts.select) : null;
         var info = opts.info ? document.querySelector(opts.info) : null;
+        var detail = opts.detail ? document.querySelector(opts.detail) : null;
 
         if (!input || !select) {
             return;
@@ -61,6 +62,7 @@
         function apply() {
             var q = input.value.trim().toLowerCase();
             var visible = 0;
+            selected = select.value || selected;
 
             select.innerHTML = '';
             if (placeholder) {
@@ -109,9 +111,18 @@
                     info.textContent = visible + ' dari ' + total + ' standar cocok "' + q + '"';
                 }
             }
+
+            if (detail) {
+                var selectedOption = select.options[select.selectedIndex];
+                detail.textContent = selectedOption && selectedOption.value !== ''
+                    ? (selectedOption.getAttribute('data-full-label') || selectedOption.textContent)
+                    : '';
+                detail.style.display = detail.textContent ? '' : 'none';
+            }
         }
 
         input.addEventListener('input', apply);
+        select.addEventListener('change', apply);
 
         // Enter di kotak pencarian tidak boleh submits form.
         input.addEventListener('keydown', function (e) {
