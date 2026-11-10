@@ -26,6 +26,22 @@
     .pe2-header .pe2-breadcrumb a { color: #fff; text-decoration: underline; }
     .pe2-header h2 { margin: 0; font-size: 1.2rem; font-weight: 700; }
     .pe2-header p { margin: 4px 0 0; font-size: 0.82rem; opacity: 0.9; }
+    .pe2-master-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .pe2-master-link {
+        display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px;
+        border: 1px solid #dcc9f2; border-radius: 8px; background: #f7f2fc;
+        color: #5a3487; font-size: .78rem; font-weight: 700; text-decoration: none;
+    }
+    .pe2-master-link:hover { background: #eee3f8; color: #3d2266; text-decoration: none; }
+    .pe2-master-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 14px 10px 50px; }
+    .pe2-master-actions .pe2-master-link { padding: 4px 9px; font-size: .7rem; }
+    .pe2-ep-edit { color: #6a3fa0; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+    .pe2-edit-window { margin-bottom: 16px; padding: 12px 14px; border-radius: 9px; font-size: .82rem; }
+    .pe2-edit-window.open { color: #17653b; background: #eaf7ef; border: 1px solid #c9ead5; }
+    .pe2-edit-window.closed { color: #4a5b70; background: #eef2f7; border: 1px solid #dce3eb; }
+    .pe2-edit-window-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin-top: 10px; }
+    .pe2-edit-window-form label { display: block; margin-bottom: 4px; font-size: .7rem; font-weight: 700; }
+    .pe2-edit-window-form input { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: .78rem; }
     .pe2-btn-summary {
         background: rgba(255,255,255,0.16);
         border: 1px solid rgba(255,255,255,0.35);
@@ -568,16 +584,20 @@
 <?php
     // Kelompokkan EP per Standar supaya tiap standar bisa di-minimize sendiri2
     $grup_standar = array();
+    foreach ($standar_list as $standar) {
+        $kunci = (int)$standar->id_standar;
+        $grup_standar[$kunci] = array(
+            'id_standar'  => $kunci,
+            'no_standar'  => $standar->no_standar,
+            'isi_standar' => $standar->isi_standar,
+            'ep'          => array(),
+        );
+    }
     foreach ($ep_list as $ep) {
-        $kunci = (string) $ep->no_standar;
-        if (!isset($grup_standar[$kunci])) {
-            $grup_standar[$kunci] = array(
-                'no_standar'  => $ep->no_standar,
-                'isi_standar' => $ep->isi_standar,
-                'ep'          => array(),
-            );
+        $kunci = (int)$ep->id_standar;
+        if (isset($grup_standar[$kunci])) {
+            $grup_standar[$kunci]['ep'][] = $ep;
         }
-        $grup_standar[$kunci]['ep'][] = $ep;
     }
 
     // EP yang siap diinput = belum dinilai di track user yang sedang login
@@ -632,10 +652,62 @@
                 </div>
             <?php endif; ?>
 
-            <?php if (empty($ep_list)): ?>
-                <div class="pe2-empty-file">Belum ada elemen penilaian untuk pokja ini.</div>
+            <?php if (!empty($is_admin)): ?>
+                <div class="pe2-edit-window closed">
+                    <strong><i class="fas fa-user-shield"></i> Akses master admin selalu aktif.</strong>
+                    Jadwal di bawah ini menentukan kapan pengguna yang ditugaskan ke Pokja ini dapat mengedit Standar dan EP.
+                </div>
+            <?php elseif (!empty($boleh_kelola_master)): ?>
+                <div class="pe2-edit-window open">
+                    <strong><i class="fas fa-lock-open"></i> Pengeditan Standar dan EP dibuka.</strong>
+                    Anda dapat mengubah master pada Pokja ini sampai
+                    <strong><?php echo html_escape(date('d-m-Y H:i', strtotime($master_edit_window->ends_at))); ?></strong>.
+                </div>
             <?php else: ?>
+                <div class="pe2-edit-window closed">
+                    <strong><i class="fas fa-lock"></i> Pengeditan Standar dan EP sedang ditutup.</strong>
+                    Pengeditan hanya tersedia bagi pengguna yang ditugaskan ke Pokja ini selama jadwal yang ditentukan admin.
+                </div>
+            <?php endif; ?>
 
+            <?php if (!empty($is_admin)): ?>
+                <?php
+                    $window_start = $master_edit_window && !empty($master_edit_window->starts_at)
+                        ? date('Y-m-d\TH:i', strtotime($master_edit_window->starts_at)) : '';
+                    $window_end = $master_edit_window && !empty($master_edit_window->ends_at)
+                        ? date('Y-m-d\TH:i', strtotime($master_edit_window->ends_at)) : '';
+                ?>
+                <div class="pe2-edit-window closed">
+                    <strong><i class="fas fa-clock"></i> Atur jadwal edit Standar dan EP</strong>
+                    <form class="pe2-edit-window-form" method="post" action="<?php echo site_url('penilaian_ep/set_master_edit_window'); ?>">
+                        <input type="hidden" name="id_pokja" value="<?php echo (int)$pokja->id; ?>">
+                        <div>
+                            <label for="peEditStartsAt">Mulai</label>
+                            <input id="peEditStartsAt" type="datetime-local" name="starts_at" value="<?php echo html_escape($window_start); ?>">
+                        </div>
+                        <div>
+                            <label for="peEditEndsAt">Selesai</label>
+                            <input id="peEditEndsAt" type="datetime-local" name="ends_at" value="<?php echo html_escape($window_end); ?>">
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Simpan Jadwal</button>
+                    </form>
+                    <small class="d-block mt-2">Kosongkan kedua waktu dan simpan untuk menutup jadwal. Pengaturan jadwal tidak membatasi hak admin.</small>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($boleh_kelola_master)): ?>
+                <div class="pe2-master-toolbar">
+                    <a class="pe2-master-link" href="<?php echo site_url('master_ep/standar_form') . '?penilaian_bab=' . rawurlencode($pokja->bab); ?>">
+                        <i class="fas fa-plus"></i> Tambah Standar
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <?php if (empty($standar_list)): ?>
+                <div class="pe2-empty-file">Belum ada standar aktif untuk pokja ini.</div>
+            <?php endif; ?>
+
+            <?php if (!empty($ep_list)): ?>
                 <div class="pe2-toolbar">
                     <div class="pe2-search-wrap">
                         <span class="pe2-search-icon">🔍</span>
@@ -657,6 +729,7 @@
                 <div class="pe2-no-result" id="peNoResult">
                     🔎 EP tidak ditemukan. Coba kata kunci lain atau klik <strong>Buka Semua Standar</strong>.
                 </div>
+            <?php endif; ?>
 
                 <?php $grup_idx = 0; ?>
                 <?php foreach ($grup_standar as $grup):
@@ -670,7 +743,7 @@
                     }
                     $persen_grup = $total_grup > 0 ? round($sudah_grup / $total_grup * 100) : 0;
                     // standar yang belum tuntas otomatis dibuka, yang sudah tuntas default minimize
-                    $default_open = ($sudah_grup < $total_grup) ? 1 : 0;
+                    $default_open = ($total_grup === 0 || $sudah_grup < $total_grup) ? 1 : 0;
                 ?>
                 <div class="pe2-standar<?php echo $default_open ? ' pe2-standar-open' : '' ?>"
                      data-standar="<?php echo html_escape((string) $grup_idx) ?>"
@@ -690,8 +763,21 @@
                         </span>
                     </div>
 
+                    <?php if (!empty($boleh_kelola_master)): ?>
+                        <div class="pe2-master-actions">
+                            <a class="pe2-master-link" href="<?php echo site_url('master_ep/standar_form/' . $grup['id_standar']) . '?penilaian_bab=' . rawurlencode($pokja->bab); ?>">
+                                <i class="fas fa-pen"></i> Edit Standar
+                            </a>
+                            <a class="pe2-master-link" href="<?php echo site_url('master_ep/elemen_form') . '?penilaian_bab=' . rawurlencode($pokja->bab) . '&id_standar=' . (int)$grup['id_standar']; ?>">
+                                <i class="fas fa-plus"></i> Tambah EP
+                            </a>
+                        </div>
+                    <?php endif; ?>
                     <div class="pe2-standar-bar"><span style="width: <?php echo $persen_grup ?>%"></span></div>
                     <div class="pe2-standar-body">
+                <?php if (empty($ep_grup)): ?>
+                    <div class="pe2-empty-file">Belum ada EP pada standar ini.</div>
+                <?php endif; ?>
                 <?php foreach ($ep_grup as $ep):
                     $skor_maks = intval($ep->skor_maks);
                     $skor_half = (int) round($skor_maks / 2);
@@ -727,6 +813,11 @@
                         <span class="pe2-status-badge <?php echo $sudah_dinilai ? 'pe2-status-sudah' : 'pe2-status-belum' ?>" id="status-badge-<?php echo $ep->id_ep ?>">
                             <?php echo $sudah_dinilai ? 'Sudah Dinilai' : 'Belum Dinilai' ?>
                         </span>
+                        <?php if (!empty($boleh_kelola_master)): ?>
+                            <a class="pe2-ep-edit" href="<?php echo site_url('master_ep/elemen_form/' . (int)$ep->id_ep) . '?penilaian_bab=' . rawurlencode($pokja->bab) . '&id_standar=' . (int)$grup['id_standar']; ?>">
+                                <i class="fas fa-pen"></i> Edit EP
+                            </a>
+                        <?php endif; ?>
                     </div>
 
                     <div class="pe2-track-label"><?php echo $jenis_saya === 'surveior' ? 'Skor Anda (Surveior)' : 'Skor Anda (Internal)' ?></div>
@@ -784,7 +875,6 @@
                     </div><!-- /.pe2-standar-body -->
                 </div><!-- /.pe2-standar -->
                 <?php endforeach; ?>
-            <?php endif; ?>
         </div>
     </div>
 </div>

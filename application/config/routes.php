@@ -109,6 +109,7 @@ $route['master_ep/pokja_delete/(:num)'] = 'master_ep/pokja_delete/$1';
 $route['master_ep/pokja_toggle/(:num)/(:any)'] = 'master_ep/pokja_toggle/$1/$2';
 $route['master_ep/pokja_standar'] = 'master_ep/pokja_standar';
 $route['master_ep/pokja_standar/(:num)'] = 'master_ep/pokja_standar/$1';
+$route['penilaian_ep/set_master_edit_window'] = 'penilaian_ep/set_master_edit_window';
 $route['master_ep/rapikan_urutan'] = 'master_ep/rapikan_urutan';
 $route['master_ep/rapikan_urutan/(:num)'] = 'master_ep/rapikan_urutan/$1';
 $route['master_ep/standar'] = 'master_ep/standar';

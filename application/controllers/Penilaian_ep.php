@@ -23,8 +23,8 @@ if (!defined('BASEPATH'))
  * ke track yang berbeda (kolom jenis_penilaian di tabel penilaian_ep), supaya bisa
  * dibandingkan tanpa saling menimpa.
  *
- * Master table (pokja, standar, elemen_penilaian, periode_akreditasi)
- * TIDAK dibuatkan CRUD di sini — sudah diisi manual lewat query.
+ * Master Standar/EP dapat dikelola dari halaman Pokja; admin mengatur jadwal
+ * edit dan user yang ditugaskan ke Pokja dapat mengedit selama jadwal aktif.
  * Pastikan minimal ada 1 baris di periode_akreditasi dengan status = 'aktif'
  * supaya modul ini bisa dites, dan sudah jalankan migrasi_jenis_penilaian.sql.
  */
@@ -69,6 +69,16 @@ class Penilaian_ep extends CI_Controller
     private function _is_admin()
     {
         return (int) $this->session->userdata('role_id') == $this->ROLE_ID_ADMIN;
+    }
+
+    private function _edit_window_open($window)
+    {
+        if (!$window || empty($window->starts_at) || empty($window->ends_at)) {
+            return FALSE;
+        }
+
+        $now = date('Y-m-d H:i:s');
+        return $now >= $window->starts_at && $now <= $window->ends_at;
     }
 
     // ================= AKSES PER POKJA =================
@@ -266,11 +276,20 @@ class Penilaian_ep extends CI_Controller
 
         $id_pokja    = intval($pokja->id);
         $boleh_nilai = $this->_boleh_nilai_pokja($id_pokja);
+        $master_edit_window = $this->Penilaian_ep_model->get_master_edit_window($id_pokja);
+        $assigned_pokja = $this->User_pokja_ep_model->get_pokja_ids_by_user((int)$this->session->userdata('id'));
+        $boleh_kelola_master = $this->_is_admin() || (
+            in_array($id_pokja, $assigned_pokja, TRUE)
+            && $this->_edit_window_open($master_edit_window)
+        );
 
         $data = array(
             'periode'         => $periode,
             'pokja'           => $pokja,
+            'standar_list'    => $this->Penilaian_ep_model->get_standar_by_pokja($bab),
             'ep_list'         => $this->Penilaian_ep_model->get_ep_by_pokja($bab, $periode->id_periode),
+            'master_edit_window' => $master_edit_window,
+            'boleh_kelola_master' => $boleh_kelola_master,
             'jenis_saya'      => $this->_jenis_penilaian_saya(),
             'is_surveior'     => $this->_is_surveior(),
             'is_admin'        => $this->_is_admin(),
@@ -283,6 +302,66 @@ class Penilaian_ep extends CI_Controller
         $this->load->view('template/header', $data);
         $this->load->view('penilaian_ep/penilaian_ep_ep', $data);
         $this->load->view('template/footer');
+    }
+
+    public function set_master_edit_window()
+    {
+        if (!$this->_is_admin()) {
+            show_error('Hanya admin yang dapat mengatur jadwal edit Standar dan EP.', 403);
+            return;
+        }
+        if ($this->input->method() !== 'post') {
+            show_404();
+            return;
+        }
+
+        $id_pokja = (int)$this->input->post('id_pokja', TRUE);
+        $pokja = $this->db->where('id', $id_pokja)->where('active', 'Y')->get('pokja')->row();
+        if (!$pokja) {
+            $this->session->set_flashdata('message', '<div class="pe2-flash">Pokja tidak ditemukan atau tidak aktif.</div>');
+            redirect(site_url('penilaian_ep'));
+            return;
+        }
+
+        $mulai_input = trim((string)$this->input->post('starts_at', TRUE));
+        $selesai_input = trim((string)$this->input->post('ends_at', TRUE));
+        $mulai = $mulai_input === '' ? NULL : $this->_parse_datetime_local($mulai_input);
+        $selesai = $selesai_input === '' ? NULL : $this->_parse_datetime_local($selesai_input, TRUE);
+
+        if (($mulai_input !== '' && $mulai === FALSE)
+            || ($selesai_input !== '' && $selesai === FALSE)
+            || (($mulai === NULL) !== ($selesai === NULL))
+            || ($mulai !== NULL && $selesai <= $mulai)) {
+            $this->session->set_flashdata('message', '<div class="pe2-flash">Jadwal tidak valid. Isi tanggal mulai dan selesai dengan benar, atau kosongkan keduanya untuk menutup akses edit.</div>');
+            redirect(site_url('penilaian_ep/pokja/' . rawurlencode($pokja->bab)));
+            return;
+        }
+
+        if (!$this->Penilaian_ep_model->save_master_edit_window(
+            $id_pokja,
+            $mulai,
+            $selesai,
+            (int)$this->session->userdata('id')
+        )) {
+            log_message('error', 'Gagal menyimpan jadwal edit master Penilaian EP untuk pokja ' . $id_pokja);
+            $this->session->set_flashdata('message', '<div class="pe2-flash">Jadwal edit gagal disimpan. Silakan coba lagi.</div>');
+        } else {
+            $this->session->set_flashdata('message', '<div class="pe2-flash">' . ($mulai === NULL
+                ? 'Akses edit Standar dan EP untuk pokja ini telah ditutup.'
+                : 'Jadwal edit Standar dan EP berhasil disimpan.') . '</div>');
+        }
+        redirect(site_url('penilaian_ep/pokja/' . rawurlencode($pokja->bab)));
+    }
+
+    private function _parse_datetime_local($value, $sampai_akhir_menit = FALSE)
+    {
+        $date = DateTime::createFromFormat('!Y-m-d\TH:i', $value);
+        $errors = DateTime::getLastErrors();
+        if (!$date || ($errors && ($errors['warning_count'] || $errors['error_count']))
+            || $date->format('Y-m-d\TH:i') !== $value) {
+            return FALSE;
+        }
+        return $date->format('Y-m-d H:i') . ($sampai_akhir_menit ? ':59' : ':00');
     }
 
     // rekap perbandingan skor Internal vs Surveior per pokja

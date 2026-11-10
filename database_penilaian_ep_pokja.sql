@@ -29,6 +29,22 @@ CREATE TABLE IF NOT EXISTS `user_pokja_ep` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ---------------------------------------------------------------------
+-- Jadwal edit master Standar & EP per Pokja.
+-- Admin mengatur periode; user yang sudah ditugaskan ke Pokja dapat
+-- mengubah Standar/EP hanya selama starts_at sampai ends_at.
+-- starts_at dan ends_at NULL berarti akses edit ditutup.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `penilaian_ep_master_edit_window` (
+  `id_pokja`   int(2) NOT NULL,
+  `starts_at`  datetime DEFAULT NULL,
+  `ends_at`    datetime DEFAULT NULL,
+  `updated_by` bigint(20) unsigned NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id_pokja`),
+  KEY `idx_edit_window` (`starts_at`, `ends_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ---------------------------------------------------------------------
 -- Menu: Akses Pokja Penilaian (hanya admin yang boleh kelola)
 -- CATATAN: tabel menus tidak AUTO_INCREMENT, jadi id diisi manual = max+1
 -- ---------------------------------------------------------------------

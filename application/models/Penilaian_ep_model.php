@@ -24,6 +24,33 @@ class Penilaian_ep_model extends CI_Model
         return $this->db->where('bab', $bab)->where('active', 'Y')->get('pokja')->row();
     }
 
+    public function get_master_edit_window($id_pokja)
+    {
+        return $this->db->where('id_pokja', (int)$id_pokja)
+                        ->get('penilaian_ep_master_edit_window')
+                        ->row();
+    }
+
+    public function save_master_edit_window($id_pokja, $mulai, $selesai, $updated_by)
+    {
+        $id_pokja = (int)$id_pokja;
+        $existing = $this->get_master_edit_window($id_pokja);
+        $data = array(
+            'starts_at' => $mulai,
+            'ends_at' => $selesai,
+            'updated_by' => (int)$updated_by,
+            'updated_at' => date('Y-m-d H:i:s'),
+        );
+
+        if ($existing) {
+            return $this->db->where('id_pokja', $id_pokja)
+                            ->update('penilaian_ep_master_edit_window', $data);
+        }
+
+        $data['id_pokja'] = $id_pokja;
+        return $this->db->insert('penilaian_ep_master_edit_window', $data);
+    }
+
     // Daftar pokja + progres skor untuk periode berjalan, KHUSUS 1 jenis penilaian
     // ($jenis_penilaian = 'internal' atau 'surveior' -- ditentukan controller berdasar role user)
     public function get_pokja_progress($id_periode, $jenis_penilaian = 'internal')
@@ -74,12 +101,23 @@ class Penilaian_ep_model extends CI_Model
 
     // ================= EP =================
 
+    public function get_standar_by_pokja($bab)
+    {
+        return $this->db->select('id_standar, no_standar, isi_standar')
+                        ->where('bab', $bab)
+                        ->where('active', 'Y')
+                        ->order_by('no_standar + 0', 'ASC', FALSE)
+                        ->order_by('id_standar', 'ASC')
+                        ->get('standar')
+                        ->result();
+    }
+
     // Daftar EP 1 pokja, sudah sekalian bawa DUA track skor (internal & surveior)
     // supaya bisa ditampilkan berdampingan untuk dibandingkan.
     public function get_ep_by_pokja($bab, $id_periode)
     {
         $this->db->select("
-                standar.no_standar, standar.isi_standar,
+                standar.id_standar, standar.no_standar, standar.isi_standar,
                 ep.id_ep, ep.no_ep, ep.no_urut, ep.isi_ep, ep.skor_maks,
 
                 pi.id_penilaian AS id_penilaian_internal,

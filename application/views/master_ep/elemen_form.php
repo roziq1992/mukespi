@@ -10,7 +10,7 @@
             <?php echo validation_errors('<div class="alert alert-danger">', '</div>'); ?>
             <?php
             $id = isset($row->id_ep) ? (int)$row->id_ep : 0;
-            $id_standar = set_value('id_standar', isset($row->id_standar) ? $row->id_standar : '');
+            $id_standar = set_value('id_standar', isset($row->id_standar) ? $row->id_standar : (!empty($context_standar) ? $context_standar : ''));
             $no_ep = set_value('no_ep', isset($row->no_ep) ? $row->no_ep : '');
             $isi_ep = set_value('isi_ep', isset($row->isi_ep) ? $row->isi_ep : '');
             $jenis_bukti = set_value('jenis_bukti', isset($row->jenis_bukti) ? $row->jenis_bukti : 'R');
@@ -18,6 +18,10 @@
             $active = set_value('active', isset($row->active) ? $row->active : 'Y');
             ?>
             <form method="post" action="<?php echo site_url('master_ep/elemen_form/' . $id); ?>">
+                <?php if (!empty($penilaian_bab)): ?>
+                    <input type="hidden" name="penilaian_bab" value="<?php echo html_escape($penilaian_bab); ?>">
+                    <input type="hidden" name="context_standar" value="<?php echo (int)$context_standar; ?>">
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
@@ -100,7 +104,7 @@
 
                 <div class="mt-3">
                     <button type="submit" class="btn btn-primary">Simpan</button>
-                    <a href="<?php echo site_url('master_ep/elemen'); ?>" class="btn btn-secondary">Kembali</a>
+                    <a href="<?php echo !empty($penilaian_bab) ? site_url('penilaian_ep/pokja/' . rawurlencode($penilaian_bab)) : site_url('master_ep/elemen'); ?>" class="btn btn-secondary">Kembali</a>
                 </div>
             </form>
         </div>

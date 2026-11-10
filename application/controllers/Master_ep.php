@@ -10,7 +10,46 @@ class Master_ep extends CI_Controller
         parent::__construct();
         is_logged_in();
         $this->load->model('Master_ep_model');
+        $this->load->model('Penilaian_ep_model');
+        $this->load->model('User_pokja_ep_model');
         $this->load->helper('form');
+    }
+
+    private function _valid_penilaian_context($bab)
+    {
+        if ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN) {
+            return TRUE;
+        }
+
+        if ($bab === '') {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Perubahan Standar dan EP hanya dapat dilakukan pada Pokja yang ditugaskan dan saat jadwal edit dibuka.</div>');
+            redirect(site_url('penilaian_ep'));
+            return FALSE;
+        }
+
+        $pokja = $this->db->where('bab', $bab)->where('active', 'Y')->get('pokja')->row();
+        if (!$pokja) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Pokja tidak ditemukan atau tidak aktif.</div>');
+            redirect(site_url('penilaian_ep'));
+            return FALSE;
+        }
+
+        $id_user = (int)$this->session->userdata('id');
+        $pokja_ids = $this->User_pokja_ep_model->get_pokja_ids_by_user($id_user);
+        $window = $this->Penilaian_ep_model->get_master_edit_window($pokja->id);
+        $now = date('Y-m-d H:i:s');
+        if (!in_array((int)$pokja->id, $pokja_ids, TRUE)
+            || !$window
+            || empty($window->starts_at)
+            || empty($window->ends_at)
+            || $now < $window->starts_at
+            || $now > $window->ends_at) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Anda hanya dapat mengubah Standar dan EP pada Pokja yang ditugaskan selama jadwal edit dibuka.</div>');
+            redirect(site_url('penilaian_ep/pokja/' . rawurlencode($bab)));
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     public function index()
@@ -184,6 +223,24 @@ class Master_ep extends CI_Controller
     {
         $id = (int)$id;
         $row = $id > 0 ? $this->Master_ep_model->get_standar_by_id($id) : NULL;
+        $penilaian_bab = trim((string)($this->input->method() === 'post'
+            ? $this->input->post('penilaian_bab', TRUE)
+            : $this->input->get('penilaian_bab', TRUE)));
+        $target_bab = $penilaian_bab !== ''
+            ? $penilaian_bab
+            : ($row ? $row->bab : trim((string)$this->input->post('bab', TRUE)));
+
+        if (!$this->_valid_penilaian_context($target_bab)) {
+            return;
+        }
+        if ($id > 0 && (!$row || $row->bab !== $target_bab)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Standar tidak ditemukan dalam pokja yang dipilih.</div>');
+            redirect(site_url('penilaian_ep/pokja/' . rawurlencode($target_bab)));
+            return;
+        }
+        if ($penilaian_bab === '' && (int)$this->session->userdata('role_id') !== $this->ROLE_ID_ADMIN) {
+            $penilaian_bab = $target_bab;
+        }
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('bab', 'BAB', 'trim|required');
@@ -195,6 +252,7 @@ class Master_ep extends CI_Controller
             $data = array(
                 'title' => $id > 0 ? 'Ubah Standar' : 'Tambah Standar',
                 'row' => $row,
+                'penilaian_bab' => $penilaian_bab,
                 'pokja_list' => $this->Master_ep_model->get_pokja_options((int)$this->session->userdata('id')),
             );
             $this->load->view('template/header', $data);
@@ -204,7 +262,7 @@ class Master_ep extends CI_Controller
         }
 
         $data = array(
-            'bab' => trim($this->input->post('bab', TRUE)),
+            'bab' => $penilaian_bab !== '' ? $penilaian_bab : trim($this->input->post('bab', TRUE)),
             'no_standar' => trim($this->input->post('no_standar', TRUE)),
             'isi_standar' => trim($this->input->post('isi_standar', TRUE)),
             'maksud_tujuan' => trim($this->input->post('maksud_tujuan', TRUE)),
@@ -213,7 +271,9 @@ class Master_ep extends CI_Controller
 
         $this->Master_ep_model->save_standar($data, $id);
         $this->session->set_flashdata('message', '<div class="alert alert-success">Data standar berhasil disimpan.</div>');
-        redirect(site_url('master_ep/standar'));
+        redirect($penilaian_bab !== ''
+            ? site_url('penilaian_ep/pokja/' . rawurlencode($penilaian_bab))
+            : site_url('master_ep/standar'));
     }
 
     public function standar_delete($id)
@@ -226,6 +286,9 @@ class Master_ep extends CI_Controller
             return;
         }
 
+        if (!$this->_valid_penilaian_context($row->bab)) {
+            return;
+        }
         $this->Master_ep_model->set_standar_active($id, 'N');
         $this->session->set_flashdata('message', '<div class="alert alert-warning">Standar <strong>' . html_escape($row->no_standar) . '</strong> dinonaktifkan, bukan dihapus permanen dari database.</div>');
         redirect(site_url('master_ep/standar'));
@@ -234,6 +297,14 @@ class Master_ep extends CI_Controller
     public function standar_toggle($id, $active)
     {
         $id = (int)$id;
+        $row = $this->Master_ep_model->get_standar_by_id($id);
+        if (!$row) {
+            show_404();
+            return;
+        }
+        if (!$this->_valid_penilaian_context($row->bab)) {
+            return;
+        }
         $active = $active === 'N' ? 'N' : 'Y';
         $this->Master_ep_model->set_standar_active($id, $active);
         redirect(site_url('master_ep/standar'));
@@ -256,6 +327,10 @@ class Master_ep extends CI_Controller
         if (!$standar) {
             $this->session->set_flashdata('message', '<div class="alert alert-danger">Standar tidak ditemukan.</div>');
             redirect(site_url('master_ep/standar'));
+            return;
+        }
+
+        if (!$this->_valid_penilaian_context($standar->bab)) {
             return;
         }
 
@@ -376,6 +451,33 @@ class Master_ep extends CI_Controller
     {
         $id = (int)$id;
         $row = $id > 0 ? $this->Master_ep_model->get_elemen_by_id($id) : NULL;
+        $penilaian_bab = trim((string)($this->input->method() === 'post'
+            ? $this->input->post('penilaian_bab', TRUE)
+            : $this->input->get('penilaian_bab', TRUE)));
+        $context_standar = (int)($this->input->method() === 'post'
+            ? $this->input->post('context_standar', TRUE)
+            : $this->input->get('id_standar', TRUE));
+        $standar_asal = $row ? $this->Master_ep_model->get_standar_by_id($row->id_standar) : NULL;
+        $requested_standar_id = (int)($this->input->method() === 'post'
+            ? $this->input->post('id_standar', TRUE)
+            : $this->input->get('id_standar', TRUE));
+        $standar_konteks = $standar_asal
+            ? $standar_asal
+            : ($requested_standar_id > 0 ? $this->Master_ep_model->get_standar_by_id($requested_standar_id) : NULL);
+        $target_bab = $penilaian_bab !== ''
+            ? $penilaian_bab
+            : ($standar_konteks ? $standar_konteks->bab : '');
+        if (!$this->_valid_penilaian_context($target_bab)) {
+            return;
+        }
+        if ($standar_asal && $standar_asal->bab !== $target_bab) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">EP tidak ditemukan dalam pokja yang dipilih.</div>');
+            redirect(site_url('penilaian_ep/pokja/' . rawurlencode($target_bab)));
+            return;
+        }
+        if ($penilaian_bab === '' && (int)$this->session->userdata('role_id') !== $this->ROLE_ID_ADMIN) {
+            $penilaian_bab = $target_bab;
+        }
         $user_id = (int)$this->session->userdata('id');
         $is_admin = ((int)$this->session->userdata('role_id') === $this->ROLE_ID_ADMIN);
 
@@ -391,7 +493,9 @@ class Master_ep extends CI_Controller
             $data = array(
                 'title' => $id > 0 ? 'Ubah Elemen Penilaian' : 'Tambah Elemen Penilaian',
                 'row' => $row,
-                'standar_list' => $this->Master_ep_model->get_standar_filter('', $is_admin ? NULL : $user_id, FALSE),
+                'penilaian_bab' => $penilaian_bab,
+                'context_standar' => $context_standar,
+                'standar_list' => $this->Master_ep_model->get_standar_filter($penilaian_bab, $is_admin ? NULL : $user_id, FALSE),
                 'bab_list' => $this->Master_ep_model->get_daftar_bab($is_admin ? NULL : $user_id),
             );
             $this->load->view('template/header', $data);
@@ -400,8 +504,17 @@ class Master_ep extends CI_Controller
             return;
         }
 
+        $target_standar_id = (int)$this->input->post('id_standar', TRUE);
+        $target_standar = $this->Master_ep_model->get_standar_by_id($target_standar_id);
+        if (!$target_standar || ($penilaian_bab !== '' && $target_standar->bab !== $penilaian_bab)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Pilih standar yang valid dari pokja ini.</div>');
+            redirect($penilaian_bab !== ''
+                ? site_url('master_ep/elemen_form' . ($id > 0 ? '/' . $id : '') . '?penilaian_bab=' . rawurlencode($penilaian_bab) . '&id_standar=' . $context_standar)
+                : site_url('master_ep/elemen'));
+            return;
+        }
         $data = array(
-            'id_standar' => (int)$this->input->post('id_standar', TRUE),
+            'id_standar' => $target_standar_id,
             'no_ep' => (int)$this->input->post('no_ep', TRUE),
             'isi_ep' => trim($this->input->post('isi_ep', TRUE)),
             'jenis_bukti' => trim($this->input->post('jenis_bukti', TRUE)),
@@ -415,7 +528,9 @@ class Master_ep extends CI_Controller
             $this->Master_ep_model->set_no_urut_sama_dengan_no_ep($data['id_standar']);
         }
         $this->session->set_flashdata('message', '<div class="alert alert-success">Data elemen penilaian berhasil disimpan.</div>');
-        redirect(site_url('master_ep/elemen'));
+        redirect($penilaian_bab !== ''
+            ? site_url('penilaian_ep/pokja/' . rawurlencode($penilaian_bab))
+            : site_url('master_ep/elemen'));
     }
 
     public function elemen_delete($id)
@@ -428,6 +543,14 @@ class Master_ep extends CI_Controller
             return;
         }
 
+        $standar = $this->Master_ep_model->get_standar_by_id($row->id_standar);
+        if (!$standar) {
+            show_404();
+            return;
+        }
+        if (!$this->_valid_penilaian_context($standar->bab)) {
+            return;
+        }
         $this->Master_ep_model->set_elemen_active($id, 'N');
         $this->session->set_flashdata('message', '<div class="alert alert-warning">Elemen penilaian <strong>' . html_escape($row->no_ep) . '</strong> dinonaktifkan, bukan dihapus permanen dari database.</div>');
         redirect(site_url('master_ep/elemen'));
@@ -436,6 +559,13 @@ class Master_ep extends CI_Controller
     public function elemen_toggle($id, $active)
     {
         $id = (int)$id;
+        $row = $this->Master_ep_model->get_elemen_by_id($id);
+        $standar = $row ? $this->Master_ep_model->get_standar_by_id($row->id_standar) : NULL;
+        if (!$standar) {
+            show_404();
+            return;
+        }
+        if (!$this->_valid_penilaian_context($standar->bab)) return;
         $active = $active === 'N' ? 'N' : 'Y';
         $this->Master_ep_model->set_elemen_active($id, $active);
         redirect(site_url('master_ep/elemen'));
