@@ -391,7 +391,7 @@ class Surat extends CI_Controller
         $surat = $this->Surat_model->get($id); if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id');
         $allowed = $role !== 'user' || (int) $surat->id_pemohon === $uid || $this->db->where('id_surat', $id)->where('ke_user', $uid)->count_all_results('surat_disposisi') > 0;
-        if ($role === 'hrd') $allowed = $this->Surat_model->can_hrd_view($surat);
+        if ($role === 'hrd') $allowed = $this->Surat_model->can_hrd_view($surat, $uid);
         if (!$allowed) show_error('Anda tidak memiliki akses ke surat ini.', 403);
         $pemohon = $this->db->select('name')->where('id', $surat->id_pemohon)->get('users')->row();
         $surat->pemohon = $pemohon ? $pemohon->name : '-';
@@ -404,7 +404,7 @@ class Surat extends CI_Controller
         $surat = $this->Surat_model->get($id);
         if (!$surat) show_404();
         $role = $this->role();
-        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat)) {
+        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat, (int) $this->session->userdata('id'))) {
             show_error('Anda tidak memiliki akses ke dokumen ini.', 403);
         }
         if ($role === 'user') {
@@ -433,7 +433,7 @@ class Surat extends CI_Controller
         if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id');
         if ($role === 'user' && (int) $surat->id_pemohon !== $uid) show_error('Akses ditolak.', 403);
-        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat)) show_error('Akses ditolak.', 403);
+        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat, $uid)) show_error('Akses ditolak.', 403);
         $this->_stream_lampiran($row, FALSE);
     }
 
@@ -445,7 +445,7 @@ class Surat extends CI_Controller
         if (!$surat) show_404();
         $role = $this->role(); $uid = (int) $this->session->userdata('id');
         if ($role === 'user' && (int) $surat->id_pemohon !== $uid) show_error('Akses ditolak.', 403);
-        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat)) show_error('Akses ditolak.', 403);
+        if ($role === 'hrd' && !$this->Surat_model->can_hrd_view($surat, $uid)) show_error('Akses ditolak.', 403);
 
         $ext = strtolower(pathinfo($row->nama_file, PATHINFO_EXTENSION));
         $this->_stream_lampiran($row, in_array($ext, array('pdf', 'jpg', 'jpeg', 'png'), TRUE));

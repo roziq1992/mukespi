@@ -115,6 +115,16 @@
 	.sk-form-link { background: none; border: none; padding: 0; color: var(--sk-blue); font-weight: 700; font-size: .8rem; cursor: pointer; text-decoration: underline; }
 	.sk-form-link:hover { color: #1d4ed8; }
 
+	.sk-qr-panel { margin-top: 16px; }
+	.sk-qr-content { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+	.sk-qr-box { display: inline-flex; padding: 10px; background: #fff; border: 1px solid var(--sk-line); border-radius: 12px; }
+	.sk-qr-box canvas { display: block; image-rendering: pixelated; }
+	.sk-qr-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+	.sk-qr-actions p { margin: 0; color: var(--sk-muted); font-size: .78rem; }
+	.sk-qr-url { display: block; max-width: 100%; color: var(--sk-ink2); font-size: .78rem; word-break: break-all; }
+	.sk-qr-download { border: 0; border-radius: 9px; padding: 9px 14px; background: var(--sk-blue); color: #fff; font-size: .78rem; font-weight: 700; cursor: pointer; }
+	.sk-qr-download:hover { background: #1d4ed8; }
+
 	.sk-empty { text-align: center; padding: 36px 12px; color: var(--sk-muted); font-size: .8rem; }
 	.sk-empty i { font-size: 1.9rem; color: #cbd5e1; display: block; margin-bottom: 10px; }
 
@@ -134,6 +144,32 @@
 		<a class="sk-btn" href="<?= site_url('survei_admin/aspek'); ?>"><i class="fas fa-sliders-h"></i> Master Aspek</a>
 		<a class="sk-btn" href="<?= site_url('survei_admin/ekspor') . '?' . http_build_query($f); ?>"><i class="fas fa-file-excel"></i> Ekspor</a>
 		<a class="sk-btn solid" href="<?= site_url('survei'); ?>" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Formulir Pasien</a>
+	</div>
+</div>
+
+<!-- ================= QR FORMULIR PASIEN ================= -->
+<?php $form_survei_url = site_url('survei'); ?>
+<div class="sk-panel sk-qr-panel">
+	<div class="sk-panel-head">
+		<h3><i class="fas fa-qrcode"></i> QR Code Formulir Pasien</h3>
+		<span>Pindai untuk membuka formulir survei</span>
+	</div>
+	<div class="sk-panel-body sk-qr-content">
+		<div class="sk-qr-box">
+			<canvas id="qrFormSurvei" data-qr="<?= html_escape($form_survei_url); ?>" data-ukuran="180"></canvas>
+		</div>
+		<div class="sk-qr-actions">
+			<p>Bagikan QR ini kepada pasien agar mereka dapat mengisi survei kepuasan.</p>
+			<a class="sk-qr-url" href="<?= html_escape($form_survei_url); ?>" target="_blank" rel="noopener"><?= html_escape($form_survei_url); ?></a>
+			<div>
+				<button type="button" class="sk-qr-download" data-qr-unduh data-kanvas="qrFormSurvei" data-nama="QR_Formulir_Survei_Pasien.png">
+					<i class="fas fa-download"></i> Unduh QR
+				</button>
+				<a class="sk-btn" style="background:#f1f5f9;border-color:#e2e8f0;color:#334155" href="<?= html_escape($form_survei_url); ?>" target="_blank" rel="noopener">
+					<i class="fas fa-external-link-alt"></i> Buka Formulir
+				</a>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -515,3 +551,5 @@
 	}
 })();
 </script>
+<script src="<?= base_url('assets/js/qrcode-generator.js'); ?>"></script>
+<script src="<?= base_url('assets/js/qri-badge.js'); ?>"></script>

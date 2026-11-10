@@ -158,11 +158,11 @@
 		.sv-aspek.invalid { border-color: #fecaca; background: #fef2f2; }
 
 		.sv-aspek-head { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 10px; }
-		.sv-aspek-icon {
+		.sv-aspek-number {
 			width: 32px; height: 32px; border-radius: 9px;
 			background: #eff6ff; color: var(--sv-primary);
 			display: inline-flex; align-items: center; justify-content: center;
-			font-size: .82rem; flex-shrink: 0;
+			font-size: .8rem; font-weight: 800; flex-shrink: 0;
 		}
 		.sv-aspek-name { font-size: .86rem; font-weight: 700; color: var(--sv-ink); }
 		.sv-aspek-desc { font-size: .72rem; color: var(--sv-muted); margin-top: 2px; }
@@ -191,6 +191,29 @@
 		.sv-stars input:checked + label ~ label { color: var(--sv-gold); }
 		.sv-stars input:focus-visible + label { outline: 2px solid var(--sv-primary); outline-offset: 2px; border-radius: 4px; }
 		.sv-stars label:active { transform: scale(1.18); }
+
+		.sv-rating-guide {
+			padding: 15px;
+			margin-bottom: 16px;
+			border: 1px solid #dbeafe;
+			border-radius: 14px;
+			background: linear-gradient(135deg, #f8fbff, #eff6ff);
+		}
+		.sv-rating-guide-title { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; color: var(--sv-ink); font-size: .78rem; font-weight: 800; }
+		.sv-rating-guide-title i { color: var(--sv-primary); }
+		.sv-rating-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+		.sv-rating-level {
+			min-height: 74px;
+			padding: 9px 5px;
+			border: 1px solid rgba(148,163,184,.22);
+			border-radius: 10px;
+			background: rgba(255,255,255,.82);
+			text-align: center;
+		}
+		.sv-rating-number { display: block; color: var(--sv-rating-color); font-size: .78rem; font-weight: 800; }
+		.sv-rating-number i { margin-right: 2px; font-size: .66rem; }
+		.sv-rating-name { display: block; margin-top: 5px; color: var(--sv-ink2); font-size: .65rem; font-weight: 700; line-height: 1.25; }
+		.sv-rating-note { margin-top: 10px; color: var(--sv-muted); font-size: .68rem; }
 
 		.sv-keterangan {
 			margin-left: auto;
@@ -257,6 +280,11 @@
 			.sv-card { padding: 18px 16px 20px; }
 			.sv-stars label { font-size: 1.35rem; padding: 0 2px; }
 			.sv-keterangan { min-width: 88px; font-size: .66rem; }
+			.sv-rating-guide { padding: 12px 10px; }
+			.sv-rating-scale { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			.sv-rating-level { min-height: 62px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+			.sv-rating-name { margin-top: 0; text-align: left; }
+			.sv-rating-level:last-child { grid-column: 1 / -1; }
 			.sv-nps label { min-width: 100%; }
 		}
 	</style>
@@ -268,7 +296,7 @@
 		<div class="sv-logo"><i class="fas fa-heart-pulse"></i></div>
 		<div class="sv-eyebrow">RS Airlangga — Jombang</div>
 		<h1>Survei Kepuasan Pasien</h1>
-		<p>Bantu kami meningkatkan kualitas pelayanan. Pengisian hanya membutuhkan waktu 2 menit.</p>
+		<p>Kritik dan Saran Anda Membantu Kami Meningkatkan Kualitas Pelayanan Rumah Sakit Airlangga Jombang</p>
 	</div>
 </div>
 
@@ -369,27 +397,40 @@
 				<div class="sv-progress-bar"><div class="sv-progress-fill" id="svFill"></div></div>
 			</div>
 
-			<p style="font-size:.76rem;color:var(--sv-muted);margin-bottom:14px">
-				Berikan <b>1 bintang</b> (Sangat Buruk) sampai <b>5 bintang</b> (Sangat Baik) untuk setiap aspek.
-			</p>
+			<div class="sv-rating-guide" aria-label="Panduan penilaian bintang">
+				<div class="sv-rating-guide-title"><i class="fas fa-circle-info"></i> Panduan memberi nilai</div>
+				<div class="sv-rating-scale">
+					<?php
+					$warna_rating = array(1 => '#dc2626', 2 => '#ea580c', 3 => '#d97706', 4 => '#2563eb', 5 => '#059669');
+					foreach ($label as $nilai => $keterangan):
+					?>
+						<div class="sv-rating-level" style="--sv-rating-color:<?= $warna_rating[$nilai]; ?>">
+							<span class="sv-rating-number"><i class="fas fa-star"></i><?= (int) $nilai; ?> bintang</span>
+							<span class="sv-rating-name"><?= html_escape($keterangan); ?></span>
+						</div>
+					<?php endforeach; ?>
+				</div>
+				<p class="sv-rating-note">Pilih jumlah bintang yang paling sesuai dengan pengalaman Anda pada setiap layanan.</p>
+			</div>
 
-			<?php foreach ($aspek as $a): ?>
+			<?php foreach ($aspek as $index => $a): ?>
 				<div class="sv-aspek" data-aspek="<?= (int) $a->id; ?>">
 					<div class="sv-aspek-head">
-						<span class="sv-aspek-icon"><i class="<?= html_escape($a->icon); ?>"></i></span>
+						<span class="sv-aspek-number" aria-hidden="true"><?= (int) $index + 1; ?></span>
 						<div style="flex:1">
 							<div class="sv-aspek-name"><?= html_escape($a->nama_aspek); ?></div>
 							<?php if (!empty($a->deskripsi)): ?>
 								<div class="sv-aspek-desc"><?= html_escape($a->deskripsi); ?></div>
 							<?php endif; ?>
 						</div>
-						<span class="sv-keterangan" data-keterangan>Belum dinilai</span>
+						<span class="sv-keterangan" data-keterangan aria-live="polite">Belum dinilai</span>
 					</div>
 					<div class="sv-stars">
 						<?php for ($s = 5; $s >= 1; $s--): ?>
 							<input type="radio" id="s<?= (int) $a->id; ?>_<?= $s; ?>"
 								   name="skor[<?= (int) $a->id; ?>]" value="<?= $s; ?>"
-								   data-label="<?= html_escape($label[$s]); ?>">
+								   data-label="<?= html_escape($label[$s]); ?>"
+								   aria-label="<?= $s; ?> bintang - <?= html_escape($label[$s]); ?>">
 							<label for="s<?= (int) $a->id; ?>_<?= $s; ?>" title="<?= html_escape($label[$s]); ?>">
 								<i class="fas fa-star"></i>
 							</label>
@@ -403,7 +444,7 @@
 		<!-- ============ REKOMENDASI & SARAN ============ -->
 		<div class="sv-card">
 			<div class="sv-card-title">
-				<i class="fas fa-comments"></i> Rekomendasi &amp; Saran
+				<i class="fas fa-comments"></i> Rekomendasi (NPS = Net Promoter Score)
 				<span class="sv-step">Langkah 3</span>
 			</div>
 
@@ -420,9 +461,9 @@
 			</div>
 
 			<div class="sv-field">
-				<label for="saran">Saran, Kritik, atau Keluhan Anda</label>
+				<label for="saran">Saran dan Kritik Anda</label>
 				<textarea id="saran" name="saran" maxlength="1000"
-						  placeholder="Tuliskan pengalaman Anda — saran ini akan kami tindaklanjutkan."><?= set_value('saran'); ?></textarea>
+						  placeholder=""><?= set_value('saran'); ?></textarea>
 				<div class="sv-hint">Maksimal 1000 karakter. <?= strlen((string) set_value('saran')); ?> karakter terpakai.</div>
 			</div>
 

@@ -201,6 +201,7 @@
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat_direktur"><i class="fas fa-signature"></i>TTD & Disposisi <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
             <?php elseif ($surat_role === 6): ?>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat"><i class="fas fa-eye"></i>Monitoring Surat Direktur <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
+                <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Pengajuan Baru</a>
             <?php else: ?>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat"><i class="fas fa-envelope-open-text"></i>Surat Saya <?php if ($surat_pending > 0): ?><span class="nav-badge-admin"><?php echo $surat_pending; ?></span><?php endif; ?></a>
                 <a class="collapse-item" href="<?=base_url();?>index.php/surat/create"><i class="fas fa-plus"></i>Pengajuan Baru</a>

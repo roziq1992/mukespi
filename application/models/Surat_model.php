@@ -15,7 +15,12 @@ class Surat_model extends CI_Model
         if ($role === 'user') {
             $this->db->where("(s.id_pemohon = " . (int) $user_id . " OR EXISTS (SELECT 1 FROM surat_disposisi sd WHERE sd.id_surat = s.id AND sd.ke_user = " . (int) $user_id . "))", NULL, FALSE);
         }
-        if ($role === 'hrd') $this->db->where_in('s.status', self::STATUS_HRD_VISIBLE);
+        if ($role === 'hrd') {
+            $this->db->group_start()
+                ->where_in('s.status', self::STATUS_HRD_VISIBLE)
+                ->or_where('s.id_pemohon', (int) $user_id)
+                ->group_end();
+        }
         // Sekretaris melihat antrian aktif sekaligus riwayat surat yang sudah diteruskan.
         // Direktur melihat antrian aktif sekaligus riwayat surat yang pernah diterima.
         if (!empty($filters['status'])) $this->db->where('s.status', $filters['status']);
@@ -40,9 +45,12 @@ class Surat_model extends CI_Model
         if ($role === 'hrd') $this->db->where_in('status', self::STATUS_HRD_VISIBLE);
         return $this->db->count_all_results();
     }
-    public function can_hrd_view($surat)
+    public function can_hrd_view($surat, $user_id)
     {
-        return $surat && in_array($surat->status, self::STATUS_HRD_VISIBLE, TRUE);
+        return $surat && (
+            (int) $surat->id_pemohon === (int) $user_id
+            || in_array($surat->status, self::STATUS_HRD_VISIBLE, TRUE)
+        );
     }
     public function users()
     {
