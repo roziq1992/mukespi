@@ -28,6 +28,17 @@ class Sertifikat_peserta_model extends CI_Model
         return $this->db->get($this->table)->result();
     }
 
+    function serial_exists($serial)
+    {
+        return $this->db->where('no_peserta', $serial)
+            ->count_all_results($this->table) > 0;
+    }
+
+    function insert_batch($data)
+    {
+        return $this->db->insert_batch($this->table, $data);
+    }
+
     // get data by id
     function get_by_id($id)
     {

@@ -406,21 +406,21 @@
 
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>
 <!-- ================= SERTIFIKAT ONLINE ================= -->
-<!--<li class="nav-item">-->
-<!--    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo3"-->
-<!--       aria-expanded="false" aria-controls="collapseTwo3"-->
-<!--       data-tooltip="true" data-placement="right"-->
-<!--       title="Sertifikat Online — Penerbitan & Pengelolaan Sertifikat Digital">-->
-<!--        <i class="nav-icon-badge icon-sertifikat fas fa-certificate"></i>-->
-<!--        <span>SERTIFIKAT ONLINE</span>-->
-<!--    </a>-->
-<!--    <div id="collapseTwo3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">-->
-<!--        <div class="bg-white py-2 collapse-inner rounded">-->
-<!--            <h6 class="collapse-header">Entry Sertifikat:</h6>-->
-<!--            <a class="collapse-item" href="https://api-rsa.com/mukespi/index.php/sertifikat"><i class="fas fa-award"></i> Sertifikat</a>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</li>-->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo3"
+       aria-expanded="false" aria-controls="collapseTwo3"
+       data-tooltip="true" data-placement="right"
+       title="Sertifikat Online — Penerbitan & Pengelolaan Sertifikat Digital">
+        <i class="nav-icon-badge icon-sertifikat fas fa-certificate"></i>
+        <span>SERTIFIKAT ONLINE</span>
+    </a>
+    <div id="collapseTwo3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Entry Sertifikat:</h6>
+            <a class="collapse-item" href="<?=base_url();?>index.php/sertifikat"><i class="fas fa-award"></i> Sertifikat</a>
+        </div>
+    </div>
+</li>
 <?php } ?>
 
 <?php if($this->session->userdata('email')=='admin@mail.com') {?>

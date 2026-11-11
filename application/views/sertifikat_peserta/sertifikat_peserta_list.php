@@ -36,10 +36,17 @@ $tanggal = date("Y-m-d");
                             <div class="row" style="margin-bottom: 10px">
                                 <div class="col-md-4">
                 <?php echo anchor(site_url('sertifikat_peserta/create?id_sertifikat='.$this->input->get('id_sertifikat')),'Tambah', 'class="btn btn-primary"'); ?>
-            </div>
+                                <?php echo anchor(site_url('sertifikat_peserta/export_csv?id_sertifikat='.$this->input->get('id_sertifikat')), 'Export CSV', 'class="btn btn-success"'); ?>
+                                <?php echo anchor(site_url('sertifikat_peserta/template_csv?id_sertifikat='.$this->input->get('id_sertifikat')), 'Template CSV', 'class="btn btn-info"'); ?>
+                                <form action="<?php echo site_url('sertifikat_peserta/import_csv'); ?>" method="post" enctype="multipart/form-data" class="form-inline" style="margin-top: 10px">
+                                    <input type="hidden" name="id_sertifikat" value="<?php echo html_escape($this->input->get('id_sertifikat')); ?>">
+                                    <input type="file" name="berkas" accept=".csv,.txt" required>
+                                    <button type="submit" class="btn btn-primary">Import CSV</button>
+                                </form>
+                            </div>
             <div class="col-md-4 text-center">
                 <div style="margin-top: 8px" id="message">
-                    <?php echo $this->session->userdata('message') <> '' ? $this->session->userdata('message') : ''; ?>
+                    <?php echo $this->session->flashdata('message') ?: ''; ?>
                 </div>
             </div>
             <div class="col-md-1 text-right">
@@ -80,8 +87,8 @@ $tanggal = date("Y-m-d");
 			<td><?php echo $sertifikat_peserta->no_peserta ?></td>
 			<td style="text-align:center" width="200px">
 				
-				<a href="https://rumahsakitairlangga.com/ppi/sertifikat/certificate.php?nama=<?=$sertifikat_peserta->nm_peserta.'&noseri='.$sertifikat_peserta->no_peserta ?>" target="_blank">Sertifikat Depan</a>
-				<a href="https://rumahsakitairlangga.com/ppi/sertifikat/certificate2.php?nama=<?=$sertifikat_peserta->nm_peserta.'&noseri='.$sertifikat_peserta->no_peserta ?>" target="_blank">Sertifikat Belakang</a>
+				<a href="<?=base_url('sertifikat/certificate.php')?>?nama=<?=rawurlencode($sertifikat_peserta->nm_peserta)?>&noseri=<?=rawurlencode($sertifikat_peserta->no_peserta)?>" target="_blank" rel="noopener">Sertifikat Depan</a>
+				<a href="<?=base_url('sertifikat/certificate2.php')?>?nama=<?=rawurlencode($sertifikat_peserta->nm_peserta)?>&noseri=<?=rawurlencode($sertifikat_peserta->no_peserta)?>" target="_blank" rel="noopener">Sertifikat Belakang</a>
 				<?php 
 				echo ' | '; 
 				echo anchor(site_url('sertifikat_peserta/update?id='.$sertifikat_peserta->id_peserta.'&id_sertifikat='.$this->input->get('id_sertifikat')),'Update'); 
@@ -97,7 +104,7 @@ $tanggal = date("Y-m-d");
         <div class="row">
             <div class="col-md-6">
                 <a href="#" class="btn btn-primary">Total Record : <?php echo $total_rows ?></a>
-		<?php echo anchor(site_url('sertifikat_peserta/excel?id='.$this->input->get('id_sertifikat')), 'Excel', 'class="btn btn-primary"'); ?>
+		<?php echo anchor(site_url('sertifikat_peserta/excel?id_sertifikat='.$this->input->get('id_sertifikat')), 'Excel', 'class="btn btn-primary"'); ?>
 	    </div>
             <div class="col-md-6 text-right">
                 <?php echo $pagination ?>
