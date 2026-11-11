@@ -435,6 +435,129 @@ class Sertifikat_peserta extends CI_Controller
         return $value;
     }
 
+    public function download_pdf($id)
+    {
+        $peserta = $this->Sertifikat_peserta_model->get_by_id($id);
+        if (!$peserta) {
+            show_404();
+            return;
+        }
+
+        if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
+            show_error('Ekstensi PHP GD harus aktif untuk membuat sertifikat PDF.', 500);
+            return;
+        }
+        if (!is_file(FCPATH . 'vendor/autoload.php')) {
+            show_error('Library PDF belum tersedia.', 500);
+            return;
+        }
+
+        require_once FCPATH . 'vendor/autoload.php';
+        if (!class_exists('FPDF')) {
+            show_error('Library FPDF tidak dapat dimuat.', 500);
+            return;
+        }
+
+        $sertifikat_dir = FCPATH . 'sertifikat' . DIRECTORY_SEPARATOR;
+        $font = $sertifikat_dir . 'OpenSans-Italic.ttf';
+        $barcode_font = $sertifikat_dir . 'fre3of9x.ttf';
+        $front_template = $sertifikat_dir . 'sertifikat.jpg';
+        $back_template = $sertifikat_dir . 'sertifikatbelakang.jpg';
+
+        foreach (array($font, $barcode_font, $front_template, $back_template) as $file) {
+            if (!is_file($file)) {
+                show_error('Template atau font sertifikat tidak ditemukan.', 500);
+                return;
+            }
+        }
+
+        $front_path = $this->_render_certificate_side(
+            $front_template,
+            $font,
+            $barcode_font,
+            $peserta->nm_peserta,
+            $peserta->no_peserta,
+            TRUE
+        );
+        if ($front_path === FALSE) {
+            show_error('Sertifikat depan gagal dibuat.', 500);
+            return;
+        }
+
+        $back_path = $this->_render_certificate_side(
+            $back_template,
+            $font,
+            $barcode_font,
+            $peserta->nm_peserta,
+            $peserta->no_peserta,
+            FALSE
+        );
+        if ($back_path === FALSE) {
+            @unlink($front_path);
+            show_error('Sertifikat belakang gagal dibuat.', 500);
+            return;
+        }
+
+        try {
+            $pdf = new FPDF('L', 'mm', 'A4');
+            $pdf->SetMargins(0, 0, 0);
+            $pdf->SetAutoPageBreak(FALSE);
+            foreach (array($front_path, $back_path) as $image_path) {
+                $pdf->AddPage('L', 'A4');
+                $pdf->Image($image_path, 0, 0, 297, 210, 'JPG');
+            }
+
+            $filename = preg_replace('/[^A-Za-z0-9_-]+/', '_', $peserta->no_peserta);
+            $pdf->Output('D', 'sertifikat_' . trim($filename, '_') . '.pdf');
+        } finally {
+            @unlink($front_path);
+            @unlink($back_path);
+        }
+    }
+
+    private function _render_certificate_side($template, $font, $barcode_font, $name, $serial, $front)
+    {
+        $image = imagecreatefromjpeg($template);
+        if ($image === FALSE) {
+            return FALSE;
+        }
+
+        $black = imagecolorallocate($image, 0, 0, 0);
+        $barcode = '*' . $serial . '*';
+        if ($front) {
+            $font_size = 50;
+            $text_box = imagettfbbox($font_size, 0, $font, $name);
+            $text_width = $text_box[2] - $text_box[0];
+            $x = (imagesx($image) / 2) - ($text_width / 2);
+            imagettftext($image, $font_size, 0, (int) $x, 600, $black, $font, $name);
+            imagettftext($image, $font_size, 0, 720, 880, $black, $font, 'IN HOUSE TRAINING');
+            imagettftext($image, 35, 0, 800, 950, $black, $font, '30 - 31 Januari 2023');
+        }
+        imagettftext($image, 30, 0, 340, 70, $black, $font, 'Nomor Seri : ' . $serial);
+        imagettftext($image, 100, 0, 340, 190, $black, $barcode_font, $barcode);
+
+        $path = tempnam(sys_get_temp_dir(), 'sertifikat_');
+        if ($path === FALSE) {
+            imagedestroy($image);
+            return FALSE;
+        }
+
+        $jpg_path = $path . '.jpg';
+        if (!rename($path, $jpg_path)) {
+            @unlink($path);
+            imagedestroy($image);
+            return FALSE;
+        }
+        $saved = imagejpeg($image, $jpg_path);
+        imagedestroy($image);
+
+        if (!$saved) {
+            @unlink($jpg_path);
+            return FALSE;
+        }
+        return $jpg_path;
+    }
+
     public function cek_sertifikat() 
     {
 

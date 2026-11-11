@@ -89,6 +89,7 @@ $tanggal = date("Y-m-d");
 				
 				<a href="<?=base_url('sertifikat/certificate.php')?>?nama=<?=rawurlencode($sertifikat_peserta->nm_peserta)?>&noseri=<?=rawurlencode($sertifikat_peserta->no_peserta)?>" target="_blank" rel="noopener">Sertifikat Depan</a>
 				<a href="<?=base_url('sertifikat/certificate2.php')?>?nama=<?=rawurlencode($sertifikat_peserta->nm_peserta)?>&noseri=<?=rawurlencode($sertifikat_peserta->no_peserta)?>" target="_blank" rel="noopener">Sertifikat Belakang</a>
+				<?=anchor(site_url('sertifikat_peserta/download_pdf/' . $sertifikat_peserta->id_peserta), 'Download PDF 2 Sisi', 'class="btn btn-sm btn-success"')?>
 				<?php 
 				echo ' | '; 
 				echo anchor(site_url('sertifikat_peserta/update?id='.$sertifikat_peserta->id_peserta.'&id_sertifikat='.$this->input->get('id_sertifikat')),'Update'); 
