@@ -233,7 +233,7 @@
             <a class="collapse-item" href="<?=base_url();?>index.php/dashboard/allmutugrafik"><i class="fas fa-chart-line"></i> Dashboard Mutu</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/list_indikator"><i class="fas fa-clipboard-list"></i> Mutu RS</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/Ikp"><i class="fas fa-exclamation-triangle"></i> IKP</a>
-            <?php if($this->session->userdata('email')=='admin@mail.com') {?>
+           
             <a class="collapse-item" href="<?=base_url();?>index.php/cuci_tangan"><i class="fas fa-pump-soap"></i> Cuci Tangan</a>
 
             <h6 class="collapse-header">Report Cuci Tangan:</h6>
@@ -241,7 +241,7 @@
             <a class="collapse-item" href="<?=base_url();?>index.php/cuci_tangan/lprmoment"><i class="fas fa-clock"></i> By Moment</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/cuci_tangan/lprtotal"><i class="fas fa-calendar-alt"></i> By Tanggal</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/dashboard"><i class="fas fa-chart-bar"></i> By Grafik</a>
-            <?php } ?>
+          
         </div>
     </div>
 </li>
