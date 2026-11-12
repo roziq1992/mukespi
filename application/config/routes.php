@@ -59,6 +59,17 @@ $route['register'] = 'auth/register';
 $route['logout'] = 'auth/logout';
 $route['portal'] = 'portal/index';
 
+// Form publik IKP dan pelaporan budaya keselamatan; daftar budaya dikelola setelah login.
+$route['insiden/budaya_keselamatan'] = 'insiden/budaya_keselamatan';
+$route['insiden/budaya_keselamatan_detail/(:num)'] = 'insiden/budaya_keselamatan_detail/$1';
+$route['insiden/hapus_budaya_keselamatan/(:num)'] = 'insiden/hapus_budaya_keselamatan/$1';
+$route['insiden/pelanggaran'] = 'insiden/pelanggaran';
+$route['insiden/pelanggaran_detail/(:num)'] = 'insiden/pelanggaran_detail/$1';
+$route['insiden/hapus_pelanggaran/(:num)'] = 'insiden/hapus_pelanggaran/$1';
+$route['insiden/insiden_k3rs'] = 'insiden/insiden_k3rs';
+$route['insiden/insiden_k3rs_detail/(:num)'] = 'insiden/insiden_k3rs_detail/$1';
+$route['insiden/hapus_insiden_k3rs/(:num)'] = 'insiden/hapus_insiden_k3rs/$1';
+
 // Profil pengguna (nama, avatar, password)
 $route['profile'] = 'profile/index';
 

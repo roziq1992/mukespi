@@ -233,7 +233,9 @@
             <a class="collapse-item" href="<?=base_url();?>index.php/dashboard/allmutugrafik"><i class="fas fa-chart-line"></i> Dashboard Mutu</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/list_indikator"><i class="fas fa-clipboard-list"></i> Mutu RS</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/Ikp"><i class="fas fa-exclamation-triangle"></i> IKP</a>
-           
+            <a class="collapse-item" href="<?=base_url();?>index.php/insiden/budaya_keselamatan"><i class="fas fa-shield-alt"></i> Budaya Keselamatan</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/insiden/pelanggaran"><i class="fas fa-user-shield"></i> Laporan Pelanggaran</a>
+            <a class="collapse-item" href="<?=base_url();?>index.php/insiden/insiden_k3rs"><i class="fas fa-hard-hat"></i> Insiden K3RS</a>
             <a class="collapse-item" href="<?=base_url();?>index.php/cuci_tangan"><i class="fas fa-pump-soap"></i> Cuci Tangan</a>
 
             <h6 class="collapse-header">Report Cuci Tangan:</h6>

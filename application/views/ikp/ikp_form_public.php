@@ -252,7 +252,7 @@
 <div class="ikp-wrap">
 
     <div class="ikp-header">
-        <h2>Laporan Insiden Keselamatan Pasien</h2>
+        <h2>Form Pelaporan Kejadian</h2>
         <p>RS Airlangga Jombang</p>
     </div>
 
@@ -266,7 +266,20 @@
     </div>
 
     <form action="<?php echo $action; ?>" method="post" id="ikpForm">
+        <div class="ikp-section">
+            <div class="ikp-field">
+                <label for="jenis_pelaporan">Jenis Pelaporan <span class="req">*</span></label>
+                <select class="ikp-select" name="jenis_pelaporan" id="jenis_pelaporan" required>
+                    <option value="ikp" <?php echo $jenis_pelaporan === 'ikp' ? 'selected' : ''; ?>>Insiden Keselamatan Pasien (IKP)</option>
+                    <option value="budaya_keselamatan" <?php echo $jenis_pelaporan === 'budaya_keselamatan' ? 'selected' : ''; ?>>Budaya Keselamatan</option>
+                    <option value="pelanggaran" <?php echo $jenis_pelaporan === 'pelanggaran' ? 'selected' : ''; ?>>Laporan Pelanggaran</option>
+                    <option value="insiden_k3rs" <?php echo $jenis_pelaporan === 'insiden_k3rs' ? 'selected' : ''; ?>>Investigasi Kecelakaan Kerja (K3RS)</option>
+                </select>
+                <?php echo form_error('jenis_pelaporan', '<span class="ikp-error">', '</span>') ?>
+            </div>
+        </div>
 
+        <div id="ikp-report-fields">
         <!-- DATA PASIEN -->
         <div class="ikp-section">
             <p class="ikp-section-title"><span class="ikp-dot"></span>Data Pasien</p>
@@ -531,6 +544,233 @@
         </div>
 
         <input type="hidden" name="id_ikp" value="<?php echo $id_ikp; ?>" />
+        </div>
+
+        <div id="budaya-report-fields" style="<?php echo $jenis_pelaporan === 'budaya_keselamatan' ? '' : 'display:none;'; ?>">
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>Pelaporan Budaya Keselamatan</p>
+                <div class="ikp-field">
+                    <label for="nama_pelapor_budaya">Nama <span class="req">*</span></label>
+                    <input type="text" class="ikp-input" name="nama_pelapor_budaya" id="nama_pelapor_budaya" maxlength="255" required value="<?php echo html_escape($nama_pelapor_budaya); ?>" />
+                    <?php echo form_error('nama_pelapor_budaya', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="tanggal_kejadian_budaya">Tanggal Kejadian <span class="req">*</span></label>
+                    <input type="date" class="ikp-input" name="tanggal_kejadian_budaya" id="tanggal_kejadian_budaya" required value="<?php echo html_escape($tanggal_kejadian_budaya); ?>" />
+                    <?php echo form_error('tanggal_kejadian_budaya', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="lokasi_budaya">Lokasi <span class="req">*</span></label>
+                    <input type="text" class="ikp-input" name="lokasi_budaya" id="lokasi_budaya" maxlength="255" required value="<?php echo html_escape($lokasi_budaya); ?>" />
+                    <?php echo form_error('lokasi_budaya', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="terlibat_budaya">Nama Staf Terlibat / Pengunjung <span class="req">*</span></label>
+                    <input type="text" class="ikp-input" name="terlibat_budaya" id="terlibat_budaya" maxlength="1000" required value="<?php echo html_escape($terlibat_budaya); ?>" />
+                    <?php echo form_error('terlibat_budaya', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="uraian_budaya">Uraian Kejadian <span class="req">*</span></label>
+                    <textarea class="ikp-textarea" rows="5" name="uraian_budaya" id="uraian_budaya" maxlength="10000" required><?php echo html_escape($uraian_budaya); ?></textarea>
+                    <?php echo form_error('uraian_budaya', '<span class="ikp-error">', '</span>') ?>
+                </div>
+            </div>
+        </div>
+
+        <div id="pelanggaran-report-fields" style="<?php echo $jenis_pelaporan === 'pelanggaran' ? '' : 'display:none;'; ?>">
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>Laporan Pelanggaran</p>
+                <div class="ikp-field">
+                    <label for="nama_pelapor_pelanggaran">Nama <span class="req">*</span></label>
+                    <input type="text" class="ikp-input" name="nama_pelapor_pelanggaran" id="nama_pelapor_pelanggaran" maxlength="255" required value="<?php echo html_escape($nama_pelapor_pelanggaran); ?>" />
+                    <?php echo form_error('nama_pelapor_pelanggaran', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="tanggal_kejadian_pelanggaran">Tanggal Kejadian <span class="req">*</span></label>
+                    <input type="date" class="ikp-input" name="tanggal_kejadian_pelanggaran" id="tanggal_kejadian_pelanggaran" required value="<?php echo html_escape($tanggal_kejadian_pelanggaran); ?>" />
+                    <?php echo form_error('tanggal_kejadian_pelanggaran', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="lokasi_pelanggaran">Lokasi <span class="req">*</span></label>
+                    <input type="text" class="ikp-input" name="lokasi_pelanggaran" id="lokasi_pelanggaran" maxlength="255" required value="<?php echo html_escape($lokasi_pelanggaran); ?>" />
+                    <?php echo form_error('lokasi_pelanggaran', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="staf_terlibat_pelanggaran">Nama Staf Terlibat <span class="req">*</span></label>
+                    <input type="text" class="ikp-input" name="staf_terlibat_pelanggaran" id="staf_terlibat_pelanggaran" maxlength="1000" required value="<?php echo html_escape($staf_terlibat_pelanggaran); ?>" />
+                    <?php echo form_error('staf_terlibat_pelanggaran', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <div class="ikp-field">
+                    <label for="uraian_pelanggaran">Uraian Kejadian <span class="req">*</span></label>
+                    <textarea class="ikp-textarea" rows="5" name="uraian_pelanggaran" id="uraian_pelanggaran" maxlength="10000" required><?php echo html_escape($uraian_pelanggaran); ?></textarea>
+                    <?php echo form_error('uraian_pelanggaran', '<span class="ikp-error">', '</span>') ?>
+                </div>
+            </div>
+            <div class="alert alert-success" role="note">
+                <strong>Saluran aman:</strong> Kerahasiaan dijamin dan pelapor dilindungi dari pembalasan.
+            </div>
+        </div>
+
+        <div id="k3rs-report-fields" style="<?php echo $jenis_pelaporan === 'insiden_k3rs' ? '' : 'display:none;'; ?>">
+            <?php if (!empty($k3rs_errors)): ?>
+                <div class="alert alert-danger">
+                    <?php foreach ($k3rs_errors as $error): ?>
+                        <div><?php echo html_escape($error); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>A. Insiden</p>
+                <div class="ikp-row2">
+                    <div class="ikp-field">
+                        <label for="tanggal_k3rs">Tanggal <span class="req">*</span></label>
+                        <input type="date" class="ikp-input" name="tanggal_k3rs" id="tanggal_k3rs" required value="<?php echo html_escape(set_value('tanggal_k3rs')); ?>" />
+                        <?php echo form_error('tanggal_k3rs', '<span class="ikp-error">', '</span>') ?>
+                    </div>
+                    <div class="ikp-field">
+                        <label for="waktu_k3rs">Waktu <span class="req">*</span></label>
+                        <input type="time" class="ikp-input" name="waktu_k3rs" id="waktu_k3rs" required value="<?php echo html_escape(set_value('waktu_k3rs')); ?>" />
+                        <?php echo form_error('waktu_k3rs', '<span class="ikp-error">', '</span>') ?>
+                    </div>
+                </div>
+                <div class="ikp-row2">
+                    <div class="ikp-field">
+                        <label for="pekerjaan_k3rs">Pekerjaan <span class="req">*</span></label>
+                        <input type="text" class="ikp-input" name="pekerjaan_k3rs" id="pekerjaan_k3rs" maxlength="255" required value="<?php echo html_escape(set_value('pekerjaan_k3rs')); ?>" />
+                        <?php echo form_error('pekerjaan_k3rs', '<span class="ikp-error">', '</span>') ?>
+                    </div>
+                    <div class="ikp-field">
+                        <label for="lokasi_k3rs">Lokasi <span class="req">*</span></label>
+                        <input type="text" class="ikp-input" name="lokasi_k3rs" id="lokasi_k3rs" maxlength="255" required value="<?php echo html_escape(set_value('lokasi_k3rs')); ?>" />
+                        <?php echo form_error('lokasi_k3rs', '<span class="ikp-error">', '</span>') ?>
+                    </div>
+                </div>
+                <div class="ikp-field">
+                    <label>Peralatan Kerja</label>
+                    <div class="ikp-radio-group">
+                        <?php foreach (array('Mesin', 'Material', 'Alat Berat') as $equipment): ?>
+                            <label class="ikp-checkbox"><input type="checkbox" name="peralatan_k3rs[]" value="<?php echo html_escape($equipment); ?>" <?php echo in_array($equipment, $k3rs_equipment, TRUE) ? 'checked' : ''; ?> /> <?php echo html_escape($equipment); ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="ikp-row2">
+                    <div class="ikp-field">
+                        <label for="kerugian_aset_k3rs">Kerugian Aset/Material</label>
+                        <textarea class="ikp-textarea" rows="3" name="kerugian_aset_k3rs" id="kerugian_aset_k3rs" maxlength="2000"><?php echo html_escape(set_value('kerugian_aset_k3rs')); ?></textarea>
+                    </div>
+                    <div class="ikp-field">
+                        <label for="kerugian_lingkungan_k3rs">Kerugian Lingkungan (jika ada)</label>
+                        <textarea class="ikp-textarea" rows="3" name="kerugian_lingkungan_k3rs" id="kerugian_lingkungan_k3rs" maxlength="2000"><?php echo html_escape(set_value('kerugian_lingkungan_k3rs')); ?></textarea>
+                    </div>
+                </div>
+                <div class="ikp-field">
+                    <label for="kronologi_k3rs">Kronologi <span class="req">*</span></label>
+                    <textarea class="ikp-textarea" rows="5" name="kronologi_k3rs" id="kronologi_k3rs" maxlength="10000" required><?php echo html_escape(set_value('kronologi_k3rs')); ?></textarea>
+                    <?php echo form_error('kronologi_k3rs', '<span class="ikp-error">', '</span>') ?>
+                </div>
+            </div>
+
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>B. Korban</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered k3rs-table">
+                        <thead><tr><th>Nama</th><th>L/P</th><th>Usia</th><th>Jabatan</th><th>Bagian</th><th>Cedera</th><th>Penanganan</th><th>LT (hari)</th><th>Kategori</th><th></th></tr></thead>
+                        <tbody id="k3rs-korban-rows">
+                            <?php foreach ($korban_rows as $i => $row): ?>
+                                <?php $row = is_array($row) ? $row : array(); ?>
+                                <tr>
+                                    <td><input class="ikp-input" name="korban[<?php echo (int) $i; ?>][nama]" maxlength="255" value="<?php echo html_escape(isset($row['nama']) ? $row['nama'] : ''); ?>" /></td>
+                                    <td><select class="ikp-select" name="korban[<?php echo (int) $i; ?>][kelamin]"><option value="">-</option><option value="L" <?php echo isset($row['kelamin']) && $row['kelamin'] === 'L' ? 'selected' : ''; ?>>L</option><option value="P" <?php echo isset($row['kelamin']) && $row['kelamin'] === 'P' ? 'selected' : ''; ?>>P</option></select></td>
+                                    <td><input class="ikp-input" name="korban[<?php echo (int) $i; ?>][usia]" maxlength="30" value="<?php echo html_escape(isset($row['usia']) ? $row['usia'] : ''); ?>" /></td>
+                                    <td><input class="ikp-input" name="korban[<?php echo (int) $i; ?>][jabatan]" maxlength="255" value="<?php echo html_escape(isset($row['jabatan']) ? $row['jabatan'] : ''); ?>" /></td>
+                                    <td><input class="ikp-input" name="korban[<?php echo (int) $i; ?>][bagian]" maxlength="255" value="<?php echo html_escape(isset($row['bagian']) ? $row['bagian'] : ''); ?>" /></td>
+                                    <td><input class="ikp-input" name="korban[<?php echo (int) $i; ?>][cedera]" maxlength="1000" value="<?php echo html_escape(isset($row['cedera']) ? $row['cedera'] : ''); ?>" /></td>
+                                    <td><input class="ikp-input" name="korban[<?php echo (int) $i; ?>][penanganan]" maxlength="1000" value="<?php echo html_escape(isset($row['penanganan']) ? $row['penanganan'] : ''); ?>" /></td>
+                                    <td><input type="number" min="0" max="3650" class="ikp-input" name="korban[<?php echo (int) $i; ?>][lt]" value="<?php echo html_escape(isset($row['lt']) ? $row['lt'] : ''); ?>" /></td>
+                                    <td><select class="ikp-select" name="korban[<?php echo (int) $i; ?>][kategori]"><option value="">-</option><?php foreach (array('Ringan', 'Sedang', 'Berat', 'Fatal') as $category): ?><option value="<?php echo $category; ?>" <?php echo isset($row['kategori']) && $row['kategori'] === $category ? 'selected' : ''; ?>><?php echo $category; ?></option><?php endforeach; ?></select></td>
+                                    <td><button type="button" class="btn btn-sm btn-outline-danger k3rs-remove-row" aria-label="Hapus korban">&times;</button></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="k3rs-add-korban">Tambah Korban</button>
+                <small class="help">LT adalah jumlah hari kerja hilang lebih dari 1 × 24 jam. Kategori: Ringan, Sedang, Berat, atau Fatal.</small>
+            </div>
+
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>C. Investigasi Kecelakaan</p>
+                <div class="ikp-row2">
+                    <div class="ikp-field">
+                        <label for="penyebab_langsung_k3rs">Penyebab Langsung</label>
+                        <textarea class="ikp-textarea" rows="3" name="penyebab_langsung_k3rs" id="penyebab_langsung_k3rs" maxlength="5000"><?php echo html_escape(set_value('penyebab_langsung_k3rs')); ?></textarea>
+                    </div>
+                    <div class="ikp-field">
+                        <label for="penyebab_tidak_langsung_k3rs">Penyebab Tidak Langsung</label>
+                        <textarea class="ikp-textarea" rows="3" name="penyebab_tidak_langsung_k3rs" id="penyebab_tidak_langsung_k3rs" maxlength="5000"><?php echo html_escape(set_value('penyebab_tidak_langsung_k3rs')); ?></textarea>
+                    </div>
+                </div>
+                <div class="ikp-field">
+                    <label>Kategori penyebab langsung</label>
+                    <div class="ikp-radio-group">
+                        <?php foreach (array('Kondisi Bahaya', 'Tindakan Bahaya', 'Pribadi', 'Pekerjaan') as $factor): ?>
+                            <label class="ikp-checkbox"><input type="checkbox" name="faktor_k3rs[]" value="<?php echo html_escape($factor); ?>" <?php echo in_array($factor, $k3rs_factors, TRUE) ? 'checked' : ''; ?> /> <?php echo html_escape($factor); ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="ikp-field">
+                    <label>Penyebab Dasar</label>
+                    <div class="ikp-radio-group">
+                        <?php foreach (array('Kurang Prosedur', 'Kurang Sarana', 'Kurang Taat') as $cause): ?>
+                            <label class="ikp-checkbox"><input type="checkbox" name="dasar_k3rs[]" value="<?php echo html_escape($cause); ?>" <?php echo in_array($cause, $k3rs_root_causes, TRUE) ? 'checked' : ''; ?> /> <?php echo html_escape($cause); ?></label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>D. Perbaikan &amp; Pencegahan</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered k3rs-table">
+                        <thead><tr><th>Jenis Tindakan</th><th>Rencana Tindakan</th><th>Target (tanggal)</th><th>Wewenang (bagian/petugas)</th><th></th></tr></thead>
+                        <tbody id="k3rs-tindakan-rows">
+                            <?php foreach ($tindakan_rows as $i => $row): ?>
+                                <?php $row = is_array($row) ? $row : array(); ?>
+                                <tr>
+                                    <td><select class="ikp-select" name="tindakan_k3rs[<?php echo (int) $i; ?>][jenis]"><option value="">Pilih</option><option value="Perbaikan" <?php echo isset($row['jenis']) && $row['jenis'] === 'Perbaikan' ? 'selected' : ''; ?>>Perbaikan</option><option value="Pencegahan" <?php echo isset($row['jenis']) && $row['jenis'] === 'Pencegahan' ? 'selected' : ''; ?>>Pencegahan</option></select></td>
+                                    <td><input class="ikp-input" name="tindakan_k3rs[<?php echo (int) $i; ?>][rencana]" maxlength="1000" value="<?php echo html_escape(isset($row['rencana']) ? $row['rencana'] : ''); ?>" /></td>
+                                    <td><input type="date" class="ikp-input" name="tindakan_k3rs[<?php echo (int) $i; ?>][target]" value="<?php echo html_escape(isset($row['target']) ? $row['target'] : ''); ?>" /></td>
+                                    <td><input class="ikp-input" name="tindakan_k3rs[<?php echo (int) $i; ?>][wewenang]" maxlength="255" value="<?php echo html_escape(isset($row['wewenang']) ? $row['wewenang'] : ''); ?>" /></td>
+                                    <td><button type="button" class="btn btn-sm btn-outline-danger k3rs-remove-row" aria-label="Hapus tindakan">&times;</button></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="k3rs-add-tindakan">Tambah Tindakan</button>
+                <small class="help">Isi jenis tindakan sebagai Perbaikan/Pencegahan dan target dengan tanggal pemenuhan.</small>
+            </div>
+
+            <div class="ikp-section">
+                <p class="ikp-section-title"><span class="ikp-dot"></span>Saksi dan Pengesahan</p>
+                <div class="ikp-row2">
+                    <div class="ikp-field">
+                        <label for="saksi_k3rs">Nama Saksi</label>
+                        <input type="text" class="ikp-input" name="saksi_k3rs" id="saksi_k3rs" maxlength="255" value="<?php echo html_escape(set_value('saksi_k3rs')); ?>" />
+                    </div>
+                    <div class="ikp-field">
+                        <label for="ketua_tim_k3rs">Ketua Tim K3RS</label>
+                        <input type="text" class="ikp-input" name="ketua_tim_k3rs" id="ketua_tim_k3rs" maxlength="255" value="<?php echo html_escape(set_value('ketua_tim_k3rs')); ?>" />
+                    </div>
+                </div>
+                <div class="ikp-field">
+                    <label for="tanggal_disusun_k3rs">Tanggal Disusun</label>
+                    <input type="date" class="ikp-input" name="tanggal_disusun_k3rs" id="tanggal_disusun_k3rs" value="<?php echo html_escape(set_value('tanggal_disusun_k3rs')); ?>" />
+                    <?php echo form_error('tanggal_disusun_k3rs', '<span class="ikp-error">', '</span>') ?>
+                </div>
+                <small class="help">Mengetahui: Direktur Rumah Sakit Airlangga Jombang.</small>
+            </div>
+        </div>
 
         <div class="ikp-actions">
             <a href="<?php echo site_url('ikp') ?>" class="ikp-btn ikp-btn-secondary">Batal</a>
@@ -538,3 +778,64 @@
         </div>
     </form>
 </div>
+<script>
+(function () {
+    var type = document.getElementById('jenis_pelaporan');
+    var ikpFields = document.getElementById('ikp-report-fields');
+    var cultureFields = document.getElementById('budaya-report-fields');
+    var violationFields = document.getElementById('pelanggaran-report-fields');
+    var k3rsFields = document.getElementById('k3rs-report-fields');
+    if (!type || !ikpFields || !cultureFields || !violationFields || !k3rsFields) return;
+
+    function updateReportType() {
+        var isCulture = type.value === 'budaya_keselamatan';
+        var isViolation = type.value === 'pelanggaran';
+        var isK3rs = type.value === 'insiden_k3rs';
+        ikpFields.style.display = (isCulture || isViolation || isK3rs) ? 'none' : '';
+        cultureFields.style.display = isCulture ? '' : 'none';
+        violationFields.style.display = isViolation ? '' : 'none';
+        k3rsFields.style.display = isK3rs ? '' : 'none';
+        Array.prototype.forEach.call(ikpFields.querySelectorAll('input, select, textarea'), function (field) {
+            field.disabled = isCulture || isViolation || isK3rs;
+        });
+        Array.prototype.forEach.call(cultureFields.querySelectorAll('input, select, textarea'), function (field) {
+            field.disabled = !isCulture;
+        });
+        Array.prototype.forEach.call(violationFields.querySelectorAll('input, select, textarea'), function (field) {
+            field.disabled = !isViolation;
+        });
+        Array.prototype.forEach.call(k3rsFields.querySelectorAll('input, select, textarea'), function (field) {
+            field.disabled = !isK3rs;
+        });
+    }
+
+    type.addEventListener('change', updateReportType);
+    updateReportType();
+
+    function addRow(tbodyId, buttonId) {
+        var tbody = document.getElementById(tbodyId);
+        var button = document.getElementById(buttonId);
+        if (!tbody || !button) return;
+        button.addEventListener('click', function () {
+            if (tbody.rows.length >= 20) return;
+            var row = tbody.rows[0].cloneNode(true);
+            var index = Date.now();
+            Array.prototype.forEach.call(row.querySelectorAll('input, select'), function (field) {
+                field.name = field.name.replace(/\[\d+\]/, '[' + index + ']');
+                field.id = '';
+                if (field.type === 'checkbox' || field.type === 'radio') field.checked = false;
+                else field.value = '';
+            });
+            tbody.appendChild(row);
+        });
+        tbody.addEventListener('click', function (event) {
+            if (event.target.classList.contains('k3rs-remove-row') && tbody.rows.length > 1) {
+                event.target.closest('tr').remove();
+            }
+        });
+    }
+
+    addRow('k3rs-korban-rows', 'k3rs-add-korban');
+    addRow('k3rs-tindakan-rows', 'k3rs-add-tindakan');
+}());
+</script>
