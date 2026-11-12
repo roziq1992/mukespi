@@ -37,19 +37,17 @@
                 </div>
             <?php else: ?>
             <form method="post" enctype="multipart/form-data" action="<?php echo site_url('surat_direktur/simpan/' . $surat->id); ?>">
-                <div id="blok_pratinjau_ttd">
-                <?php if ($signature_preview): ?>
+                <?php if ($pdf_preview): ?>
                     <div class="form-group">
-                        <label>Pratinjau dan area tanda tangan PDF</label>
+                        <label>Pratinjau PDF (hanya lihat)</label>
                         <div id="pdf_preview" data-pdf-url="<?php echo html_escape(site_url('surat_direktur/preview/' . $surat->id)); ?>" style="max-height:75vh;overflow:auto;background:#e9ecef;border:1px solid #d1d3e2;border-radius:.35rem;padding:12px;">
                             <div id="pdf_loading" class="text-muted">Memuat dokumen PDF...</div>
                             <div id="pdf_pages"></div>
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="alert alert-warning">Pratinjau dan tanda tangan hanya tersedia untuk dokumen PDF. Minta sekretaris mengunggah dokumen bernomor dalam format PDF.</div>
+                    <div class="alert alert-warning">Pratinjau hanya tersedia untuk dokumen PDF. Minta sekretaris mengunggah dokumen bernomor dalam format PDF.</div>
                 <?php endif; ?>
-                </div>
                 <div class="form-group">
                     <label for="aksi_surat">Aksi</label>
                     <select name="aksi" id="aksi_surat" class="form-control" required>
@@ -59,15 +57,6 @@
                     </select>
                     <small class="form-text text-muted">Jika surat ditandatangani, penerima disposisi tidak ditampilkan. Pilih Disposisi untuk memilih penerima, atau Tolak bila surat tidak disetujui.</small>
                     <div class="alert alert-info mt-2 mb-0 py-2"><small><strong>Info unduhan:</strong> Tanda Tangani &rarr; dokumen final dapat diunduh pemohon. Disposisi &rarr; dokumen final dapat diunduh penerima. Tolak &rarr; pemohon tidak dapat mengunduh dokumen final.</small></div>
-                </div>
-                <div class="form-group" id="panel_tanda_tangan">
-                    <label>Tanda tangan pada dokumen</label>
-                    <input type="hidden" name="signature_data" id="signature_data">
-                    <input type="hidden" name="signature_page" id="signature_page">
-                    <input type="hidden" name="signature_x" id="signature_x">
-                    <input type="hidden" name="signature_y" id="signature_y">
-                    <input type="hidden" name="signature_width" id="signature_width">
-                    <small class="form-text text-muted">Tanda tangan ini bersifat visual dan bukan tanda tangan elektronik tersertifikasi VIDA TTE.</small>
                 </div>
                 <div class="form-group" id="panel_verifikasi">
                     <label>QR verifikasi dokumen</label>
@@ -110,7 +99,7 @@
                 <div class="form-group" id="panel_review_berkas">
                     <label>Review berkas dari sekretaris</label>
                     <div class="d-flex flex-wrap" style="gap:8px;">
-                        <?php if ($signature_preview): ?>
+                        <?php if ($pdf_preview): ?>
                             <a class="btn btn-sm btn-outline-primary" href="<?php echo site_url('surat_direktur/preview/' . $surat->id); ?>" target="_blank" rel="noopener"><i class="fas fa-search"></i> Lihat berkas (PDF)</a>
                         <?php endif; ?>
                         <?php if ($surat->file_ber_nomor): ?>
@@ -145,24 +134,17 @@
     var action = document.getElementById('aksi_surat');
     var note = document.getElementById('catatan_disposisi');
     var recipientGroup = document.getElementById('pilihan_penerima_disposisi');
-    var signatureGroup = document.getElementById('panel_tanda_tangan');
-    var pratinjauGroup = document.getElementById('blok_pratinjau_ttd');
-    var signatureInput = document.getElementById('signature_data');
     var finalUpload = document.getElementById('unggah_dokumen_final');
     var rejectGroup = document.getElementById('panel_alasan_tolak');
     var rejectField = document.getElementById('alasan_tolak');
     var pdfPreview = document.getElementById('pdf_preview');
     var pdfPages = document.getElementById('pdf_pages');
     var pdfLoading = document.getElementById('pdf_loading');
-    var signaturePageInput = document.getElementById('signature_page');
-    var signatureXInput = document.getElementById('signature_x');
-    var signatureYInput = document.getElementById('signature_y');
-    var signatureWidthInput = document.getElementById('signature_width');
     var qrPreview = document.getElementById('qr_verifikasi_preview');
     var qrInput = document.getElementById('verification_qr');
     var verifikasiUrl = <?php echo json_encode($verifikasi_url); ?>;
     var form = action ? action.form : null;
-    if (!search || !list || !count || !empty || !summary || !toggle || !action || !note || !recipientGroup || !signatureGroup || !pratinjauGroup || !signatureInput || !finalUpload || !rejectGroup || !rejectField || !form) return;
+    if (!search || !list || !count || !empty || !summary || !toggle || !action || !note || !recipientGroup || !finalUpload || !rejectGroup || !rejectField || !form) return;
 
     function drawQrCanvas(canvas, text, size) {
         var qr = qrcode(0, 'M');
@@ -206,112 +188,6 @@
     var checkboxes = list.querySelectorAll('.ke-user-checkbox');
     var initialLimit = 6;
     var expanded = false;
-    var activeSignature = null;
-    var dragState = null;
-
-    function signatureBounds(strokes) {
-        var bounds = {left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity};
-        strokes.forEach(function (stroke) {
-            stroke.forEach(function (point) {
-                bounds.left = Math.min(bounds.left, point.x);
-                bounds.top = Math.min(bounds.top, point.y);
-                bounds.right = Math.max(bounds.right, point.x);
-                bounds.bottom = Math.max(bounds.bottom, point.y);
-            });
-        });
-        return bounds;
-    }
-
-    function paintSignature(signature) {
-        var context = signature.canvas.getContext('2d');
-        context.clearRect(0, 0, signature.canvas.width, signature.canvas.height);
-        context.lineWidth = 3;
-        context.lineCap = 'round';
-        context.lineJoin = 'round';
-        context.strokeStyle = '#111';
-        signature.strokes.forEach(function (stroke) {
-            if (!stroke.length) return;
-            context.beginPath();
-            context.moveTo(stroke[0].x, stroke[0].y);
-            stroke.slice(1).forEach(function (point) {
-                context.lineTo(point.x, point.y);
-            });
-            if (stroke.length === 1) context.lineTo(stroke[0].x + 0.1, stroke[0].y + 0.1);
-            context.stroke();
-        });
-    }
-
-    function canvasPoint(canvas, event) {
-        var bounds = canvas.getBoundingClientRect();
-        return {
-            x: (event.clientX - bounds.left) * canvas.width / bounds.width,
-            y: (event.clientY - bounds.top) * canvas.height / bounds.height
-        };
-    }
-
-    function attachSignatureCanvas(canvas, pageNumber) {
-        var signature = {canvas: canvas, pageNumber: pageNumber, strokes: []};
-        canvas.addEventListener('pointerdown', function (event) {
-            if (action.value !== 'ttd' || (activeSignature && activeSignature !== signature)) return;
-            var point = canvasPoint(canvas, event);
-            if (activeSignature === signature && signature.strokes.length) {
-                var bounds = signatureBounds(signature.strokes);
-                if (point.x >= bounds.left - 16 && point.x <= bounds.right + 16 && point.y >= bounds.top - 16 && point.y <= bounds.bottom + 16) {
-                    dragState = {point: point, dragging: true};
-                    canvas.setPointerCapture(event.pointerId);
-                    event.preventDefault();
-                    return;
-                }
-            }
-            if (activeSignature && activeSignature !== signature) return;
-            activeSignature = signature;
-            signature.strokes.push([point]);
-            dragState = {point: point, dragging: false};
-            canvas.setPointerCapture(event.pointerId);
-            paintSignature(signature);
-        });
-        canvas.addEventListener('pointermove', function (event) {
-            if (!dragState || activeSignature !== signature) return;
-            var point = canvasPoint(canvas, event);
-            if (dragState.dragging) {
-                var bounds = signatureBounds(signature.strokes);
-                var dx = point.x - dragState.point.x;
-                var dy = point.y - dragState.point.y;
-                if (bounds.left + dx < 0) dx = -bounds.left;
-                if (bounds.right + dx > canvas.width) dx = canvas.width - bounds.right;
-                if (bounds.top + dy < 0) dy = -bounds.top;
-                if (bounds.bottom + dy > canvas.height) dy = canvas.height - bounds.bottom;
-                signature.strokes.forEach(function (stroke) {
-                    stroke.forEach(function (strokePoint) {
-                        strokePoint.x += dx;
-                        strokePoint.y += dy;
-                    });
-                });
-                dragState.point = point;
-            } else {
-                signature.strokes[signature.strokes.length - 1].push(point);
-            }
-            paintSignature(signature);
-        });
-        function stopPointer() { dragState = null; }
-        canvas.addEventListener('pointerup', stopPointer);
-        canvas.addEventListener('pointercancel', stopPointer);
-    }
-
-    function clearSignatureInk() {
-        var signatureCanvases = pdfPages.querySelectorAll('.signature-ink');
-        Array.prototype.forEach.call(signatureCanvases, function (canvas) {
-            paintSignature({canvas: canvas, strokes: []});
-        });
-        activeSignature = null;
-        dragState = null;
-        signatureInput.value = '';
-        signaturePageInput.value = '';
-        signatureXInput.value = '';
-        signatureYInput.value = '';
-        signatureWidthInput.value = '';
-    }
-
     function renderPdfPreview() {
         if (!pdfPreview) return;
         if (!window.pdfjsLib) {
@@ -329,7 +205,7 @@
                     var scale = Math.min(1.5, Math.max(0.5, (pdfPreview.clientWidth - 28) / baseViewport.width));
                     var viewport = page.getViewport({scale: scale});
                     var wrapper = window.document.createElement('div');
-                    wrapper.className = 'position-relative bg-white shadow-sm mx-auto mb-3';
+                    wrapper.className = 'bg-white shadow-sm mx-auto mb-3';
                     wrapper.style.width = Math.floor(viewport.width) + 'px';
                     wrapper.style.maxWidth = '100%';
                     wrapper.setAttribute('data-page-number', page.pageNumber);
@@ -338,14 +214,7 @@
                     pageCanvas.height = Math.floor(viewport.height);
                     pageCanvas.style.cssText = 'display:block;width:100%;height:auto;';
                     wrapper.appendChild(pageCanvas);
-                    var signatureCanvas = window.document.createElement('canvas');
-                    signatureCanvas.width = pageCanvas.width;
-                    signatureCanvas.height = pageCanvas.height;
-                    signatureCanvas.className = 'signature-ink';
-                    signatureCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair;';
-                    wrapper.appendChild(signatureCanvas);
                     pdfPages.appendChild(wrapper);
-                    attachSignatureCanvas(signatureCanvas, page.pageNumber);
                     return page.render({canvasContext: pageCanvas.getContext('2d'), viewport: viewport}).promise;
                 }));
             }
@@ -393,11 +262,8 @@
         rejectField.required = isReject;
         rejectGroup.style.display = isReject ? '' : 'none';
         recipientGroup.style.display = isDisposition ? '' : 'none';
-        signatureGroup.style.display = (isDisposition || isReject) ? 'none' : '';
-        pratinjauGroup.style.display = '';
         finalUpload.style.display = isReject ? 'none' : '';
         note.previousElementSibling.textContent = isDisposition ? 'Catatan / instruksi' : (isReject ? 'Catatan (opsional)' : 'Catatan tanda tangan (opsional)');
-        if (isReject) clearSignatureInk();
     }
 
     search.addEventListener('input', function () {
@@ -413,27 +279,11 @@
     Array.prototype.forEach.call(checkboxes, function (checkbox) {
         checkbox.addEventListener('change', updateCount);
     });
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('submit', function () {
         if (action.value !== 'ttd') return;
         if (window.qrcode && qrInput && verifikasiUrl) {
             try { qrInput.value = buildQrDataUrl(verifikasiUrl, 512); } catch (e) { qrInput.value = ''; }
         }
-        if (!activeSignature || !activeSignature.strokes.length) return;
-        var bounds = signatureBounds(activeSignature.strokes);
-        var padding = 8;
-        var left = Math.max(0, Math.floor(bounds.left - padding));
-        var top = Math.max(0, Math.floor(bounds.top - padding));
-        var right = Math.min(activeSignature.canvas.width, Math.ceil(bounds.right + padding));
-        var bottom = Math.min(activeSignature.canvas.height, Math.ceil(bounds.bottom + padding));
-        var cropped = document.createElement('canvas');
-        cropped.width = Math.max(1, right - left);
-        cropped.height = Math.max(1, bottom - top);
-        cropped.getContext('2d').drawImage(activeSignature.canvas, left, top, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height);
-        signatureInput.value = cropped.toDataURL('image/png');
-        signaturePageInput.value = activeSignature.pageNumber;
-        signatureXInput.value = (left / activeSignature.canvas.width).toFixed(6);
-        signatureYInput.value = (top / activeSignature.canvas.height).toFixed(6);
-        signatureWidthInput.value = (cropped.width / activeSignature.canvas.width).toFixed(6);
     });
     renderPdfPreview();
     filterOptions();

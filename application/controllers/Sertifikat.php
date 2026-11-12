@@ -5,11 +5,58 @@ if (!defined('BASEPATH'))
 
 class Sertifikat extends CI_Controller
 {
+    protected $front_templates = array(
+        'sertifikat.jpg' => 'Template RS Airlangga',
+        'sertifikatnew1.jpg' => 'Template Pelatihan Alternatif',
+        'temp1.jpg' => 'Template Polos',
+    );
+
+    protected $back_templates = array(
+        'sertifikatbelakang.jpg' => 'Belakang Standar',
+        'sertifikatbelakang.png' => 'Belakang Alternatif',
+    );
+
     function __construct()
     {
         parent::__construct();
         $this->load->model('Sertifikat_model');
         $this->load->library('form_validation');
+    }
+
+    private function _is_valid_template_selection($selection, $defaults, $current, $side)
+    {
+        return (is_string($selection) && isset($defaults[$selection])) ||
+            ($selection === $current && $this->_resolve_template_path($selection, $side) !== FALSE);
+    }
+
+    private function _resolve_template_path($stored_path, $side)
+    {
+        $defaults = $side === 'front' ? $this->front_templates : $this->back_templates;
+        if (isset($defaults[$stored_path])) {
+            return FCPATH . 'sertifikat' . DIRECTORY_SEPARATOR . $stored_path;
+        }
+        if (!preg_match('#^uploads/sertifikat/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png)$#i', (string) $stored_path)) {
+            return FALSE;
+        }
+
+        $upload_root = realpath(FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'sertifikat');
+        $path = realpath(FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $stored_path));
+        if ($upload_root === FALSE || $path === FALSE ||
+            strpos(strtolower($path), strtolower($upload_root . DIRECTORY_SEPARATOR)) !== 0) {
+            return FALSE;
+        }
+        return $path;
+    }
+
+    private function _remove_uploaded_template($stored_path)
+    {
+        $path = $this->_resolve_template_path($stored_path, 'front');
+        if ($path === FALSE) {
+            $path = $this->_resolve_template_path($stored_path, 'back');
+        }
+        if ($path !== FALSE && is_file($path)) {
+            unlink($path);
+        }
     }
 
     public function index()
@@ -75,6 +122,11 @@ class Sertifikat extends CI_Controller
 	    'judul' => set_value('judul'),
 	    'ket' => set_value('ket'),
 	    'tanggal' => set_value('tanggal'),
+            'front_templates' => $this->front_templates,
+            'back_templates' => $this->back_templates,
+	    'selected_front' => set_value('template_depan', 'sertifikat.jpg'),
+	    'selected_back' => set_value('template_belakang', 'sertifikatbelakang.jpg'),
+	    'is_edit' => FALSE,
 	);
       
            $this->load->view('template/header', $data);
@@ -85,43 +137,104 @@ class Sertifikat extends CI_Controller
     public function create_action() 
     {
         $this->_rules();
-
         if ($this->form_validation->run() == FALSE) {
             $this->create();
-        } else {
-            $data = array(
-		'judul' => $this->input->post('judul',TRUE),
-		'ket' => $this->input->post('ket',TRUE),
-		'tanggal' => $this->input->post('tanggal',TRUE),
-	    );
-
+            return;
         }
-        $config['upload_path']          = './sertifikat/';
-    	$config['allowed_types']        = 'gif|jpg|png';
-    	$config['max_size']             = 100;
-    	$config['max_width']            = 1024;
-    	$config['max_height']           = 768;
-     
-    	$this->load->library('upload', $config);
-     
-    	if ( ! $this->upload->do_upload('file1')){
-    		$error = array('error' => $this->upload->display_errors());
-    // 		$this->load->view('v_upload', $error);
-    	}else{
-    		$data = array('upload_data' => $this->upload->data());
-    // 		$this->load->view('v_upload_sukses', $data);
-    	}
-    	if ( ! $this->upload->do_upload('file2')){
-    		$error = array('error' => $this->upload->display_errors());
-    // 		$this->load->view('v_upload', $error);
-    	}else{
-    		$data = array('upload_data' => $this->upload->data());
-    // 		$this->load->view('v_upload_sukses', $data);
-    	}
-    // 	
-            $this->Sertifikat_model->insert($data);
-            $this->session->set_flashdata('message', 'Create Record Success');
+
+        $template_front = $this->input->post('template_depan', TRUE);
+        $template_back = $this->input->post('template_belakang', TRUE);
+        if (!isset($this->front_templates[$template_front]) || !isset($this->back_templates[$template_back])) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Pilihan template tidak valid.</div>');
+            redirect(site_url('sertifikat/create'));
+            return;
+        }
+
+        $uploaded_files = array();
+        $uploaded_front = $this->_store_template_upload('file1', $uploaded_files);
+        if ($uploaded_front === FALSE) {
+            $this->_remove_uploaded_templates($uploaded_files);
+            redirect(site_url('sertifikat/create'));
+            return;
+        }
+        $uploaded_back = $this->_store_template_upload('file2', $uploaded_files);
+        if ($uploaded_back === FALSE) {
+            $this->_remove_uploaded_templates($uploaded_files);
+            redirect(site_url('sertifikat/create'));
+            return;
+        }
+
+        $data = array(
+            'judul' => $this->input->post('judul', TRUE),
+            'ket' => $this->input->post('ket', TRUE),
+            'tanggal' => $this->input->post('tanggal', TRUE),
+            'sertifikat_depan' => $uploaded_front !== NULL ? $uploaded_front : $template_front,
+            'sertifikat_belakang' => $uploaded_back !== NULL ? $uploaded_back : $template_back,
+        );
+
+        if (!$this->Sertifikat_model->insert($data)) {
+            $this->_remove_uploaded_templates($uploaded_files);
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Sertifikat gagal disimpan.</div>');
+            redirect(site_url('sertifikat/create'));
+            return;
+        }
+
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Sertifikat berhasil dibuat.</div>');
             redirect(site_url('sertifikat'));
+    }
+
+    private function _store_template_upload($field, &$uploaded_files)
+    {
+        if (!isset($_FILES[$field]) || $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
+            return NULL;
+        }
+        if ($_FILES[$field]['error'] !== UPLOAD_ERR_OK) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Unggahan template gagal. Periksa ukuran file dan konfigurasi upload PHP.</div>');
+            return FALSE;
+        }
+
+        $upload_dir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'sertifikat' . DIRECTORY_SEPARATOR;
+        if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, TRUE) && !is_dir($upload_dir)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Folder penyimpanan template tidak dapat dibuat.</div>');
+            return FALSE;
+        }
+
+        $this->load->library('upload');
+        $this->upload->initialize(array(
+            'upload_path' => $upload_dir,
+            'allowed_types' => 'jpg|jpeg|png',
+            'max_size' => 8192,
+            'max_width' => 10000,
+            'max_height' => 10000,
+            'encrypt_name' => TRUE,
+        ));
+
+        if (!$this->upload->do_upload($field)) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Template gagal diunggah: ' .
+                html_escape($this->upload->display_errors('', '')) . '</div>');
+            return FALSE;
+        }
+
+        $upload = $this->upload->data();
+        $image_info = getimagesize($upload['full_path']);
+        if ($image_info === FALSE || !in_array($image_info['mime'], array('image/jpeg', 'image/png'), TRUE)) {
+            unlink($upload['full_path']);
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">File template harus berupa gambar JPG atau PNG yang valid.</div>');
+            return FALSE;
+        }
+
+        $relative_path = 'uploads/sertifikat/' . $upload['file_name'];
+        $uploaded_files[] = FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $relative_path);
+        return $relative_path;
+    }
+
+    private function _remove_uploaded_templates($files)
+    {
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
     }
     
     public function update($id) 
@@ -129,13 +242,28 @@ class Sertifikat extends CI_Controller
         $row = $this->Sertifikat_model->get_by_id($id);
 
         if ($row) {
+            $front_value = $row->sertifikat_depan !== '' ? $row->sertifikat_depan : 'sertifikat.jpg';
+            $back_value = $row->sertifikat_belakang !== '' ? $row->sertifikat_belakang : 'sertifikatbelakang.jpg';
+            $front_templates = $this->front_templates;
+            $back_templates = $this->back_templates;
+            if (!isset($front_templates[$front_value])) {
+                $front_templates[$front_value] = 'Template yang sedang digunakan';
+            }
+            if (!isset($back_templates[$back_value])) {
+                $back_templates[$back_value] = 'Template yang sedang digunakan';
+            }
             $data = array(
                 'button' => 'Update',
                 'action' => site_url('sertifikat/update_action'),
-		'id_sertifikat' => set_value('id_sertifikat', $row->id_sertifikat),
+                'id_sertifikat' => set_value('id_sertifikat', $row->id_sertifikat),
 		'judul' => set_value('judul', $row->judul),
 		'ket' => set_value('ket', $row->ket),
 		'tanggal' => set_value('tanggal', $row->tanggal),
+                'front_templates' => $front_templates,
+                'back_templates' => $back_templates,
+                'selected_front' => $front_value,
+                'selected_back' => $back_value,
+                'is_edit' => TRUE,
 	    );
        
                $this->load->view('template/header', $data);
@@ -151,20 +279,61 @@ class Sertifikat extends CI_Controller
     public function update_action() 
     {
         $this->_rules();
-
         if ($this->form_validation->run() == FALSE) {
             $this->update($this->input->post('id_sertifikat', TRUE));
-        } else {
-            $data = array(
-		'judul' => $this->input->post('judul',TRUE),
-		'ket' => $this->input->post('ket',TRUE),
-		'tanggal' => $this->input->post('tanggal',TRUE),
-	    );
-
-            $this->Sertifikat_model->update($this->input->post('id_sertifikat', TRUE), $data);
-            $this->session->set_flashdata('message', 'Update Record Success');
-            redirect(site_url('sertifikat'));
+            return;
         }
+
+        $id = $this->input->post('id_sertifikat', TRUE);
+        $row = $this->Sertifikat_model->get_by_id($id);
+        if (!$row) {
+            show_404();
+            return;
+        }
+
+        $template_front = $this->input->post('template_depan', TRUE);
+        $template_back = $this->input->post('template_belakang', TRUE);
+        if (!$this->_is_valid_template_selection($template_front, $this->front_templates, $row->sertifikat_depan, 'front') ||
+            !$this->_is_valid_template_selection($template_back, $this->back_templates, $row->sertifikat_belakang, 'back')) {
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Pilihan template tidak valid.</div>');
+            redirect(site_url('sertifikat/update/' . $id));
+            return;
+        }
+
+        $uploaded_files = array();
+        $uploaded_front = $this->_store_template_upload('file1', $uploaded_files);
+        if ($uploaded_front === FALSE) {
+            redirect(site_url('sertifikat/update/' . $id));
+            return;
+        }
+        $uploaded_back = $this->_store_template_upload('file2', $uploaded_files);
+        if ($uploaded_back === FALSE) {
+            $this->_remove_uploaded_templates($uploaded_files);
+            redirect(site_url('sertifikat/update/' . $id));
+            return;
+        }
+
+        $data = array(
+            'judul' => $this->input->post('judul', TRUE),
+            'ket' => $this->input->post('ket', TRUE),
+            'tanggal' => $this->input->post('tanggal', TRUE),
+            'sertifikat_depan' => $uploaded_front !== NULL ? $uploaded_front : $template_front,
+            'sertifikat_belakang' => $uploaded_back !== NULL ? $uploaded_back : $template_back,
+        );
+        if (!$this->Sertifikat_model->update($id, $data)) {
+            $this->_remove_uploaded_templates($uploaded_files);
+            $this->session->set_flashdata('message', '<div class="alert alert-danger">Sertifikat gagal diperbarui.</div>');
+            redirect(site_url('sertifikat/update/' . $id));
+            return;
+        }
+
+        foreach (array($row->sertifikat_depan, $row->sertifikat_belakang) as $old_template) {
+            if ($old_template !== $data['sertifikat_depan'] && $old_template !== $data['sertifikat_belakang']) {
+                $this->_remove_uploaded_template($old_template);
+            }
+        }
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Sertifikat berhasil diperbarui.</div>');
+        redirect(site_url('sertifikat'));
     }
     
     public function delete($id) 
@@ -172,8 +341,13 @@ class Sertifikat extends CI_Controller
         $row = $this->Sertifikat_model->get_by_id($id);
 
         if ($row) {
-            $this->Sertifikat_model->delete($id);
-            $this->session->set_flashdata('message', 'Delete Record Success');
+            if ($this->Sertifikat_model->delete($id)) {
+                $this->_remove_uploaded_template($row->sertifikat_depan);
+                $this->_remove_uploaded_template($row->sertifikat_belakang);
+                $this->session->set_flashdata('message', 'Delete Record Success');
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Sertifikat gagal dihapus.</div>');
+            }
             redirect(site_url('sertifikat'));
         } else {
             $this->session->set_flashdata('message', 'Record Not Found');

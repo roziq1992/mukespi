@@ -31,7 +31,7 @@ class Surat_direktur extends CI_Controller
             'title' => 'Aksi Direktur',
             'surat' => $surat,
             'users' => $this->Surat_model->users(),
-            'signature_preview' => $this->_pdf_source($surat) !== FALSE,
+            'pdf_preview' => $this->_pdf_source($surat) !== FALSE,
             'verifikasi_url' => site_url('surat/verifikasi/' . (int) $surat->id . '/' . $kode_verifikasi),
             'lampiran' => $this->Surat_lampiran_model->by_surat($id)
         );
@@ -76,65 +76,37 @@ class Surat_direktur extends CI_Controller
             $user = $this->db->select('name')->where('id', (int) $this->session->userdata('id'))->get('users')->row();
             if (!$user) show_error('Data pengguna Direktur tidak ditemukan.', 500);
             $catatan = trim($this->input->post('catatan', TRUE));
-            $signature = $this->input->post('signature_data', FALSE);
-            $ada_tanda_tangan = is_string($signature) && strpos($signature, 'data:image/png;base64,') === 0;
             $qr_png = $this->_qr_bytes($this->input->post('verification_qr', FALSE));
             $kode_verifikasi = $this->_pastikan_kode_verifikasi($surat);
             $update = array('status' => 'Ditandatangani', 'kode_verifikasi' => $kode_verifikasi, 'updated_at' => date('Y-m-d H:i:s'));
             $sumber_final = 'dokumen bernomor';
 
-            if ($ada_tanda_tangan) {
-                $source = $this->_pdf_source($surat);
-                if ($source === FALSE) {
-                    $this->session->set_flashdata('message', 'Dokumen untuk tanda tangan harus berupa PDF. Minta sekretaris mengunggah dokumen bernomor PDF.');
-                    redirect('surat_direktur/proses/' . $id);
-                    return;
+            if (!$this->_upload_final($id, $update)) return;
+            if (!empty($update['file_final'])) {
+                $sumber_final = 'dokumen hasil TTD yang diunggah';
+                $uploaded_abs = $this->_safe_pdf_path($update['file_final']);
+                if ($uploaded_abs !== FALSE && $qr_png !== NULL) {
+                    $stamped = $this->_stamp_pdf($id, $uploaded_abs, $qr_png);
+                    if ($stamped !== FALSE) { @unlink($uploaded_abs); $update['file_final'] = $stamped; }
                 }
-                $page = (string) $this->input->post('signature_page', TRUE);
-                $signature_x = $this->input->post('signature_x', TRUE);
-                $signature_y = $this->input->post('signature_y', TRUE);
-                $signature_width = $this->input->post('signature_width', TRUE);
-                if (!ctype_digit($page) || !is_numeric($signature_x) || !is_numeric($signature_y) || !is_numeric($signature_width)
-                    || (float) $signature_x < 0 || (float) $signature_x > 1
-                    || (float) $signature_y < 0 || (float) $signature_y > 1
-                    || (float) $signature_width < 0.01 || (float) $signature_width > 0.8) {
-                    $this->session->set_flashdata('message', 'Posisi tanda tangan pada dokumen tidak valid. Silakan bubuhkan ulang tanda tangan.');
-                    redirect('surat_direktur/proses/' . $id);
-                    return;
-                }
-                $relative_path = $this->_stamp_pdf($id, $source, $signature, (int) $page, (float) $signature_x, (float) $signature_y, (float) $signature_width, $qr_png);
-                if ($relative_path === FALSE) return;
-                $update['file_final'] = $relative_path;
-                $sumber_final = 'tanda tangan pada sistem';
             } else {
-                if (!$this->_upload_final($id, $update)) return;
-                if (!empty($update['file_final'])) {
-                    $sumber_final = 'dokumen hasil TTD yang diunggah';
-                    $uploaded_abs = $this->_safe_pdf_path($update['file_final']);
-                    if ($uploaded_abs !== FALSE && $qr_png !== NULL) {
-                        $stamped = $this->_stamp_pdf($id, $uploaded_abs, NULL, 0, 0, 0, 0, $qr_png);
-                        if ($stamped !== FALSE) { @unlink($uploaded_abs); $update['file_final'] = $stamped; }
+                $source = $this->_pdf_source($surat);
+                if ($source !== FALSE && $qr_png !== NULL) {
+                    $stamped = $this->_stamp_pdf($id, $source, $qr_png);
+                    if ($stamped !== FALSE) $update['file_final'] = $stamped;
+                }
+                if (empty($update['file_final'])) {
+                    $fallback = $surat->file_ber_nomor ?: $surat->file_draft;
+                    if (!$fallback) {
+                        $this->session->set_flashdata('message', 'Tidak ada dokumen yang dapat dijadikan dokumen final. Unggah dokumen hasil TTD atau minta sekretaris mengunggah dokumen bernomor.');
+                        redirect('surat_direktur/proses/' . $id);
+                        return;
                     }
-                } else {
-                    $source = $this->_pdf_source($surat);
-                    if ($source !== FALSE && $qr_png !== NULL) {
-                        $stamped = $this->_stamp_pdf($id, $source, NULL, 0, 0, 0, 0, $qr_png);
-                        if ($stamped !== FALSE) $update['file_final'] = $stamped;
-                    }
-                    if (empty($update['file_final'])) {
-                        $fallback = $surat->file_ber_nomor ?: $surat->file_draft;
-                        if (!$fallback) {
-                            $this->session->set_flashdata('message', 'Tidak ada dokumen yang dapat dijadikan dokumen final. Unggah dokumen hasil TTD atau minta sekretaris mengunggah dokumen bernomor.');
-                            redirect('surat_direktur/proses/' . $id);
-                            return;
-                        }
-                        $update['file_final'] = $fallback;
-                    }
+                    $update['file_final'] = $fallback;
                 }
             }
 
             if (!$this->Surat_model->update($id, $update)) {
-                if ($ada_tanda_tangan && !empty($update['file_final'])) @unlink(FCPATH . $update['file_final']);
                 show_error('Status surat gagal diperbarui.', 500);
             }
             log_surat($id, 'Surat ditandatangani', 'Ditandatangani oleh ' . $user->name . ' menggunakan ' . $sumber_final . '.' . ($catatan !== '' ? ' ' . $catatan : ''));
@@ -306,37 +278,14 @@ class Surat_direktur extends CI_Controller
     }
 
     /**
-     * Buat PDF baru dari $source, tempel (opsional) tanda tangan dan (opsional) QR verifikasi.
+     * Buat PDF baru dari $source dan tempel QR verifikasi bila tersedia.
      * QR ditempel di kanan bawah halaman terakhir.
      */
-    private function _stamp_pdf($id, $source, $signature_data = NULL, $signature_page = 0, $signature_x = 0, $signature_y = 0, $signature_width = 0, $qr_png = NULL)
+    private function _stamp_pdf($id, $source, $qr_png = NULL)
     {
         $autoload = FCPATH . 'vendor/autoload.php';
         if (!is_file($autoload)) show_error('Library PDF belum tersedia. Jalankan composer install pada server aplikasi.', 500);
         require_once $autoload;
-
-        $signature_path = NULL;
-        $signature_info = NULL;
-        if ($signature_data !== NULL) {
-            $encoded_signature = substr($signature_data, strlen('data:image/png;base64,'));
-            if (strlen($encoded_signature) > 1400000) {
-                $this->session->set_flashdata('message', 'Ukuran gambar tanda tangan terlalu besar. Silakan hapus dan buat ulang tanda tangan.');
-                redirect('surat_direktur/proses/' . $id);
-                exit;
-            }
-            $signature_bytes = base64_decode($encoded_signature, TRUE);
-            $signature_info = $signature_bytes === FALSE ? FALSE : getimagesizefromstring($signature_bytes);
-            if ($signature_info === FALSE || $signature_info[2] !== IMAGETYPE_PNG || $signature_info[0] > 2000 || $signature_info[1] > 1000) {
-                $this->session->set_flashdata('message', 'Gambar tanda tangan tidak valid. Silakan buat ulang tanda tangan.');
-                redirect('surat_direktur/proses/' . $id);
-                exit;
-            }
-            $signature_path = tempnam(sys_get_temp_dir(), 'surat-ttd-');
-            if ($signature_path === FALSE || file_put_contents($signature_path, $signature_bytes) === FALSE) {
-                if ($signature_path !== FALSE && is_file($signature_path)) unlink($signature_path);
-                show_error('Gambar tanda tangan tidak dapat diproses.', 500);
-            }
-        }
 
         $qr_path = NULL;
         if ($qr_png !== NULL) {
@@ -349,7 +298,6 @@ class Surat_direktur extends CI_Controller
 
         $output_dir = FCPATH . 'uploads/surat/' . (int) $id . '/final/';
         if (!is_dir($output_dir) && !mkdir($output_dir, 0755, TRUE) && !is_dir($output_dir)) {
-            if ($signature_path !== NULL && is_file($signature_path)) unlink($signature_path);
             if ($qr_path !== NULL && is_file($qr_path)) unlink($qr_path);
             show_error('Folder penyimpanan dokumen tanda tangan tidak dapat dibuat.', 500);
         }
@@ -364,25 +312,11 @@ class Surat_direktur extends CI_Controller
             $pdf->SetAutoPageBreak(false);
             $page_count = $pdf->setSourceFile($source);
             if ($page_count < 1) throw new \RuntimeException('PDF tidak memiliki halaman.');
-            if ($signature_data !== NULL && ($signature_page < 1 || $signature_page > $page_count)) {
-                throw new \RuntimeException('Halaman tanda tangan tidak ditemukan di dokumen PDF.');
-            }
             for ($page_number = 1; $page_number <= $page_count; $page_number++) {
                 $template = $pdf->importPage($page_number);
                 $size = $pdf->getTemplateSize($template);
                 $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
                 $pdf->useTemplate($template);
-
-                if ($signature_data !== NULL && $page_number === $signature_page) {
-                    $image_width = $signature_width * $size['width'];
-                    $image_height = $image_width * $signature_info[1] / $signature_info[0];
-                    $x = $signature_x * $size['width'];
-                    $y = $signature_y * $size['height'];
-                    if ($x + $image_width > $size['width'] || $y + $image_height > $size['height']) {
-                        throw new \RuntimeException('Posisi tanda tangan keluar dari batas halaman PDF.');
-                    }
-                    $pdf->Image($signature_path, $x, $y, $image_width, $image_height, 'PNG');
-                }
 
                 if ($qr_path !== NULL && $page_number === $page_count) {
                     $qr_size = 22.0;
@@ -402,19 +336,13 @@ class Surat_direktur extends CI_Controller
             $pdf->Output('F', $output_path);
         } catch (\Throwable $error) {
             if (is_file($output_path)) unlink($output_path);
-            log_message('error', 'Gagal membuat dokumen tanda tangan surat ' . (int) $id . ': ' . $error->getMessage());
+            log_message('error', 'Gagal memproses dokumen PDF surat ' . (int) $id . ': ' . $error->getMessage());
             $processing_error = $error->getMessage();
         } finally {
-            if ($signature_path !== NULL && is_file($signature_path)) unlink($signature_path);
             if ($qr_path !== NULL && is_file($qr_path)) unlink($qr_path);
         }
 
         if ($processing_error !== NULL) {
-            if (in_array($processing_error, array('Halaman tanda tangan tidak ditemukan di dokumen PDF.', 'Posisi tanda tangan keluar dari batas halaman PDF.'), TRUE)) {
-                $this->session->set_flashdata('message', $processing_error . ' Silakan atur ulang tanda tangan.');
-                redirect('surat_direktur/proses/' . $id);
-                return FALSE;
-            }
             show_error('Dokumen PDF gagal diproses untuk tanda tangan. Pastikan PDF tidak rusak atau dilindungi kata sandi.', 500);
         }
 

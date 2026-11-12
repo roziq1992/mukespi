@@ -442,6 +442,11 @@ class Sertifikat_peserta extends CI_Controller
             show_404();
             return;
         }
+        $sertifikat = $this->db->get_where('sertifikat', array('id_sertifikat' => $peserta->id_sertifikat))->row();
+        if (!$sertifikat) {
+            show_404();
+            return;
+        }
 
         if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
             show_error('Ekstensi PHP GD harus aktif untuk membuat sertifikat PDF.', 500);
@@ -461,8 +466,8 @@ class Sertifikat_peserta extends CI_Controller
         $sertifikat_dir = FCPATH . 'sertifikat' . DIRECTORY_SEPARATOR;
         $font = $sertifikat_dir . 'OpenSans-Italic.ttf';
         $barcode_font = $sertifikat_dir . 'fre3of9x.ttf';
-        $front_template = $sertifikat_dir . 'sertifikat.jpg';
-        $back_template = $sertifikat_dir . 'sertifikatbelakang.jpg';
+        $front_template = $this->_certificate_template_path($sertifikat->sertifikat_depan, 'front');
+        $back_template = $this->_certificate_template_path($sertifikat->sertifikat_belakang, 'back');
 
         foreach (array($font, $barcode_font, $front_template, $back_template) as $file) {
             if (!is_file($file)) {
@@ -515,9 +520,100 @@ class Sertifikat_peserta extends CI_Controller
         }
     }
 
+    public function certificate_front($id)
+    {
+        $this->_output_certificate_side($id, 'front');
+    }
+
+    public function certificate_back($id)
+    {
+        $this->_output_certificate_side($id, 'back');
+    }
+
+    private function _output_certificate_side($id, $side)
+    {
+        $peserta = $this->Sertifikat_peserta_model->get_by_id($id);
+        if (!$peserta) {
+            show_404();
+            return;
+        }
+
+        $sertifikat = $this->db->get_where('sertifikat', array('id_sertifikat' => $peserta->id_sertifikat))->row();
+        if (!$sertifikat) {
+            show_404();
+            return;
+        }
+
+        if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
+            show_error('Ekstensi PHP GD harus aktif untuk membuat sertifikat.', 500);
+            return;
+        }
+
+        $sertifikat_dir = FCPATH . 'sertifikat' . DIRECTORY_SEPARATOR;
+        $template = $this->_certificate_template_path(
+            $side === 'front' ? $sertifikat->sertifikat_depan : $sertifikat->sertifikat_belakang,
+            $side
+        );
+        $font = $sertifikat_dir . 'OpenSans-Italic.ttf';
+        $barcode_font = $sertifikat_dir . 'fre3of9x.ttf';
+        foreach (array($template, $font, $barcode_font) as $file) {
+            if (!is_file($file)) {
+                show_error('Template atau font sertifikat tidak ditemukan.', 500);
+                return;
+            }
+        }
+
+        $image_path = $this->_render_certificate_side(
+            $template,
+            $font,
+            $barcode_font,
+            $peserta->nm_peserta,
+            $peserta->no_peserta,
+            $side === 'front'
+        );
+        if ($image_path === FALSE) {
+            show_error('Gambar sertifikat gagal dibuat.', 500);
+            return;
+        }
+
+        header('Content-Type: image/jpeg');
+        readfile($image_path);
+        unlink($image_path);
+        exit;
+    }
+
+    private function _certificate_template_path($stored_path, $side)
+    {
+        $defaults = $side === 'front'
+            ? array('sertifikat.jpg', 'sertifikatnew1.jpg', 'temp1.jpg')
+            : array('sertifikatbelakang.jpg', 'sertifikatbelakang.png');
+        $stored_path = trim((string) $stored_path);
+        if ($stored_path === '') {
+            $stored_path = $defaults[0];
+        }
+
+        if (in_array($stored_path, $defaults, TRUE)) {
+            return FCPATH . 'sertifikat' . DIRECTORY_SEPARATOR . $stored_path;
+        }
+
+        if (!preg_match('#^uploads/sertifikat/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png)$#i', $stored_path)) {
+            return FALSE;
+        }
+
+        $upload_root = realpath(FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'sertifikat');
+        $template_path = realpath(FCPATH . str_replace('/', DIRECTORY_SEPARATOR, $stored_path));
+        if ($upload_root === FALSE || $template_path === FALSE ||
+            strpos(strtolower($template_path), strtolower($upload_root . DIRECTORY_SEPARATOR)) !== 0) {
+            return FALSE;
+        }
+
+        return $template_path;
+    }
+
     private function _render_certificate_side($template, $font, $barcode_font, $name, $serial, $front)
     {
-        $image = imagecreatefromjpeg($template);
+        $image_data = file_get_contents($template);
+        $image = $image_data === FALSE ? FALSE : imagecreatefromstring($image_data);
         if ($image === FALSE) {
             return FALSE;
         }
@@ -530,8 +626,6 @@ class Sertifikat_peserta extends CI_Controller
             $text_width = $text_box[2] - $text_box[0];
             $x = (imagesx($image) / 2) - ($text_width / 2);
             imagettftext($image, $font_size, 0, (int) $x, 600, $black, $font, $name);
-            imagettftext($image, $font_size, 0, 720, 880, $black, $font, 'IN HOUSE TRAINING');
-            imagettftext($image, 35, 0, 800, 950, $black, $font, '30 - 31 Januari 2023');
         }
         imagettftext($image, 30, 0, 340, 70, $black, $font, 'Nomor Seri : ' . $serial);
         imagettftext($image, 100, 0, 340, 190, $black, $barcode_font, $barcode);
