@@ -249,10 +249,18 @@
     }
 </style>
 
+<?php
+$judul_pelaporan = array(
+    'ikp' => 'Form Pelaporan Insiden Keselamatan Pasien',
+    'budaya_keselamatan' => 'Form Pelaporan Budaya Keselamatan',
+    'pelanggaran' => 'Form Pelaporan Pelanggaran',
+    'insiden_k3rs' => 'Form Investigasi Kecelakaan Kerja (K3RS)',
+);
+?>
 <div class="ikp-wrap">
 
     <div class="ikp-header">
-        <h2>Form Pelaporan Kejadian</h2>
+        <h2 id="report-form-title"><?php echo html_escape($judul_pelaporan[$jenis_pelaporan]); ?></h2>
         <p>RS Airlangga Jombang</p>
     </div>
 
@@ -270,10 +278,10 @@
             <div class="ikp-field">
                 <label for="jenis_pelaporan">Jenis Pelaporan <span class="req">*</span></label>
                 <select class="ikp-select" name="jenis_pelaporan" id="jenis_pelaporan" required>
-                    <option value="ikp" <?php echo $jenis_pelaporan === 'ikp' ? 'selected' : ''; ?>>Insiden Keselamatan Pasien (IKP)</option>
-                    <option value="budaya_keselamatan" <?php echo $jenis_pelaporan === 'budaya_keselamatan' ? 'selected' : ''; ?>>Budaya Keselamatan</option>
-                    <option value="pelanggaran" <?php echo $jenis_pelaporan === 'pelanggaran' ? 'selected' : ''; ?>>Laporan Pelanggaran</option>
-                    <option value="insiden_k3rs" <?php echo $jenis_pelaporan === 'insiden_k3rs' ? 'selected' : ''; ?>>Investigasi Kecelakaan Kerja (K3RS)</option>
+                    <option value="ikp" data-form-title="Formulir Laporan Insiden Sub Komite KP PMKP" <?php echo $jenis_pelaporan === 'ikp' ? 'selected' : ''; ?>>Insiden Keselamatan Pasien (IKP)</option>
+                    <option value="budaya_keselamatan" data-form-title="Pelaporan Budaya Keselamatan" <?php echo $jenis_pelaporan === 'budaya_keselamatan' ? 'selected' : ''; ?>>Budaya Keselamatan</option>
+                    <option value="pelanggaran" data-form-title="Pelaporan Pengadaun Pelanggaran" <?php echo $jenis_pelaporan === 'pelanggaran' ? 'selected' : ''; ?>>Laporan Pelanggaran</option>
+                    <option value="insiden_k3rs" data-form-title="Form Investigasi Kecelakaan Kerja (K3RS)" <?php echo $jenis_pelaporan === 'insiden_k3rs' ? 'selected' : ''; ?>>Investigasi Kecelakaan Kerja (K3RS)</option>
                 </select>
                 <?php echo form_error('jenis_pelaporan', '<span class="ikp-error">', '</span>') ?>
             </div>
@@ -334,9 +342,9 @@
                 <label for="penangung_jawab">Penanggung Biaya Pasien</label>
                 <select class="ikp-select" id="penangung_jawab" name="penangung_jawab">
                     <option <?php if($penangung_jawab=="Pribadi/Umum") { echo "selected"; } ?> value="Pribadi/Umum">Pribadi/Umum</option>
-                    <option <?php if($penangung_jawab=="ASKES Pemerintah") { echo "selected"; } ?> value="ASKES Pemerintah">ASKES Pemerintah</option>
+                    <option <?php if($penangung_jawab=="BPJS KES") { echo "selected"; } ?> value="BPJS KES">BPJS KES</option>
+                    <option <?php if($penangung_jawab=="BPJS NAKES") { echo "selected"; } ?> value="BPJS NAKES">BPJS NAKES</option>
                     <option <?php if($penangung_jawab=="Asuransi Swasta") { echo "selected"; } ?> value="Asuransi Swasta">Asuransi Swasta</option>
-                    <option <?php if($penangung_jawab=="JAMKESMAS") { echo "selected"; } ?> value="JAMKESMAS">JAMKESMAS</option>
                     <option <?php if($penangung_jawab=="Perusahaan") { echo "selected"; } ?> value="Perusahaan">Perusahaan</option>
                 </select>
             </div>
@@ -388,7 +396,10 @@
                 <label for="jns_insiden">Jenis Insiden</label>
                 <select class="ikp-select" id="jns_insiden" name="jns_insiden">
                     <option <?php if($jns_insiden=="Kejadian Nyaris Cedera / KNC (Near miss)") { echo "selected"; } ?> value="Kejadian Nyaris Cedera / KNC (Near miss)">KNC (Near miss)</option>
-                    <option <?php if($jns_insiden=="Kejadian Tidak diharapkan / KTD (Adverse Event) / Kejadian Sentinel (Sentinel Event)") { echo "selected"; } ?> value="Kejadian Tidak diharapkan / KTD (Adverse Event) / Kejadian Sentinel (Sentinel Event)">KTD / Kejadian Sentinel</option>
+                    <option <?php if($jns_insiden=="Kejadian Tidak Cedera / KTC") { echo "selected"; } ?> value="Kejadian Tidak Cedera / KTC">Kejadian Tidak Cedera / KTC</option>
+                    <option <?php if($jns_insiden=="Kejadian Potensian Cedera Spesifik / KPCS") { echo "selected"; } ?> value="Kejadian Potensian Cedera Spesifik / KPCS">Kejadian Potensian Cedera Spesifik / KPCS</option>
+                    <option <?php if($jns_insiden=="Kejadian Tidak diharapkan / KTD (Adverse Event)") { echo "selected"; } ?> value="Kejadian Tidak diharapkan / KTD (Adverse Event)">Kejadian Tidak diharapkan / KTD (Adverse Event)</option>
+                    <option <?php if($jns_insiden=="Kejadian Sentinel (Sentinel Event)") { echo "selected"; } ?> value="Kejadian Sentinel (Sentinel Event)">Kejadian Sentinel (Sentinel Event)</option>
                 </select>
             </div>
 
@@ -443,6 +454,7 @@
                     <option <?php if($insiden_terjadipd2=="Paru dan Subspesialisasinya") { echo "selected"; } ?> value="Paru dan Subspesialisasinya">Paru</option>
                     <option <?php if($insiden_terjadipd2=="Kulit & Kelamin dan Subspesialisasinya") { echo "selected"; } ?> value="Kulit & Kelamin dan Subspesialisasinya">Kulit &amp; Kelamin</option>
                     <option <?php if($insiden_terjadipd2=="Jiwa dan Subspesialisasinya") { echo "selected"; } ?> value="Jiwa dan Subspesialisasinya">Jiwa</option>
+                    <option <?php if($insiden_terjadipd2=="Rehabilitasi Medik") { echo "selected"; } ?> value="Rehabilitasi Medik">Rehabilitasi Medik</option>
                     <option <?php if($insiden_terjadipd2=="Lain-lain") { echo "selected"; } ?> value="Lain-lain">Lain-lain</option>
                 </select>
             </div>
@@ -456,7 +468,9 @@
                 <label for="akibat_insiden">Akibat Insiden</label>
                 <select class="ikp-select" id="akibat_insiden" name="akibat_insiden">
                     <option <?php if($akibat_insiden=="Kematian") { echo "selected"; } ?> value="Kematian">Kematian</option>
-                    <option <?php if($akibat_insiden=="Cedera Irreversibel/Cedera Berat Cedera Reversibel/Cedera Sedang Cedera Ringan") { echo "selected"; } ?> value="Cedera Irreversibel/Cedera Berat Cedera Reversibel/Cedera Sedang Cedera Ringan">Cedera (Berat/Sedang/Ringan)</option>
+                    <option <?php if($akibat_insiden=="Cedera Irreversibel/Cedera Berat Cedera Reversibel") { echo "selected"; } ?> value="Cedera Irreversibel/Cedera Berat Cedera Reversibel/Cedera Sedang Cedera Ringan">Cedera Irreversibel/Cedera Berat Cedera Reversibel</option>
+                    <option <?php if($akibat_insiden=="Cedera Sedang") { echo "selected"; } ?> value="Cedera Sedang">Cedera Sedang</option>
+                    <option <?php if($akibat_insiden=="Cedera Ringan") { echo "selected"; } ?> value="Cedera Ringan">Cedera Ringan</option>
                     <option <?php if($akibat_insiden=="Tidak ada cedera") { echo "selected"; } ?> value="Tidak ada cedera">Tidak Ada Cedera</option>
                 </select>
             </div>
@@ -781,6 +795,7 @@
 <script>
 (function () {
     var type = document.getElementById('jenis_pelaporan');
+    var title = document.getElementById('report-form-title');
     var ikpFields = document.getElementById('ikp-report-fields');
     var cultureFields = document.getElementById('budaya-report-fields');
     var violationFields = document.getElementById('pelanggaran-report-fields');
@@ -788,6 +803,10 @@
     if (!type || !ikpFields || !cultureFields || !violationFields || !k3rsFields) return;
 
     function updateReportType() {
+        var selectedOption = type.options[type.selectedIndex];
+        if (title && selectedOption) {
+            title.textContent = selectedOption.getAttribute('data-form-title') || 'Form Pelaporan Kejadian';
+        }
         var isCulture = type.value === 'budaya_keselamatan';
         var isViolation = type.value === 'pelanggaran';
         var isK3rs = type.value === 'insiden_k3rs';

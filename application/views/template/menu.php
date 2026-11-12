@@ -1,5 +1,81 @@
 <style>
     /* ================= SIDEBAR POLISH ================= */
+    #accordionSidebar {
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #accordionSidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    #accordionSidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, .4);
+        border-radius: 5px;
+    }
+
+    #accordionSidebar.sidebar.toggled .nav-item .collapse,
+    #accordionSidebar.sidebar.toggled .nav-item .collapsing {
+        position: static;
+        left: auto;
+        top: auto;
+        width: 100%;
+        margin: 0;
+        animation: none;
+    }
+
+    #accordionSidebar.sidebar.toggled.submenu-open {
+        width: 18rem !important;
+    }
+
+    #accordionSidebar.submenu-open .nav-item > .nav-link {
+        width: 100%;
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    #accordionSidebar.submenu-open .nav-item > .nav-link span {
+        display: inline;
+        font-size: .85rem;
+    }
+
+    #accordionSidebar.submenu-open .nav-item > .nav-link .nav-icon-badge {
+        margin: 0 10px 0 0;
+    }
+
+    #accordionSidebar.sidebar.toggled .nav-item .collapse .collapse-inner {
+        min-width: 16rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #accordionSidebar.sidebar.toggled .nav-item .collapsing {
+        display: block;
+        transition: height .35s ease;
+    }
+
+    @media (max-width: 767.98px) {
+        #accordionSidebar.submenu-open,
+        #accordionSidebar.sidebar.toggled.submenu-open {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1050;
+            width: min(18rem, 85vw) !important;
+            max-width: 85vw;
+        }
+
+        #accordionSidebar.submenu-open .nav-item .collapse .collapse-inner {
+            min-width: 0;
+            width: 100%;
+        }
+    }
+
     .nav-icon-badge {
         width: 26px;
         height: 26px;
@@ -545,20 +621,30 @@
 <script>
 window.addEventListener('load', function () {
     var $ = window.jQuery;
-    if (!$ || !$.fn.tooltip) return;
+    if (!$) return;
 
-    // Init tooltip untuk semua nav-link yang punya data-tooltip="true"
-    // trigger 'hover focus' -> muncul saat mouse hover ATAU saat elemen fokus (mis. navigasi keyboard/Tab)
-    $('[data-tooltip="true"]').tooltip({
-        placement: 'right',
-        trigger: 'hover focus',
-        boundary: 'window',
-        container: 'body'
-    });
+    var sidebar = document.getElementById('accordionSidebar');
+    if (sidebar && $.fn.collapse) {
+        var updateSubmenuState = function () {
+            var expandedLink = sidebar.querySelector('.nav-item .nav-link[data-toggle="collapse"][aria-expanded="true"]');
+            sidebar.classList.toggle('submenu-open', !!expandedLink);
+        };
+        $(sidebar)
+            .on('show.bs.collapse', '.nav-item .collapse', updateSubmenuState)
+            .on('shown.bs.collapse hidden.bs.collapse', '.nav-item .collapse', updateSubmenuState);
+    }
 
-    // Sembunyikan tooltip begitu link diklik supaya tidak nyangkut menutupi submenu
-    $('[data-tooltip="true"]').on('click', function () {
-        $(this).tooltip('hide');
-    });
+    if ($.fn.tooltip) {
+        $('[data-tooltip="true"]').tooltip({
+            placement: 'right',
+            trigger: 'hover focus',
+            boundary: 'window',
+            container: 'body'
+        });
+
+        $('[data-tooltip="true"]').on('click', function () {
+            $(this).tooltip('hide');
+        });
+    }
 });
 </script>
