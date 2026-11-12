@@ -74,6 +74,10 @@
             min-width: 0;
             width: 100%;
         }
+
+        #accordionSidebar .nav-item .collapsing {
+            transition: none;
+        }
     }
 
     .nav-icon-badge {
@@ -625,13 +629,86 @@ window.addEventListener('load', function () {
 
     var sidebar = document.getElementById('accordionSidebar');
     if (sidebar && $.fn.collapse) {
+        var pendingTargetId = null;
+        var pendingCloseId = null;
         var updateSubmenuState = function () {
-            var expandedLink = sidebar.querySelector('.nav-item .nav-link[data-toggle="collapse"][aria-expanded="true"]');
-            sidebar.classList.toggle('submenu-open', !!expandedLink);
+            sidebar.classList.toggle('submenu-open', !!sidebar.querySelector('.nav-item .collapse.show, .nav-item .collapsing'));
         };
         $(sidebar)
-            .on('show.bs.collapse', '.nav-item .collapse', updateSubmenuState)
-            .on('shown.bs.collapse hidden.bs.collapse', '.nav-item .collapse', updateSubmenuState);
+            .on('click', '.nav-item > .nav-link[data-toggle="collapse"]', function (event) {
+                if (window.innerWidth >= 768) return;
+
+                var selector = this.getAttribute('data-target');
+                var target = selector ? sidebar.querySelector(selector) : null;
+                if (!target) return;
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                if (target.classList.contains('collapsing')) {
+                    if (this.getAttribute('aria-expanded') === 'true') {
+                        pendingTargetId = null;
+                        pendingCloseId = target.id;
+                    } else {
+                        pendingTargetId = target.id;
+                        pendingCloseId = null;
+                    }
+                    return;
+                }
+
+                if (target.classList.contains('show')) {
+                    pendingTargetId = null;
+                    pendingCloseId = null;
+                    $(target).collapse('hide');
+                    return;
+                }
+
+                pendingTargetId = target.id;
+                pendingCloseId = null;
+                var openPanels = sidebar.querySelectorAll('.nav-item .collapse.show');
+                if (!openPanels.length) {
+                    var transitioningPanels = sidebar.querySelectorAll('.nav-item .collapsing');
+                    if (!transitioningPanels.length) {
+                        $(target).collapse('show');
+                    }
+                    return;
+                }
+
+                Array.prototype.forEach.call(openPanels, function (panel) {
+                    $(panel).collapse('hide');
+                });
+            })
+            .on('show.bs.collapse', '.nav-item .collapse', function () {
+                sidebar.classList.add('submenu-open');
+            })
+            .on('shown.bs.collapse', '.nav-item .collapse', function () {
+                if (pendingCloseId === this.id) {
+                    pendingCloseId = null;
+                    $(this).collapse('hide');
+                    return;
+                }
+                if (pendingTargetId && pendingTargetId !== this.id) {
+                    $(this).collapse('hide');
+                    return;
+                }
+                updateSubmenuState();
+            })
+            .on('hidden.bs.collapse', '.nav-item .collapse', function () {
+                var nextId = pendingTargetId;
+                if (nextId) {
+                    var remainingPanels = sidebar.querySelectorAll('.nav-item .collapse.show, .nav-item .collapsing');
+                    var hasOtherPanel = false;
+                    Array.prototype.forEach.call(remainingPanels, function (panel) {
+                        if (panel.id !== nextId) hasOtherPanel = true;
+                    });
+                    if (!hasOtherPanel) {
+                        pendingTargetId = null;
+                        var nextPanel = document.getElementById(nextId);
+                        if (nextPanel) $(nextPanel).collapse('show');
+                    }
+                }
+                updateSubmenuState();
+            });
     }
 
     if ($.fn.tooltip) {
