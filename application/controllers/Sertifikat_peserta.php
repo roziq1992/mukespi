@@ -456,7 +456,6 @@ class Sertifikat_peserta extends CI_Controller
             show_error('Library PDF belum tersedia.', 500);
             return;
         }
-
         require_once FCPATH . 'vendor/autoload.php';
         if (!class_exists('FPDF')) {
             show_error('Library FPDF tidak dapat dimuat.', 500);
@@ -518,6 +517,130 @@ class Sertifikat_peserta extends CI_Controller
             @unlink($front_path);
             @unlink($back_path);
         }
+    }
+
+    public function download_all_pdf()
+    {
+        $id_sertifikat = $this->input->get('id_sertifikat', TRUE);
+        if (!is_string($id_sertifikat) || !ctype_digit($id_sertifikat) || (int) $id_sertifikat < 1) {
+            show_error('Sertifikat tidak valid.', 400);
+            return;
+        }
+
+        $sertifikat = $this->db->get_where('sertifikat', array('id_sertifikat' => (int) $id_sertifikat))->row();
+        if (!$sertifikat) {
+            show_404();
+            return;
+        }
+        $peserta_list = $this->Sertifikat_peserta_model->get_allfilter((int) $id_sertifikat);
+        if (empty($peserta_list)) {
+            show_error('Belum ada peserta pada sertifikat ini.', 404);
+            return;
+        }
+
+        if (!extension_loaded('gd') || !function_exists('imagecreatefromjpeg')) {
+            show_error('Ekstensi PHP GD harus aktif untuk membuat sertifikat PDF.', 500);
+            return;
+        }
+        if (!is_file(FCPATH . 'vendor/autoload.php')) {
+            show_error('Library PDF belum tersedia.', 500);
+            return;
+        }
+        require_once FCPATH . 'vendor/autoload.php';
+        if (!class_exists('FPDF')) {
+            show_error('Library FPDF tidak dapat dimuat.', 500);
+            return;
+        }
+        $this->load->library('zip');
+        $this->zip->clear_data();
+
+        $sertifikat_dir = FCPATH . 'sertifikat' . DIRECTORY_SEPARATOR;
+        $font = $sertifikat_dir . 'OpenSans-Italic.ttf';
+        $barcode_font = $sertifikat_dir . 'fre3of9x.ttf';
+        $front_template = $this->_certificate_template_path($sertifikat->sertifikat_depan, 'front');
+        $back_template = $this->_certificate_template_path($sertifikat->sertifikat_belakang, 'back');
+        foreach (array($font, $barcode_font, $front_template, $back_template) as $file) {
+            if (!is_file($file)) {
+                show_error('Template atau font sertifikat tidak ditemukan.', 500);
+                return;
+            }
+        }
+
+        $temporary_images = array();
+        $processing_error = NULL;
+        $zip_contents = FALSE;
+        try {
+            foreach ($peserta_list as $peserta) {
+                $front_path = $this->_render_certificate_side(
+                    $front_template,
+                    $font,
+                    $barcode_font,
+                    $peserta->nm_peserta,
+                    $peserta->no_peserta,
+                    TRUE
+                );
+                if ($front_path === FALSE) {
+                    throw new \RuntimeException('Sertifikat depan gagal dibuat untuk peserta ' . $peserta->nm_peserta . '.');
+                }
+                $temporary_images[] = $front_path;
+
+                $back_path = $this->_render_certificate_side(
+                    $back_template,
+                    $font,
+                    $barcode_font,
+                    $peserta->nm_peserta,
+                    $peserta->no_peserta,
+                    FALSE
+                );
+                if ($back_path === FALSE) {
+                    throw new \RuntimeException('Sertifikat belakang gagal dibuat untuk peserta ' . $peserta->nm_peserta . '.');
+                }
+                $temporary_images[] = $back_path;
+
+                $pdf = new FPDF('L', 'mm', 'A4');
+                $pdf->SetMargins(0, 0, 0);
+                $pdf->SetAutoPageBreak(FALSE);
+                foreach (array($front_path, $back_path) as $image_path) {
+                    $pdf->AddPage('L', 'A4');
+                    $pdf->Image($image_path, 0, 0, 297, 210, 'JPG');
+                }
+
+                $pdf_contents = $pdf->Output('S');
+                $serial = preg_replace('/[^A-Za-z0-9_-]+/', '_', $peserta->no_peserta);
+                $serial = trim($serial, '_');
+                if ($serial === '') {
+                    $serial = 'peserta';
+                }
+                $filename = 'sertifikat_' . $serial . '_' . (int) $peserta->id_peserta . '.pdf';
+                $this->zip->add_data($filename, $pdf_contents);
+            }
+            $zip_contents = $this->zip->get_zip();
+            if ($zip_contents === FALSE) throw new \RuntimeException('File ZIP tidak berisi PDF sertifikat.');
+        } catch (\Throwable $error) {
+            log_message('error', 'Gagal membuat PDF sertifikat peserta massal ' . (int) $id_sertifikat . ': ' . $error->getMessage());
+            $processing_error = $error->getMessage();
+        } finally {
+            foreach ($temporary_images as $image_path) {
+                if (is_file($image_path)) {
+                    @unlink($image_path);
+                }
+            }
+        }
+
+        if ($processing_error !== NULL) {
+            show_error('PDF sertifikat seluruh peserta gagal dibuat. Silakan periksa log aplikasi.', 500);
+        }
+
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="sertifikat_semua_' . (int) $id_sertifikat . '.zip"');
+        header('Content-Length: ' . strlen($zip_contents));
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('X-Content-Type-Options: nosniff');
+        echo $zip_contents;
+        exit;
     }
 
     public function certificate_front($id)

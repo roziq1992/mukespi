@@ -38,6 +38,10 @@ $tanggal = date("Y-m-d");
                 <?php echo anchor(site_url('sertifikat_peserta/create?id_sertifikat='.$this->input->get('id_sertifikat')),'Tambah', 'class="btn btn-primary"'); ?>
                                 <?php echo anchor(site_url('sertifikat_peserta/export_csv?id_sertifikat='.$this->input->get('id_sertifikat')), 'Export CSV', 'class="btn btn-success"'); ?>
                                 <?php echo anchor(site_url('sertifikat_peserta/template_csv?id_sertifikat='.$this->input->get('id_sertifikat')), 'Template CSV', 'class="btn btn-info"'); ?>
+                                <?php $id_sertifikat = $this->input->get('id_sertifikat', TRUE); ?>
+                                <?php if (is_string($id_sertifikat) && ctype_digit($id_sertifikat) && (int) $id_sertifikat > 0): ?>
+                                    <?php echo anchor(site_url('sertifikat_peserta/download_all_pdf?id_sertifikat=' . rawurlencode($id_sertifikat)), 'Download Semua PDF 2 Sisi (ZIP)', 'class="btn btn-sm btn-success"'); ?>
+                                <?php endif; ?>
                                 <form action="<?php echo site_url('sertifikat_peserta/import_csv'); ?>" method="post" enctype="multipart/form-data" class="form-inline" style="margin-top: 10px">
                                     <input type="hidden" name="id_sertifikat" value="<?php echo html_escape($this->input->get('id_sertifikat')); ?>">
                                     <input type="file" name="berkas" accept=".csv,.txt" required>
