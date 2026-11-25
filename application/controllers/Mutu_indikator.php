@@ -205,9 +205,11 @@ class Mutu_indikator extends CI_Controller
         return is_string($value) && preg_match('/^\d+$/', $value) && filter_var($value, FILTER_VALIDATE_INT) !== FALSE;
     }
     
-    public function update() 
+    public function update($id = NULL)
     {
-        $id=$this->input->get('idmutu',TRUE);
+        if ($id === NULL) {
+            $id = $this->input->get('idmutu', TRUE);
+        }
         $row = $this->Mutu_indikator_model->get_by_id($id);
 
         if ($row) {
@@ -219,6 +221,7 @@ class Mutu_indikator extends CI_Controller
 		'id_indikator' => set_value('id_indikator', $row->id_indikator),
 		'num' => set_value('num', $row->num),
 		'demu' => set_value('demu', $row->demu),
+		'target' => set_value('target', $row->target),
 	    );
 	     $this->load->view('template/header',$data);
          $this->load->view('mutu_indikator/mutu_indikator_form', $data);
@@ -241,6 +244,7 @@ class Mutu_indikator extends CI_Controller
 		'id_indikator' => $this->input->post('id_indikator',TRUE),
 		'num' => $this->input->post('num',TRUE),
 		'demu' => $this->input->post('demu',TRUE),
+		'target' => $this->input->post('target',TRUE),
 	    );
 
             $this->Mutu_indikator_model->update($this->input->post('id_mutu', TRUE), $data);
@@ -375,6 +379,7 @@ class Mutu_indikator extends CI_Controller
 	$this->form_validation->set_rules('id_indikator', 'id indikator', 'trim|required');
 	$this->form_validation->set_rules('num', 'num', 'trim|required|numeric');
 	$this->form_validation->set_rules('demu', 'demu', 'trim|required|numeric');
+	$this->form_validation->set_rules('target', 'target', 'trim|required|numeric');
 
 	$this->form_validation->set_rules('id_mutu', 'id_mutu', 'trim');
 	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');

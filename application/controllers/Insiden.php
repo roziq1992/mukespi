@@ -188,10 +188,14 @@ class insiden extends CI_Controller
                 'created_at' => date('Y-m-d H:i:s'),
             ));
             if (!$saved) {
-                show_error('Laporan budaya keselamatan gagal disimpan.', 500);
+                $this->session->set_flashdata('save_error', 'Laporan budaya keselamatan gagal disimpan. Silakan coba kembali.');
+                redirect(site_url('insiden/create?jenis_pelaporan=budaya_keselamatan'));
                 return;
             }
-            $this->session->set_flashdata('message', 'Laporan budaya keselamatan berhasil dikirim.');
+            $this->session->set_flashdata('success_notification', array(
+                'title' => 'Terima kasih atas kepedulian Anda',
+                'message' => 'Laporan budaya keselamatan telah berhasil dikirim. Masukan Anda sangat berarti untuk membangun budaya kerja yang lebih aman, terbuka, dan saling mendukung.',
+            ));
             redirect(site_url('insiden/create?jenis_pelaporan=budaya_keselamatan'));
             return;
         }
@@ -212,10 +216,14 @@ class insiden extends CI_Controller
                 'created_at' => date('Y-m-d H:i:s'),
             ));
             if (!$saved) {
-                show_error('Laporan pelanggaran gagal disimpan.', 500);
+                $this->session->set_flashdata('save_error', 'Laporan pelanggaran gagal disimpan. Silakan coba kembali.');
+                redirect(site_url('insiden/create?jenis_pelaporan=pelanggaran'));
                 return;
             }
-            $this->session->set_flashdata('message', 'Laporan pelanggaran berhasil dikirim.');
+            $this->session->set_flashdata('success_notification', array(
+                'title' => 'Laporan pelanggaran diterima',
+                'message' => 'Terima kasih telah berani menyampaikan informasi pelanggaran. Laporan Anda telah tersimpan dan akan menjadi bahan evaluasi untuk meningkatkan kepatuhan serta keselamatan di rumah sakit.',
+            ));
             redirect(site_url('insiden/create?jenis_pelaporan=pelanggaran'));
             return;
         }
@@ -274,10 +282,14 @@ class insiden extends CI_Controller
                 'created_at' => date('Y-m-d H:i:s'),
             ), $korban, $tindakan);
             if (!$saved) {
-                show_error('Laporan insiden K3RS gagal disimpan.', 500);
+                $this->session->set_flashdata('save_error', 'Laporan insiden K3RS gagal disimpan. Silakan coba kembali.');
+                redirect(site_url('insiden/create?jenis_pelaporan=insiden_k3rs'));
                 return;
             }
-            $this->session->set_flashdata('message', 'Laporan insiden K3RS berhasil dikirim.');
+            $this->session->set_flashdata('success_notification', array(
+                'title' => 'Laporan insiden K3RS telah diterima',
+                'message' => 'Terima kasih telah melaporkan dan mengisi investigasi insiden K3RS secara lengkap. Informasi Anda sangat berharga untuk mencegah kejadian serupa di kemudian hari.',
+            ));
             redirect(site_url('insiden/create?jenis_pelaporan=insiden_k3rs'));
             return;
         }
@@ -297,6 +309,7 @@ class insiden extends CI_Controller
 		'nm_pasien' => $this->input->post('nm_pasien',TRUE),
 		'rm' => $this->input->post('rm',TRUE),
 		'ruang' => $this->input->post('ruang',TRUE),
+		'umur' => '',
 		'kelamin' => $this->input->post('kelamin',TRUE),
 		'penangung_jawab' => $this->input->post('penangung_jawab',TRUE),
 		'tgl_masuk' => $this->input->post('tgl_masuk',TRUE),
@@ -320,11 +333,19 @@ class insiden extends CI_Controller
 		'pelapor' => $this->input->post('pelapor',TRUE),
 		'penerima' => $this->input->post('penerima',TRUE),
 		'tgl_lapor' => $this->input->post('tgl_lapor',TRUE),
+		'jam_lapor' => date('H:i:s'),
 		'grading_resiko' => $this->input->post('grading_resiko',TRUE),
 	    );
 
-            $this->Ikp_model->insert($data);
-            $this->session->set_flashdata('message', 'Create Record Success');
+            if (!$this->Ikp_model->insert($data)) {
+                $this->session->set_flashdata('save_error', 'Laporan insiden keselamatan pasien gagal disimpan. Silakan coba kembali.');
+                redirect(site_url('insiden/create?jenis_pelaporan=ikp'));
+                return;
+            }
+            $this->session->set_flashdata('success_notification', array(
+                'title' => 'Terima kasih atas laporan Anda',
+                'message' => 'Pelaporan insiden keselamatan pasien telah berhasil dikirim. Laporan Anda telah tersimpan dan akan ditindaklanjuti sesuai prosedur untuk meningkatkan keselamatan pasien.',
+            ));
             redirect(site_url('insiden/create'));
         }
     }

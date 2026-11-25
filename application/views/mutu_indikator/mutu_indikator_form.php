@@ -9,10 +9,16 @@ where id_indikator = "'.$this->input->get('id').'"')->row();
 
 
 
-$target=$indikator->target;
 $ketnum=$indikator->ket_num;
 $ketdenum=$indikator->ket_denum;
 $ketjudul=$indikator->ket_judul;
+if (isset($target) && $target !== NULL) {
+    $target_value = $target;
+} elseif (isset($indikator) && $indikator) {
+    $target_value = $indikator->target;
+} else {
+    $target_value = '';
+}
 // $tanggal=$this->input->get('tanggal');
 ?>
  <div class="card shadow mb-4">
@@ -30,7 +36,10 @@ $ketjudul=$indikator->ket_judul;
             <input type="hidden" class="form-control" name="id_indikator" id="id_indikator" placeholder="Id Indikator" value="<?php echo $id_indikator; ?>" />
              <input type="hidden" class="form-control" name="id" value="<?php echo $this->input->get('id'); ?>">
             <input type="hidden" class="form-control" name="judul" id="judul" placeholder="" value="<?php echo $this->input->get('judul'); ?>" />
-            <input type="hidden" class="form-control" name="target" id="target" placeholder="Demu" value="<?php echo $target; ?>" required/>
+	    <div class="form-group">
+            <label for="target">Target <?php echo form_error('target') ?></label>
+            <input type="text" class="form-control" name="target" id="target" placeholder="Target" value="<?php echo $target_value; ?>" required />
+        </div>
 	    <div class="form-group">
              <label for="double">Numerator <?php echo form_error('num') ?> = <?php echo $ketnum; ?></label>
             <input type="text" class="form-control" name="num" id="num" placeholder="Num" value="<?php echo $num; ?>" />

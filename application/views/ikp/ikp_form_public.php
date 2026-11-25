@@ -1,4 +1,8 @@
 <style>
+    #content nav.navbar.navbar-expand.navbar-light.bg-white.topbar.mb-4.static-top.shadow{
+        display:none !important;
+    }
+
     :root{
         --ikp-primary:#0d6efd;
         --ikp-primary-dark:#0b5ed7;
@@ -39,15 +43,152 @@
         font-size:.8rem;
         opacity:.9;
     }
+    .ikp-banner-lapor-row{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:12px;
+    }
+    .ikp-share-button{
+        flex:0 0 44px;
+        width:44px;
+        height:44px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border:0;
+        border-radius:50%;
+        background:#16824b;
+        color:#fff;
+        font-family:inherit;
+        font-size:1rem;
+        font-weight:700;
+        cursor:pointer;
+        box-shadow:0 4px 12px rgba(22,130,75,.2);
+    }
+    .ikp-share-button:hover,
+    .ikp-share-button:focus{
+        background:#11683c;
+        color:#fff;
+        outline:3px solid rgba(22,130,75,.18);
+    }
+    /* ===== BANNER AYO BERANI LAPOR ===== */
+    .ikp-banner{
+        background:#fff;
+        border:1px solid var(--ikp-border);
+        border-radius:var(--ikp-radius);
+        padding:20px 14px 14px;
+        margin-bottom:14px;
+        box-shadow:0 2px 8px rgba(20,20,43,.05);
+    }
+    .ikp-banner-title{text-align:center;margin-bottom:14px;}
+    .ikp-banner-title .t1{
+        display:block;font-size:1.9rem;font-weight:900;
+        color:#1e2a4a;line-height:1;letter-spacing:.01em;text-transform:uppercase;
+    }
+    .ikp-banner-title .t2{
+        display:inline-block;font-size:3rem;font-weight:900;line-height:1.05;
+        color:#1f7a4d;text-transform:uppercase;padding:0 10px 2px;
+        background:linear-gradient(transparent 72%, #f0c94a 72%);
+    }
+    .ikp-banner-sub{
+        text-align:center;font-size:.85rem;font-weight:600;
+        color:#374151;margin:10px 0 16px;
+    }
+    .ikp-bn-card{
+        display:flex;gap:12px;align-items:flex-start;width:100%;
+        text-align:left;background:#f7f9fc;border:1.5px solid var(--ikp-border);
+        border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;
+        font-family:inherit;color:var(--ikp-text);
+        transition:border-color .15s ease, transform .1s ease, box-shadow .15s ease;
+    }
+    .ikp-bn-card:hover,.ikp-bn-card:focus{
+        outline:none;border-color:var(--ikp-primary);
+        box-shadow:0 0 0 3px rgba(13,110,253,.12);
+    }
+    .ikp-bn-card:active{transform:scale(.99);}
+    .ikp-bn-num{
+        flex:0 0 28px;height:28px;border-radius:50%;
+        background:#1e2a4a;color:#fff;font-size:.8rem;font-weight:800;
+        display:flex;align-items:center;justify-content:center;
+    }
+    .ikp-bn-card:nth-of-type(1) .ikp-bn-num,
+    .ikp-bn-card:nth-of-type(2) .ikp-bn-num{background:#1f7a4d;}
+    .ikp-bn-body{flex:1;min-width:0;display:block;}
+    .ikp-bn-head{
+        display:flex;align-items:center;gap:8px;
+        font-size:.9rem;font-weight:800;text-transform:uppercase;
+        color:#1e2a4a;margin-bottom:4px;
+    }
+    .ikp-bn-ico{
+        flex:0 0 26px;height:26px;border-radius:50%;
+        background:#f5c84b;color:#1e2a4a;font-size:.72rem;
+        display:flex;align-items:center;justify-content:center;
+    }
+    .ikp-bn-desc{font-size:.8rem;line-height:1.5;color:#4b5563;margin:0;}
+    .ikp-bn-ex{
+        margin-top:8px;padding:6px 10px;border-radius:8px;
+        background:#fbf3d0;font-size:.74rem;font-weight:700;color:#3a3320;
+    }
 
     #message:empty{display:none;}
-    #message{
+    #message{margin-bottom:14px;}
+    .ikp-save-error{
         margin-bottom:14px;
+        padding:14px 16px;
+        border:1px solid #f1b8b5;
+        border-left:5px solid #dc3545;
+        border-radius:12px;
+        background:#fff4f3;
+        color:#842029;
+        font-size:.82rem;
+        line-height:1.5;
+        box-shadow:0 8px 22px rgba(220,53,69,.08);
     }
-    #message .alert{
-        border-radius:10px;
-        padding:12px 14px;
-        font-size:.85rem;
+    .ikp-success-notification{
+        position:relative;
+        display:flex;
+        align-items:flex-start;
+        gap:12px;
+        margin-bottom:14px;
+        padding:16px 16px 16px 14px;
+        border:1px solid #b8e3d1;
+        border-left:5px solid #198754;
+        border-radius:12px;
+        background:linear-gradient(135deg,#f0fbf6,#ffffff);
+        box-shadow:0 8px 22px rgba(25,135,84,.12);
+        animation:ikpSuccessIn .35s ease-out;
+    }
+    .ikp-success-icon{
+        flex:0 0 42px;
+        width:42px;
+        height:42px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:50%;
+        background:#198754;
+        color:#fff;
+        font-size:20px;
+        box-shadow:0 5px 14px rgba(25,135,84,.28);
+    }
+    .ikp-success-content{flex:1;min-width:0;}
+    .ikp-success-title{
+        margin:0 0 4px;
+        color:#146c43;
+        font-size:.92rem;
+        font-weight:800;
+        line-height:1.35;
+    }
+    .ikp-success-message{
+        margin:0;
+        color:#3f5e50;
+        font-size:.82rem;
+        line-height:1.55;
+    }
+    @keyframes ikpSuccessIn{
+        from{opacity:0;transform:translateY(-8px) scale(.985);}
+        to{opacity:1;transform:translateY(0) scale(1);}
     }
 
     .ikp-section{
@@ -256,31 +397,102 @@ $judul_pelaporan = array(
     'pelanggaran' => 'Form Pelaporan Pelanggaran',
     'insiden_k3rs' => 'Form Investigasi Kecelakaan Kerja (K3RS)',
 );
+
+// Banner tampil & form disembunyikan hanya saat buka form baru
+// (bukan mode edit, bukan setelah error validasi, bukan setelah sukses simpan)
+$success_notification = $this->session->flashdata('success_notification');
+$save_error = $this->session->flashdata('save_error');
+$hide_form = empty($id_ikp)
+    && !validation_errors()
+    && empty($k3rs_errors)
+    && !is_array($success_notification)
+    && $save_error == '';
 ?>
 <div class="ikp-wrap">
 
-    <div class="ikp-header">
+    <div class="ikp-header" id="ikpHeader" style="<?php echo $hide_form ? 'display:none;' : ''; ?>">
         <h2 id="report-form-title"><?php echo html_escape($judul_pelaporan[$jenis_pelaporan]); ?></h2>
         <p>RS Airlangga Jombang</p>
     </div>
 
     <div id="message">
         <?php
-        $msg = $this->session->userdata('message');
-        if ($msg <> '') {
-            echo '<div class="alert alert-info">'.$msg.'</div>';
+        if (is_array($success_notification)) {
+            echo '<div class="ikp-success-notification" role="alert">';
+            echo '<div class="ikp-success-icon"><i class="fas fa-check"></i></div>';
+            echo '<div class="ikp-success-content">';
+            echo '<p class="ikp-success-title">'.html_escape($success_notification['title']).'</p>';
+            echo '<p class="ikp-success-message">'.html_escape($success_notification['message']).'</p>';
+            echo '</div>';
+            echo '</div>';
+        } else {
+            if ($save_error <> '') {
+                echo '<div class="ikp-save-error" role="alert"><i class="fas fa-exclamation-circle"></i> '.html_escape($save_error).'</div>';
+            }
+            $msg = $this->session->flashdata('message');
+            if ($msg <> '') {
+                echo '<div class="alert alert-info">'.html_escape($msg).'</div>';
+            }
         }
         ?>
     </div>
 
-    <form action="<?php echo $action; ?>" method="post" id="ikpForm">
+    <!-- BANNER AYO BERANI LAPOR -->
+    <div class="ikp-banner" id="ikpBanner" style="<?php echo $hide_form ? '' : 'display:none;'; ?>">
+        <div class="ikp-banner-title">
+            <span class="t1">Ayo Berani</span>
+            <div class="ikp-banner-lapor-row">
+                <span class="t2">Lapor!</span>
+                <button type="button" class="ikp-share-button" id="ikpShareButton" aria-label="Bagikan formulir pelaporan" title="Bagikan formulir pelaporan">
+                    <i class="fas fa-share-alt" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <p class="ikp-banner-sub">Bersama membangun rumah sakit yang aman dan saling menghargai.</p>
+
+        <button type="button" class="ikp-bn-card" data-type="budaya_keselamatan">
+            <span class="ikp-bn-num">1</span>
+            <span class="ikp-bn-body">
+                <span class="ikp-bn-head"><span class="ikp-bn-ico"><i class="fas fa-shield-alt"></i></span>Budaya Keselamatan</span>
+                <p class="ikp-bn-desc">Utamakan keselamatan, saling mengingatkan, dan berani menyampaikan kondisi yang berisiko. Jadikan laporan sebagai bahan belajar dan perbaikan bersama.</p>
+            </span>
+        </button>
+
+        <button type="button" class="ikp-bn-card" data-type="ikp">
+            <span class="ikp-bn-num">2</span>
+            <span class="ikp-bn-body">
+                <span class="ikp-bn-head"><span class="ikp-bn-ico"><i class="fas fa-heartbeat"></i></span>Insiden Keselamatan Pasien</span>
+                <p class="ikp-bn-desc">Laporkan kejadian yang membahayakan atau berpotensi mencederai pasien, termasuk kejadian yang hampir terjadi.</p>
+                <span class="ikp-bn-ex" style="display:block;">Pasien jatuh • Kesalahan obat • Kesalahan identifikasi</span>
+            </span>
+        </button>
+
+        <button type="button" class="ikp-bn-card" data-type="insiden_k3rs">
+            <span class="ikp-bn-num">3</span>
+            <span class="ikp-bn-body">
+                <span class="ikp-bn-head"><span class="ikp-bn-ico"><i class="fas fa-exclamation-triangle"></i></span>Insiden K3RS</span>
+                <p class="ikp-bn-desc">Laporkan kecelakaan kerja, paparan berbahaya, kejadian hampir celaka, dan kondisi kerja yang tidak aman.</p>
+                <span class="ikp-bn-ex" style="display:block;">Tertusuk jarum • Terpeleset • Paparan bahan kimia</span>
+            </span>
+        </button>
+
+        <button type="button" class="ikp-bn-card" data-type="pelanggaran">
+            <span class="ikp-bn-num">4</span>
+            <span class="ikp-bn-body">
+                <span class="ikp-bn-head"><span class="ikp-bn-ico"><i class="fas fa-comment-dots"></i></span>Pelaporan Pengaduan Pelanggaran</span>
+                <p class="ikp-bn-desc">Laporkan dugaan pelanggaran yang dilihat, diketahui, atau dialami, seperti perundungan, intimidasi, diskriminasi, pelecehan seksual, serta perilaku tidak layak yang mengganggu pelayanan.</p>
+            </span>
+        </button>
+    </div>
+
+    <form action="<?php echo $action; ?>" method="post" id="ikpForm" style="<?php echo $hide_form ? 'display:none;' : ''; ?>">
         <div class="ikp-section">
             <div class="ikp-field">
                 <label for="jenis_pelaporan">Jenis Pelaporan <span class="req">*</span></label>
                 <select class="ikp-select" name="jenis_pelaporan" id="jenis_pelaporan" required>
                     <option value="ikp" data-form-title="Formulir Laporan Insiden Sub Komite KP PMKP" <?php echo $jenis_pelaporan === 'ikp' ? 'selected' : ''; ?>>Insiden Keselamatan Pasien (IKP)</option>
                     <option value="budaya_keselamatan" data-form-title="Pelaporan Budaya Keselamatan" <?php echo $jenis_pelaporan === 'budaya_keselamatan' ? 'selected' : ''; ?>>Budaya Keselamatan</option>
-                    <option value="pelanggaran" data-form-title="Pelaporan Pengadaun Pelanggaran" <?php echo $jenis_pelaporan === 'pelanggaran' ? 'selected' : ''; ?>>Laporan Pelanggaran</option>
+                    <option value="pelanggaran" data-form-title="Pelaporan Pengaduan Pelanggaran" <?php echo $jenis_pelaporan === 'pelanggaran' ? 'selected' : ''; ?>>Laporan Pelanggaran</option>
                     <option value="insiden_k3rs" data-form-title="Form Investigasi Kecelakaan Kerja (K3RS)" <?php echo $jenis_pelaporan === 'insiden_k3rs' ? 'selected' : ''; ?>>Investigasi Kecelakaan Kerja (K3RS)</option>
                 </select>
                 <?php echo form_error('jenis_pelaporan', '<span class="ikp-error">', '</span>') ?>
@@ -662,7 +874,7 @@ $judul_pelaporan = array(
                 <div class="ikp-field">
                     <label>Peralatan Kerja</label>
                     <div class="ikp-radio-group">
-                        <?php foreach (array('Mesin', 'Material', 'Alat Berat') as $equipment): ?>
+                        <?php foreach (array('Mesin', 'Material', 'Alat Berat','Non Material') as $equipment): ?>
                             <label class="ikp-checkbox"><input type="checkbox" name="peralatan_k3rs[]" value="<?php echo html_escape($equipment); ?>" <?php echo in_array($equipment, $k3rs_equipment, TRUE) ? 'checked' : ''; ?> /> <?php echo html_escape($equipment); ?></label>
                         <?php endforeach; ?>
                     </div>
@@ -856,5 +1068,53 @@ $judul_pelaporan = array(
 
     addRow('k3rs-korban-rows', 'k3rs-add-korban');
     addRow('k3rs-tindakan-rows', 'k3rs-add-tindakan');
+}());
+
+// ===== Bagikan tautan formulir =====
+(function () {
+    var button = document.getElementById('ikpShareButton');
+    if (!button) return;
+
+    var shareData = {
+        title: 'Ayo Berani Lapor - RS Airlangga',
+        text: 'Sampaikan laporan insiden, budaya keselamatan, atau pelanggaran melalui formulir resmi RS Airlangga:',
+        url: window.location.origin + window.location.pathname
+    };
+
+    function openWhatsApp() {
+        var message = shareData.text + ' ' + shareData.url;
+        window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
+    }
+
+    button.addEventListener('click', function () {
+        if (navigator.share) {
+            navigator.share(shareData).catch(function (error) {
+                if (error.name !== 'AbortError') openWhatsApp();
+            });
+            return;
+        }
+        openWhatsApp();
+    });
+}());
+
+// ===== Banner "Ayo Berani Lapor": klik kartu -> pilih jenis laporan, tampilkan form =====
+(function () {
+    var type = document.getElementById('jenis_pelaporan');
+    var form = document.getElementById('ikpForm');
+    var banner = document.getElementById('ikpBanner');
+    var header = document.getElementById('ikpHeader');
+    var cards = document.querySelectorAll('.ikp-bn-card');
+    if (!type || !form || !banner) return;
+
+    Array.prototype.forEach.call(cards, function (card) {
+        card.addEventListener('click', function () {
+            type.value = card.getAttribute('data-type');
+            type.dispatchEvent(new Event('change'));   // update judul + field sesuai jenis
+            banner.style.display = 'none';
+            if (header) header.style.display = '';
+            form.style.display = '';
+            (header || form).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
 }());
 </script>

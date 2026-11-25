@@ -33,6 +33,30 @@
 .portal-siasset .portal-icon { background:linear-gradient(135deg,#7c3aed,#5b21b6); }
 /* E-Library - Portal Penemuan Literatur */
 .portal-elibrary .portal-icon { background:linear-gradient(135deg,#1b7a6b,#0f4f45); }
+.portal-new-link {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:44px;
+    margin:-2px 0 14px;
+    padding:10px 18px;
+    color:#fff;
+    background:linear-gradient(135deg,#dc2626,#991b1b);
+    border-radius:10px;
+    box-shadow:0 6px 16px rgba(185,28,28,.18);
+    font-size:.82rem;
+    font-weight:800;
+    letter-spacing:.02em;
+    text-decoration:none!important;
+}
+.portal-new-link i { font-size:.78rem; }
+.portal-new-link:hover {
+    color:#fff;
+    background:linear-gradient(135deg,#ef4444,#b91c1c);
+    transform:translateY(-1px);
+    box-shadow:0 8px 20px rgba(185,28,28,.24);
+}
 @media(max-width:1100px){.portal-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:650px){.portal-hero{padding:15px}.portal-hero h1{font-size:1rem}.portal-grid{grid-template-columns:1fr 1fr;gap:8px}.portal-card{min-height:120px;padding:11px}}
 @media(max-width:420px){.portal-grid{grid-template-columns:1fr}}
@@ -52,6 +76,11 @@
         <h2>Pilih layanan sistem</h2>
         <span>Akses sesuai kewenangan akun Anda</span>
     </div>
+    <a class="portal-new-link" href="<?php echo site_url('insiden/create'); ?>" target="_blank" rel="noopener noreferrer">
+        <i class="fas fa-bullhorn"></i>
+        Ayo Berani Lapor
+        <i class="fas fa-external-link-alt"></i>
+    </a>
     
     <div class="portal-grid">
         <!-- WEBSITE RSA -->
@@ -81,6 +110,14 @@
             <span class="portal-open">Buka sistem <i class="fas fa-arrow-right"></i></span>
         </a>
         <?php } ?>
+
+        <!-- PELAPORAN INSIDEN -->
+        <a class="portal-card portal-insiden" href="<?php echo site_url('insiden/create'); ?>">
+            <span class="portal-icon"><i class="fas fa-file-medical-alt"></i></span>
+            <h3>LAPOR</h3>
+            <p>Laporkan insiden pasien, budaya keselamatan, pelanggaran, atau insiden K3RS.</p>
+            <span class="portal-open">Isi pelaporan <i class="fas fa-arrow-right"></i></span>
+        </a>
 
         <?php $can_e_library = is_menu_accessible('e_library'); if ($can_e_library || $is_survior) { ?>
         <!-- E-LIBRARY -->
