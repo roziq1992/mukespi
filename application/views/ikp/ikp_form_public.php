@@ -1077,7 +1077,7 @@ $hide_form = empty($id_ikp)
 
     var shareData = {
         title: 'Ayo Berani Lapor - RS Airlangga',
-        text: 'Sampaikan laporan insiden, budaya keselamatan, atau pelanggaran melalui formulir resmi RS Airlangga:',
+        text: 'Sampaikan laporan insiden, budaya keselamatan, atau pelanggaran melalui formulir resmi RS Airlangga',
         url: window.location.origin + window.location.pathname
     };
 
